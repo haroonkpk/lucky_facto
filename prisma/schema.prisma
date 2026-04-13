@@ -1,14 +1,167 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  output   = "../src/components/lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
 }
-DATABASE_URL
+
+// ENUMS
+enum Role {
+  OWNER
+  SALESMAN
+}
+
+enum PaymentType {
+  SHOP_COLLECTION
+  FACTORY_PAYMENT
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CHEQUE
+  CASH
+}
+
+enum DealType {
+  VIA_SALESMAN
+  DIRECT_OWNER
+}
+
+// Regions model
+model Region {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  shops Shop[]
+
+  @@map("regions")
+}
+
+// Brands model
+model Brand {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  inventoryIntakes  InventoryIntake[]
+  distributions     Distribution[]
+  inventoryBalances InventoryBalance[]
+
+  @@map("brands")
+}
+
+// Users model
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      Role
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  inventoryIntakes InventoryIntake[]
+  distributions    Distribution[]
+  payments         Payment[]
+
+  @@map("users")
+}
+
+// Shops model
+model Shop {
+  id          String   @id @default(uuid())
+  name        String
+  regionId    String
+  region      Region   @relation(fields: [regionId], references: [id])
+  address     String?
+  phoneNumber String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  distributions Distribution[]
+  payments      Payment[]
+
+  @@map("shops")
+}
+
+// InventoryIntake model
+model InventoryIntake {
+  id         String   @id @default(uuid())
+  brandId    String
+  brand      Brand    @relation(fields: [brandId], references: [id])
+  quantity   Int
+  intakeDate DateTime @default(now())
+  notes      String?
+
+  recordedById String
+  recordedBy   User   @relation(fields: [recordedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("inventory_intakes")
+}
+
+// Distribution model
+model Distribution {
+  id               String   @id @default(uuid())
+  brandId          String
+  brand            Brand    @relation(fields: [brandId], references: [id])
+  quantity         Int
+  distributionDate DateTime @default(now())
+  dealType         DealType @default(VIA_SALESMAN)
+  notes            String?
+
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  recordedById String
+  recordedBy   User   @relation(fields: [recordedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("distributions")
+}
+
+// Payment model
+model Payment {
+  id            String        @id @default(uuid())
+  type          PaymentType
+  paymentMethod PaymentMethod @default(BANK_TRANSFER)
+  amount        Decimal       @db.Decimal(12, 2)
+  paymentDate   DateTime      @default(now())
+  receiptUrl    String?
+  cashNote      String?
+  dealType      DealType      @default(VIA_SALESMAN)
+
+  shopId String?
+  shop   Shop?   @relation(fields: [shopId], references: [id])
+
+  recordedById String
+  recordedBy   User   @relation(fields: [recordedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payments")
+}
+
+// InventoryBalance model
+model InventoryBalance {
+  id               String   @id @default(uuid())
+  brandId          String   @unique
+  brand            Brand    @relation(fields: [brandId], references: [id])
+  totalIntake      Int      @default(0)
+  totalDistributed Int      @default(0)
+  currentStock     Int      @default(0)
+  updatedAt        DateTime @updatedAt
+
+  @@map("inventory_balance")
+}
