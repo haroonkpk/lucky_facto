@@ -1,60 +1,28 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-
+import { useActionState } from "react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/input";
 import Link from "next/link";
 import Button from "../ui/button";
+import { loginAction } from "@/actions/auth";
+
+const initialState = { error: null };
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
-const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-
-      const userRole = data.user?.user_metadata?.role;
-
-      if (userRole === "OWNER") {
-        router.push("/owner-dashboard"); 
-      } else if (userRole === "SALESMAN") {
-        router.push("/salesman-dashboard"); 
-      } else {
-        router.push("/");
-      }
-
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [state, formAction, isPending] = useActionState(
+    loginAction,
+    initialState
+  );
 
   return (
     <div
       className={cn(
         "bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full max-w-xl mx-auto",
-        className,
+        className
       )}
       {...props}
     >
@@ -69,18 +37,17 @@ const handleLogin = async (e: React.FormEvent) => {
       </div>
 
       {/* Form Section */}
-      <form onSubmit={handleLogin}>
+      <form action={formAction}>
         <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
-          
+
           {/* Email Input */}
           <Input
             id="email"
+            name="email"
             label="Email"
             type="email"
             placeholder="m@example.com"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
@@ -94,26 +61,25 @@ const handleLogin = async (e: React.FormEvent) => {
             </Link>
             <Input
               id="password"
+              name="password"
               label="Password"
               type="password"
               required
               placeholder="******"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
               className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
           </div>
 
           {/* Error Message */}
-          {error && (
+          {state.error && (
             <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-medium">
-              {error}
+              {state.error}
             </p>
           )}
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full mt-2" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+          <Button type="submit" className="w-full mt-2" disabled={isPending}>
+            {isPending ? "Logging in..." : "Login"}
           </Button>
         </div>
       </form>
