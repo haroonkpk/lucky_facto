@@ -1,57 +1,34 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/lib/supabase/client";
 import Input from "@/components/ui/input";
 import Button from "../ui/button";
 import Select from "../ui/select";
+import { signUpAction } from "@/actions/auth";
+
+const initialState = { error: null };
 
 export function SignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [state, formAction, isPending] = useActionState(
+    signUpAction,
+    initialState,
+  );
+
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [role, setRole] = useState("SALESMAN");
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [matchError, setMatchError] = useState<string | null>(null);
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
-    setError(null);
-
+  const handleSubmit = (formData: FormData) => {
     if (password !== repeatPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
+      setMatchError("Passwords do not match");
       return;
     }
-
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/`,
-          data: {
-            full_name: fullName,
-            role: role,
-          },
-        },
-      });
-      if (error) throw error;
-      router.push("/");
-    } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
-    } finally {
-      setIsLoading(false);
-    }
+    setMatchError(null);
+    formAction(formData);
   };
 
   return (
@@ -73,26 +50,24 @@ export function SignUpForm({
       </div>
 
       {/* Form Section */}
-      <form onSubmit={handleSignUp}>
+      <form action={handleSubmit}>
         <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
-
           <Input
             id="full-name"
+            name="full-name"
             label="Full Name"
             type="text"
             placeholder="John Doe"
             required
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
           {/* Role Select */}
           <Select
             id="role"
+            name="role"
             label="Role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+            defaultValue="SALESMAN"
             options={[
               { value: "OWNER", label: "Owner" },
               { value: "SALESMAN", label: "Salesman" },
@@ -102,18 +77,18 @@ export function SignUpForm({
           {/* Email Input */}
           <Input
             id="email"
+            name="email"
             label="Email"
             type="email"
             placeholder="m@example.com"
             required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
           {/* Password Input */}
           <Input
             id="password"
+            name="password"
             label="Password"
             type="password"
             required
@@ -126,6 +101,7 @@ export function SignUpForm({
           {/* Repeat Password Input */}
           <Input
             id="repeat-password"
+            name="repeat-password"
             label="Repeat Password"
             type="password"
             required
@@ -135,18 +111,17 @@ export function SignUpForm({
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
-          {/* Error Message */}
-          {error && (
+          {/* Error Messages */}
+          {(matchError || state.error) && (
             <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-medium">
-              {error}
+              {matchError ?? state.error}
             </p>
           )}
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full mt-2" disabled={isLoading}>
-            {isLoading ? "Creating an account..." : "Sign up"}
+          <Button type="submit" className="w-full mt-2" disabled={isPending}>
+            {isPending ? "Creating an account..." : "Sign up"}
           </Button>
-
         </div>
       </form>
     </div>
