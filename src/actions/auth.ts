@@ -2,8 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { prisma } from "@/lib/prisma";
+import { Role } from "@/lib/generated/prisma/enums";
 
-// login
+// ─── Login ────────────────────────────────────────────────────────────────────
+
 type LoginState = {
   error: string | null;
 };
@@ -37,36 +41,74 @@ export async function loginAction(
   }
 }
 
-// Sign Up
-type SignUpState = {
+// Admin-Only: Register Salesman 
+export type RegisterSalesmanState = {
+  success: boolean;
   error: string | null;
 };
 
-export async function signUpAction(
-  _prevState: SignUpState,
+export async function registerSalesmanAction(
+  _prevState: RegisterSalesmanState,
   formData: FormData,
-): Promise<SignUpState> {
+): Promise<RegisterSalesmanState> {
   const fullName = formData.get("full-name") as string;
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const role = formData.get("role") as string;
 
   const supabase = await createClient();
+  const {
+    data: { user: callerUser },
+    error: sessionError,
+  } = await supabase.auth.getUser();
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: fullName,
-        role: role,
-      },
-    },
-  });
-
-  if (error) {
-    return { error: error.message };
+  if (sessionError || !callerUser) {
+    return { success: false, error: "Unauthorized: no active session." };
   }
 
-  redirect("/");
+  if (callerUser.user_metadata?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized: only Owners can register new salesmen." };
+  }
+
+  // Create the auth user via Admin API 
+  const adminClient = createAdminClient();
+  const { data: newAuthUser, error: createError } =
+    await adminClient.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,          
+      user_metadata: {
+        full_name: fullName,
+        role: "SALESMAN",
+      },
+    });
+
+  if (createError || !newAuthUser.user) {
+    return {
+      success: false,
+      error: createError?.message ?? "Failed to create auth user.",
+    };
+  }
+
+  try {
+    await prisma.user.upsert({
+      where: { id: newAuthUser.user.id },
+      update: {
+        name: fullName,
+        role: Role.SALESMAN,
+      },
+      create: {
+        id: newAuthUser.user.id,   
+        name: fullName,
+        email,
+        role: Role.SALESMAN,
+      },
+    });
+  } catch (prismaError) {
+    await adminClient.auth.admin.deleteUser(newAuthUser.user.id);
+    const message =
+      prismaError instanceof Error ? prismaError.message : "Database error.";
+    return { success: false, error: message };
+  }
+
+  return { success: true, error: null };
 }

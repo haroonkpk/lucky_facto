@@ -16,7 +16,7 @@ const ownerNavItems = [
     exact: true,
   },
   {
-    label: "Team Management",
+    label: "Salesmans",
     href: "/salesman-management",
     icon: <Users size={18} />,
   },
@@ -34,7 +34,7 @@ export default function OwnerDashboardLayout({
         items={ownerNavItems}
       />
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto pb-10 md:pb-0 md:pl-14">{children}</main>
     </div>
   );
 }

@@ -1,57 +1,64 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import Input from "@/components/ui/input";
 import Button from "../ui/button";
-import Select from "../ui/select";
-import { signUpAction } from "@/actions/auth";
+import {
+  registerSalesmanAction,
+  type RegisterSalesmanState,
+} from "@/actions/auth";
 
-const initialState = { error: null };
+const initialState: RegisterSalesmanState = { success: false, error: null };
 
-export function SignUpForm({
+export function RegisterSalesmanForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const [state, formAction, isPending] = useActionState(
-    signUpAction,
+    registerSalesmanAction,
     initialState,
   );
 
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
-  const [matchError, setMatchError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handleSubmit = (formData: FormData) => {
-    if (password !== repeatPassword) {
-      setMatchError("Passwords do not match");
-      return;
+  useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
     }
-    setMatchError(null);
-    formAction(formData);
-  };
+  }, [state.success]);
 
   return (
     <div
       className={cn(
-        "bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs max-w-2xl w-full mx-auto",
+       "bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full md:w-[clamp(16rem,35vw,32rem)]  mx-auto",
         className,
       )}
       {...props}
     >
-      {/* Header Section */}
+      {/* Header */}
       <div className="mb-[clamp(1.5rem,3vw,2rem)]">
         <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-          Sign up
+          Register Salesman
         </h2>
         <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-          Create a new account to get started
+          Add a new salesman account to the team
         </p>
       </div>
 
-      {/* Form Section */}
-      <form action={handleSubmit}>
+      {/* Success Banner */}
+      {state.success && (
+        <div className="mb-5 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
+          <span className="text-green-600 font-semibold text-sm">
+            ✓ Salesman registered successfully!
+          </span>
+        </div>
+      )}
+
+      {/* Form */}
+      <form ref={formRef} action={formAction}>
         <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
+          {/* Full Name */}
           <Input
             id="full-name"
             name="full-name"
@@ -62,68 +69,43 @@ export function SignUpForm({
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
-          {/* Role Select */}
-          <Select
-            id="role"
-            name="role"
-            label="Role"
-            defaultValue="SALESMAN"
-            options={[
-              { value: "OWNER", label: "Owner" },
-              { value: "SALESMAN", label: "Salesman" },
-            ]}
-          />
-
-          {/* Email Input */}
+          {/* Email */}
           <Input
             id="email"
             name="email"
             label="Email"
             type="email"
-            placeholder="m@example.com"
+            placeholder="salesman@example.com"
             required
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
-          {/* Password Input */}
+          {/* Temporary Password */}
           <Input
             id="password"
             name="password"
-            label="Password"
+            label="Temporary Password"
             type="password"
             required
-            placeholder="*****"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Min. 6 characters"
             className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
           />
 
-          {/* Repeat Password Input */}
-          <Input
-            id="repeat-password"
-            name="repeat-password"
-            label="Repeat Password"
-            type="password"
-            required
-            placeholder="*****"
-            value={repeatPassword}
-            onChange={(e) => setRepeatPassword(e.target.value)}
-            className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
-          />
-
-          {/* Error Messages */}
-          {(matchError || state.error) && (
+          {/* Error Message */}
+          {state.error && (
             <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-medium">
-              {matchError ?? state.error}
+              {state.error}
             </p>
           )}
 
-          {/* Submit Button */}
+          {/* Submit */}
           <Button type="submit" className="w-full mt-2" disabled={isPending}>
-            {isPending ? "Creating an account..." : "Sign up"}
+            {isPending ? "Registering..." : "Register Salesman"}
           </Button>
         </div>
       </form>
     </div>
   );
 }
+
+export { RegisterSalesmanForm as SignUpForm };
