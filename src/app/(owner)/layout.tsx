@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import {
   LayoutDashboard,
   Users,
+  Store,
 } from "lucide-react";
 import { Sidebar } from "@/components/layouts/sidebar";
 interface OwnerDashboardLayoutProps {
@@ -20,7 +21,11 @@ const ownerNavItems = [
     href: "/salesman-management",
     icon: <Users size={18} />,
   },
-  
+  {
+    label: "Shops",
+    href: "/shop-management",
+    icon: <Store size={18} />,
+  },
 ];
 
 export default function OwnerDashboardLayout({

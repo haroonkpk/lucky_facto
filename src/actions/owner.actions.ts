@@ -1,7 +1,8 @@
 "use server";
 
-import { Role } from "@/lib/generated/prisma/enums";
+import { Role, PaymentType } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -12,6 +13,17 @@ export type SalesmanWithStats = {
   isActive: boolean;
   totalSales: number;
   regions: string[];
+};
+
+export type ShopWithStats = {
+  id: string;
+  name: string;
+  address: string | null;
+  phoneNumber: string | null;
+  isActive: boolean;
+  region: string;
+  totalPayments: number;  // sum of SHOP_COLLECTION payments
+  pendingPayments: number; // sum of FACTORY_PAYMENT entries linked to shop
 };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -55,4 +67,70 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
       regions: Array.from(regionSet),
     };
   });
+}
+
+export async function getShops(): Promise<ShopWithStats[]> {
+  const shops = await prisma.shop.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      region: { select: { name: true } },
+      payments: { select: { amount: true, type: true } },
+    },
+  });
+
+  return shops.map((s) => ({
+    id: s.id,
+    name: s.name,
+    address: s.address,
+    phoneNumber: s.phoneNumber,
+    isActive: s.isActive,
+    region: s.region.name,
+    totalPayments: s.payments
+      .filter((p) => p.type === PaymentType.SHOP_COLLECTION)
+      .reduce((acc, p) => acc + Number(p.amount), 0),
+    pendingPayments: s.payments
+      .filter((p) => p.type === PaymentType.FACTORY_PAYMENT)
+      .reduce((acc, p) => acc + Number(p.amount), 0),
+  }));
+}
+
+export async function getRegions() {
+  return prisma.region.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+  });
+}
+
+export type RegisterShopState = {
+  success: boolean;
+  error: string | null;
+};
+
+export async function registerShopAction(
+  _prevState: RegisterShopState,
+  formData: FormData,
+): Promise<RegisterShopState> {
+  const name = formData.get("name") as string;
+  const regionId = formData.get("regionId") as string;
+  const phoneNumber = formData.get("phoneNumber") as string;
+  const address = formData.get("address") as string;
+
+  if (!name || !regionId) {
+    return { success: false, error: "Name and Region are required." };
+  }
+
+  try {
+    await prisma.shop.create({
+      data: {
+        name,
+        regionId,
+        phoneNumber,
+        address,
+      },
+    });
+    revalidatePath("/shop-management");
+    return { success: true, error: null };
+  } catch (error) {
+    return { success: false, error: "Failed to register shop." };
+  }
 }

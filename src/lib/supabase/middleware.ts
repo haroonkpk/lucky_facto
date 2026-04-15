@@ -27,42 +27,47 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error } = await supabase.auth.getUser()
   
   const path = request.nextUrl.pathname
   const isAuthPage = path.startsWith('/auth')
 
-  if (!user && !isAuthPage) {
+  const redirectWithCookies = (destination: string) => {
     const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+    url.pathname = destination
+    const redirectResponse = NextResponse.redirect(url)
+    
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value, { ...cookie })
+    })
+
+    return redirectResponse
+  }
+
+  if (error || !user) {
+    if (!isAuthPage) {
+      return redirectWithCookies('/auth/login')
+    }
+    return supabaseResponse
   }
 
   if (user) {
     const role = user.user_metadata?.role 
 
     if (isAuthPage) {
-      const url = request.nextUrl.clone()
-      url.pathname = role === 'OWNER' ? '/owner-dashboard' : '/salesman-dashboard'
-      return NextResponse.redirect(url)
+      return redirectWithCookies(role === 'OWNER' ? '/owner-dashboard' : '/salesman-dashboard')
     }
 
     if (path.startsWith('/owner-dashboard') && role !== 'OWNER') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/salesman-dashboard'
-      return NextResponse.redirect(url)
+      return redirectWithCookies('/salesman-dashboard')
     }
 
     if (path.startsWith('/salesman-dashboard') && role !== 'SALESMAN') {
-      const url = request.nextUrl.clone()
-      url.pathname = '/owner-dashboard'
-      return NextResponse.redirect(url)
+      return redirectWithCookies('/owner-dashboard')
     }
     
     if (path === '/') {
-        const url = request.nextUrl.clone()
-        url.pathname = role === 'OWNER' ? '/owner-dashboard' : '/salesman-dashboard'
-        return NextResponse.redirect(url)
+        return redirectWithCookies(role === 'OWNER' ? '/owner-dashboard' : '/salesman-dashboard')
     }
   }
 
