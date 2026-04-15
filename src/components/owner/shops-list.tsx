@@ -4,19 +4,10 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Store, Search, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ShopWithStats } from "@/actions/owner.actions";
+import { formatPKR, getInitials } from "@/lib/helper";
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-function formatPKR(amount: number): string {
-  if (amount >= 1_000_000) return `PKR ${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 1_000) return `PKR ${(amount / 1_000).toFixed(0)}K`;
-  return `PKR ${amount.toFixed(0)}`;
-}
 
-function getInitials(name: string): string {
-  const parts = name.trim().split(" ");
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.substring(0, 2).toUpperCase();
-}
+
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 interface ShopsListProps {
@@ -223,7 +214,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                   >
                     {shop.pendingPayments > 0
                       ? formatPKR(shop.pendingPayments)
-                      : "—"}
+                      : "0"}
                   </p>
                 </div>
               </div>
