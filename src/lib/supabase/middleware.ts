@@ -55,19 +55,19 @@ export async function updateSession(request: NextRequest) {
     const role = user.user_metadata?.role 
 
     if (isAuthPage) {
-      return redirectWithCookies(role === 'OWNER' ? '/owner-dashboard' : '/salesman-dashboard')
+      return redirectWithCookies(role === 'OWNER' ? '/owner/dashboard' : '/salesman/dashboard')
     }
 
-    if (path.startsWith('/owner-dashboard') && role !== 'OWNER') {
-      return redirectWithCookies('/salesman-dashboard')
+    if (path.startsWith('/owner') && role !== 'OWNER') {
+      return redirectWithCookies(role === 'SALESMAN' ? '/salesman/dashboard' : '/auth/login')
     }
 
-    if (path.startsWith('/salesman-dashboard') && role !== 'SALESMAN') {
-      return redirectWithCookies('/owner-dashboard')
+    if (path.startsWith('/salesman') && role !== 'SALESMAN') {
+      return redirectWithCookies(role === 'OWNER' ? '/owner/dashboard' : '/auth/login')
     }
     
     if (path === '/') {
-        return redirectWithCookies(role === 'OWNER' ? '/owner-dashboard' : '/salesman-dashboard')
+        return redirectWithCookies(role === 'OWNER' ? '/owner/dashboard' : '/salesman/dashboard')
     }
   }
 

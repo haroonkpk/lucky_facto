@@ -141,7 +141,7 @@ export async function registerShopAction(
         address,
       },
     });
-    revalidatePath("/shop-management");
+    revalidatePath("/owner/shop-management");
     return { success: true, error: null };
   } catch (error) {
     return { success: false, error: "Failed to register shop." };

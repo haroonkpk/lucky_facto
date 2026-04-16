@@ -217,7 +217,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
           ) : (
             filtered.map((shop) => (
               <Link
-                href={`/shop-detail/${shop.id}`}
+                href={`/owner/shop-detail/${shop.id}`}
                 key={shop.id}
                 className="w-full bg-white flex flex-col md:flex-row md:items-center cursor-pointer"
                 style={{

@@ -33,9 +33,9 @@ export async function loginAction(
   const userRole = data.user?.user_metadata?.role;
 
   if (userRole === "OWNER") {
-    redirect("/owner-dashboard");
+    redirect("/owner/dashboard");
   } else if (userRole === "SALESMAN") {
-    redirect("/salesman-dashboard");
+    redirect("/salesman/dashboard");
   } else {
     redirect("/");
   }

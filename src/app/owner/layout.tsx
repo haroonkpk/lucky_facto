@@ -12,18 +12,18 @@ interface OwnerDashboardLayoutProps {
 const ownerNavItems = [
   {
     label: "Overview",
-    href: "/owner-dashboard",
+    href: "/owner/dashboard",
     icon: <LayoutDashboard size={18} />,
     exact: true,
   },
   {
     label: "Salesmans",
-    href: "/salesman-management",
+    href: "/owner/salesman-management",
     icon: <Users size={18} />,
   },
   {
     label: "Shops",
-    href: "/shop-management",
+    href: "/owner/shop-management",
     icon: <Store size={18} />,
   },
 ];
