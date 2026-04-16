@@ -187,10 +187,11 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
             padding: "0 clamp(16px, 1.5vw, 20px)",
           }}
         >
-          <div className="w-[40%] pr-2">Shop Details</div>
-          <div className="w-[20%] px-1">Region</div>
-          <div className="w-[20%] px-1 text-right">Total (PKR)</div>
-          <div className="w-[20%] pl-1 text-right">Pending</div>
+          <div className="w-[35%] pr-2">Shop Details</div>
+          <div className="w-[15%] px-1">Region</div>
+          <div className="w-[16.66%] px-1 text-right">Total Billing</div>
+          <div className="w-[16.66%] px-1 text-right">Total Payments</div>
+          <div className="w-[16.66%] pl-1 text-right">Balance Owed</div>
         </div>
 
         {/* Rows */}
@@ -225,10 +226,10 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                 }}
               >
                 
-                <div className="flex items-center justify-between w-full md:w-[60%] shrink-0">
+                <div className="flex items-center justify-between w-full md:w-[50%] shrink-0">
                   {/* Shop Details */}
                   <div
-                    className="w-[70%] md:w-[66.66%] flex items-center shrink-0 pr-2 min-w-0"
+                    className="w-[70%] md:w-[70%] flex items-center shrink-0 pr-2 min-w-0"
                     style={{ gap: "clamp(8px, 1vw, 12px)" }}
                   >
                     <div
@@ -259,7 +260,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                   </div>
 
                   {/* Region */}
-                  <div className="w-[30%] md:w-[33.33%] shrink-0 px-1 text-right md:text-left min-w-0">
+                  <div className="w-[30%] md:w-[30%] shrink-0 px-1 text-right md:text-left min-w-0">
                     <span
                       className="bg-[#E0F2FE] text-[#0A2540] font-bold tracking-wide truncate inline-block max-w-full"
                       style={{
@@ -273,38 +274,48 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                   </div>
                 </div>
 
-               
-                <div className="flex items-center justify-between w-full md:w-[40%] shrink-0 pt-3 md:pt-0 mt-3 md:mt-0 border-t border-[#F1F5F9] md:border-none">
-                  {/* Total Payments */}
-                  <div className="w-1/2 shrink-0 md:px-1 text-left md:text-right min-w-0">
+                <div className="flex items-center justify-between w-full md:w-[50%] shrink-0 pt-3 md:pt-0 mt-3 md:mt-0 border-t border-[#F1F5F9] md:border-none">
+                  {/* Total Billing */}
+                  <div className="w-1/3 shrink-0 md:px-1 text-left md:text-right min-w-0">
                     <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
-                      Total Paid
+                      Total Billing
                     </p>
                     <p
-                      className="font-bold text-[#0A2540] truncate"
+                      className="font-bold text-[#1E293B] truncate"
+                      style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
+                    >
+                      {formatPKR(shop.totalBilling)}
+                    </p>
+                  </div>
+
+                  {/* Total Payments */}
+                  <div className="w-1/3 shrink-0 px-1 text-center md:text-right min-w-0">
+                    <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
+                      Total Payments
+                    </p>
+                    <p
+                      className="font-bold text-[#28A745] truncate"
                       style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
                     >
                       {formatPKR(shop.totalPayments)}
                     </p>
                   </div>
 
-                  {/* Pending Payments */}
-                  <div className="w-1/2 shrink-0 pl-1 text-right min-w-0">
+                  {/* Balance Owed */}
+                  <div className="w-1/3 shrink-0 pl-1 text-right min-w-0">
                     <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
-                      Pending
+                      Balance Owed
                     </p>
                     <p
                       className={cn(
                         "font-bold truncate",
-                        shop.pendingPayments > 0
-                          ? "text-red-500"
+                        shop.balanceOwed > 0
+                          ? "text-[#C0392B]"
                           : "text-[#94A3B8]",
                       )}
                       style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
                     >
-                      {shop.pendingPayments > 0
-                        ? formatPKR(shop.pendingPayments)
-                        : "0"}
+                      {formatPKR(Math.abs(shop.balanceOwed))}
                     </p>
                   </div>
                 </div>

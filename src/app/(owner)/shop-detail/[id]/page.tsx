@@ -15,8 +15,11 @@ export default async function ShopDetailsPage({
   if (!data) return notFound();
 
   const { shop, metrics } = data;
+
+  // todo
   const isAdvance = metrics.currentBalance < 0;
 
+  // todo
   const lastPaymentDaysAgo = 12;
 
   return (

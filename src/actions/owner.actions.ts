@@ -1,6 +1,6 @@
 "use server";
 
-import { Role, PaymentType } from "@/lib/generated/prisma/enums";
+import { Role } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
@@ -22,8 +22,9 @@ export type ShopWithStats = {
   phoneNumber: string | null;
   isActive: boolean;
   region: string;
-  totalPayments: number;  // sum of SHOP_COLLECTION payments
-  pendingPayments: number; // sum of FACTORY_PAYMENT entries linked to shop
+  totalPayments: number;
+  totalBilling: number;
+  balanceOwed: number;
 };
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
@@ -33,24 +34,33 @@ export async function getShops(): Promise<ShopWithStats[]> {
     orderBy: { createdAt: "desc" },
     include: {
       region: { select: { name: true } },
-      payments: { select: { amount: true, type: true } },
+      ledgers: { select: { amount: true, transactionType: true } },
     },
   });
 
-  return shops.map((s) => ({
-    id: s.id,
-    name: s.name,
-    address: s.address,
-    phoneNumber: s.phoneNumber,
-    isActive: s.isActive,
-    region: s.region.name,
-    totalPayments: s.payments
-      .filter((p) => p.type === PaymentType.SHOP_COLLECTION)
-      .reduce((acc, p) => acc + Number(p.amount), 0),
-    pendingPayments: s.payments
-      .filter((p) => p.type === PaymentType.FACTORY_PAYMENT)
-      .reduce((acc, p) => acc + Number(p.amount), 0),
-  }));
+  return shops.map((s) => {
+    const totalPayments = s.ledgers
+      .filter((l) => l.transactionType === "CREDIT")
+      .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+    const totalBilling = s.ledgers
+      .filter((l) => l.transactionType === "DEBIT")
+      .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+    const balanceOwed = totalBilling - totalPayments;
+
+    return {
+      id: s.id,
+      name: s.name,
+      address: s.address,
+      phoneNumber: s.phoneNumber,
+      isActive: s.isActive,
+      region: s.region.name,
+      totalPayments,
+      totalBilling,
+      balanceOwed,
+    };
+  });
 }
 
 
@@ -157,8 +167,7 @@ export async function getShopDetails(shopId: string) {
   return shop;
 }
 
-
-// ─── Data Fetching ─────────────────────────────────────────────────────────
+// get-shop-ledgre data
 export async function getShopLedgerData(shopId: string) {
   const shop = await prisma.shop.findUnique({
     where: { id: shopId },
