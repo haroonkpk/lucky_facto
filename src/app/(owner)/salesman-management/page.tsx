@@ -1,14 +1,9 @@
 import { getSalesmen } from "@/actions/owner.actions";
 import { RegisterSalesmanForm } from "@/components/auth/sign-up-form";
+import { formatPKR } from "@/lib/helper";
 import { User2 } from "lucide-react";
 import Image from "next/image";
 
-// ─── Helper ───────────────────────────────────────────────────────────────────
-function formatPKR(amount: number): string {
-  if (amount >= 1_000_000) return `PKR ${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 1_000) return `PKR ${(amount / 1_000).toFixed(0)}K`;
-  return `PKR ${amount.toFixed(0)}`;
-}
 
 // Page
 export default async function SalesmenPage() {
@@ -27,7 +22,7 @@ export default async function SalesmenPage() {
       </div>
 
       {/* Main Layout */}
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col-reverse md:flex-row gap-8">
         {/* ── LEFT ── */}
         <div className=" w-full max-w-3xl flex flex-col gap-4">
           {salesmen.length === 0

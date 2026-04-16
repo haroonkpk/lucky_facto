@@ -7,7 +7,8 @@ datasource db {
   provider = "postgresql"
 }
 
-// ENUMS
+// --- ENUMS ---
+
 enum Role {
   OWNER
   SALESMAN
@@ -16,6 +17,7 @@ enum Role {
 enum PaymentType {
   SHOP_COLLECTION
   FACTORY_PAYMENT
+  ADVANCE_PAYMENT 
 }
 
 enum PaymentMethod {
@@ -29,19 +31,23 @@ enum DealType {
   DIRECT_OWNER
 }
 
-// Regions model
+enum TransactionType {
+  CREDIT 
+  DEBIT
+}
+
+// --- MODELS ---
+
 model Region {
   id        String   @id @default(uuid())
   name      String   @unique
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
-
-  shops Shop[]
+  shops     Shop[]
 
   @@map("regions")
 }
 
-// Brands model
 model Brand {
   id        String   @id @default(uuid())
   name      String   @unique
@@ -55,7 +61,6 @@ model Brand {
   @@map("brands")
 }
 
-// Users model
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -72,7 +77,6 @@ model User {
   @@map("users")
 }
 
-// Shops model
 model Shop {
   id          String   @id @default(uuid())
   name        String
@@ -80,17 +84,20 @@ model Shop {
   region      Region   @relation(fields: [regionId], references: [id])
   address     String?
   phoneNumber String?
+  
+  currentBalance Decimal @default(0.00) @db.Decimal(12, 2)
+
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   distributions Distribution[]
   payments      Payment[]
+  ledgers       Ledger[] 
 
   @@map("shops")
 }
 
-// InventoryIntake model
 model InventoryIntake {
   id         String   @id @default(uuid())
   brandId    String
@@ -108,12 +115,15 @@ model InventoryIntake {
   @@map("inventory_intakes")
 }
 
-// Distribution model
 model Distribution {
   id               String   @id @default(uuid())
   brandId          String
   brand            Brand    @relation(fields: [brandId], references: [id])
   quantity         Int
+  
+  unitPrice        Decimal  @db.Decimal(12, 2) 
+  totalAmount      Decimal  @db.Decimal(12, 2) 
+  
   distributionDate DateTime @default(now())
   dealType         DealType @default(VIA_SALESMAN)
   notes            String?
@@ -124,13 +134,14 @@ model Distribution {
   recordedById String
   recordedBy   User   @relation(fields: [recordedById], references: [id])
 
+  ledger       Ledger?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("distributions")
 }
 
-// Payment model
 model Payment {
   id            String        @id @default(uuid())
   type          PaymentType
@@ -147,13 +158,35 @@ model Payment {
   recordedById String
   recordedBy   User   @relation(fields: [recordedById], references: [id])
 
+  ledger       Ledger?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("payments")
 }
 
-// InventoryBalance model
+// LEDGER MODEl
+model Ledger {
+  id              String          @id @default(uuid())
+  shopId          String
+  shop            Shop            @relation(fields: [shopId], references: [id])
+  
+  transactionType TransactionType
+  amount          Decimal         @db.Decimal(12, 2)
+  description     String?         
+  
+  paymentId       String?         @unique
+  payment         Payment?        @relation(fields: [paymentId], references: [id])
+  
+  distributionId  String?         @unique
+  distribution    Distribution?   @relation(fields: [distributionId], references: [id])
+
+  createdAt       DateTime        @default(now())
+
+  @@map("ledgers")
+}
+
 model InventoryBalance {
   id               String   @id @default(uuid())
   brandId          String   @unique

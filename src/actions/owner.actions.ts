@@ -28,6 +28,32 @@ export type ShopWithStats = {
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
+export async function getShops(): Promise<ShopWithStats[]> {
+  const shops = await prisma.shop.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      region: { select: { name: true } },
+      payments: { select: { amount: true, type: true } },
+    },
+  });
+
+  return shops.map((s) => ({
+    id: s.id,
+    name: s.name,
+    address: s.address,
+    phoneNumber: s.phoneNumber,
+    isActive: s.isActive,
+    region: s.region.name,
+    totalPayments: s.payments
+      .filter((p) => p.type === PaymentType.SHOP_COLLECTION)
+      .reduce((acc, p) => acc + Number(p.amount), 0),
+    pendingPayments: s.payments
+      .filter((p) => p.type === PaymentType.FACTORY_PAYMENT)
+      .reduce((acc, p) => acc + Number(p.amount), 0),
+  }));
+}
+
+
 export async function getSalesmen(): Promise<SalesmanWithStats[]> {
   const salesmen = await prisma.user.findMany({
     where: { role: Role.SALESMAN },
@@ -69,30 +95,7 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
   });
 }
 
-export async function getShops(): Promise<ShopWithStats[]> {
-  const shops = await prisma.shop.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      region: { select: { name: true } },
-      payments: { select: { amount: true, type: true } },
-    },
-  });
 
-  return shops.map((s) => ({
-    id: s.id,
-    name: s.name,
-    address: s.address,
-    phoneNumber: s.phoneNumber,
-    isActive: s.isActive,
-    region: s.region.name,
-    totalPayments: s.payments
-      .filter((p) => p.type === PaymentType.SHOP_COLLECTION)
-      .reduce((acc, p) => acc + Number(p.amount), 0),
-    pendingPayments: s.payments
-      .filter((p) => p.type === PaymentType.FACTORY_PAYMENT)
-      .reduce((acc, p) => acc + Number(p.amount), 0),
-  }));
-}
 
 export async function getRegions() {
   return prisma.region.findMany({
@@ -133,4 +136,63 @@ export async function registerShopAction(
   } catch (error) {
     return { success: false, error: "Failed to register shop." };
   }
+}
+
+
+export async function getShopDetails(shopId: string) {
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    include: {
+      region: true,
+      ledgers: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          payment: true,
+          distribution: true,
+        },
+      },
+    },
+  });
+
+  return shop;
+}
+
+
+// ─── Data Fetching ─────────────────────────────────────────────────────────
+export async function getShopLedgerData(shopId: string) {
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+    include: {
+      region: true,
+      ledgers: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          payment: true,
+          distribution: true,
+        },
+      },
+    },
+  });
+
+  if (!shop) return null;
+
+  const totalPayments = shop.ledgers
+    .filter((l) => l.transactionType === "CREDIT")
+    .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+  const totalBilling = shop.ledgers
+    .filter((l) => l.transactionType === "DEBIT")
+    .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+  const balanceOwed = totalBilling - totalPayments;
+
+  return {
+    shop,
+    metrics: {
+      currentBalance: Number(shop.currentBalance),
+      totalPayments,
+      totalBilling,
+      balanceOwed,
+    },
+  };
 }
