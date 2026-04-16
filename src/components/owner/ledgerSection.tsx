@@ -41,16 +41,19 @@ export default function LedgerSection({
 }: LedgerSectionProps) {
   return (
     <div
-      className="bg-[#E7F1F8]"
+      className="bg-[#E7F1F8] mb-8"
       style={{
-        padding: "clamp(16px, 3vw, 32px)",
         borderRadius: "clamp(12px, 2vw, 16px)",
       }}
     >
       {/* Ledger Header */}
       <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between mb-8"
-        style={{ gap: "clamp(12px, 2vw, 16px)" }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between bg-(--color-secondary-bg) mb-8"
+        style={{
+          gap: "clamp(12px, 2vw, 16px)",
+          padding: "clamp(16px, 3vw, 32px)",
+          borderRadius: "clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px) 0 0",
+        }}
       >
         <div>
           <h3
@@ -97,7 +100,10 @@ export default function LedgerSection({
       </div>
 
       {/* Ledger Table */}
-      <div className="overflow-x-auto">
+      <div
+        className="overflow-x-auto"
+        style={{ padding: "0 clamp(16px, 3vw, 32px)" }}
+      >
         <table className="w-full text-left font-medium">
           <thead
             className="text-[#94A3B8] font-bold uppercase tracking-widest border-b border-[#D9E9F3]"
@@ -206,19 +212,23 @@ export default function LedgerSection({
 
       {/* Ledger Footer (Totals) */}
       <div
-        className="flex items-center md:justify-end pt-10 mt-5 border-t border-[#D9E9F3]"
-        style={{ gap: "clamp(16px, 3vw, 48px)" }}
+        className="flex items-center md:justify-end pt-10 mt-5 border-t border-(--color-secondary-bg)"
+        style={{
+          gap: "clamp(16px, 3vw, 48px)",
+          padding: "clamp(16px, 3vw, 32px)",
+          borderRadius: "0 0 clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px)",
+        }}
       >
         <div>
           <p
             className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
+            style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
           >
             Total Payments
           </p>
           <p
             className="font-extrabold text-[#28A745] tracking-tight"
-            style={{ fontSize: "clamp(20px, 3vw, 30px)" }}
+            style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
           >
             {formatPKR(metrics.totalPayments)}
           </p>
@@ -226,13 +236,13 @@ export default function LedgerSection({
         <div>
           <p
             className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
+            style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
           >
             Total Billing
           </p>
           <p
             className="font-extrabold text-[#1E293B] tracking-tight"
-            style={{ fontSize: "clamp(20px, 3vw, 30px)" }}
+            style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
           >
             {formatPKR(metrics.totalBilling)}
           </p>
@@ -240,13 +250,13 @@ export default function LedgerSection({
         <div>
           <p
             className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
+            style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
           >
             Balance Owed
           </p>
           <p
             className="font-extrabold text-[#C0392B] tracking-tight"
-            style={{ fontSize: "clamp(20px, 3vw, 30px)" }}
+            style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
           >
             {formatPKR(Math.abs(metrics.balanceOwed))}
           </p>
