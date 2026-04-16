@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { LayoutDashboard, Users } from "lucide-react";
+import { LayoutDashboard, Users, Package, Truck } from "lucide-react";
 import { Sidebar } from "@/components/layouts/sidebar";
 
 interface SalesmanDashboardLayoutProps {
@@ -14,9 +14,14 @@ const salesmanNavItems = [
     exact: true,
   },
   {
-    label: "dummy",
-    href: "/salesman/stock",
-    icon: <Users size={18} />,
+    label: "Factory Intake",
+    href: "/salesman/factory-intake",
+    icon: <Package size={18} />,
+  },
+  {
+    label: "Distribution",
+    href: "/salesman/distribution",
+    icon: <Truck size={18} />,
   },
 ];
 

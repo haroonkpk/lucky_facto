@@ -1,0 +1,177 @@
+"use client";
+
+import { useActionState, useState, useEffect, useRef } from "react";
+import {
+  createDistributionAction,
+  ActionState,
+} from "@/actions/salesman.actions";
+import Button from "@/components/ui/button";
+import Input from "@/components/ui/input";
+import Select from "@/components/ui/select";
+import Textarea from "@/components/ui/textarea";
+
+interface DistributionFormProps {
+  brands: { id: string; name: string }[];
+  shops: { id: string; name: string }[];
+}
+
+const initialState: ActionState = {
+  success: false,
+  error: null,
+};
+
+export default function DistributionForm({
+  brands,
+  shops,
+}: DistributionFormProps) {
+  const [state, formAction, isPending] = useActionState(
+    createDistributionAction,
+    initialState,
+  );
+
+  const formRef = useRef<HTMLFormElement>(null);
+  const [quantity, setQuantity] = useState<number>(0);
+  const [unitPrice, setUnitPrice] = useState<number>(0);
+  const [total, setTotal] = useState<number>(0);
+
+  useEffect(() => {
+    setTotal(quantity * unitPrice);
+  }, [quantity, unitPrice]);
+
+  useEffect(() => {
+    if (state.success) {
+      formRef.current?.reset();
+      setQuantity(0);
+      setUnitPrice(0);
+      setTotal(0);
+    }
+  }, [state.success]);
+
+  const brandOptions = [
+    { value: "", label: "Select Brand" },
+    ...brands.map((b) => ({ value: b.id, label: b.name })),
+  ];
+
+  const shopOptions = [
+    { value: "", label: "Select Shop" },
+    ...shops.map((s) => ({ value: s.id, label: s.name })),
+  ];
+
+  return (
+    <div className="bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full mx-auto">
+      {/* Header */}
+      <div className="mb-[clamp(1.5rem,3vw,2rem)] border-b border-slate-100 pb-5">
+        <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
+          Issue Distribution
+        </h2>
+        <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
+          Authorize inventory release and update the retail shop's liability
+          ledger.
+        </p>
+      </div>
+
+      {/* Success Banner */}
+      {state.success && (
+        <div className="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
+          <span className="text-green-600 font-semibold text-sm">
+            ✓ Distribution authorized and ledger updated.
+          </span>
+        </div>
+      )}
+
+      {/* Form */}
+      <form ref={formRef} action={formAction}>
+        <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Select
+              id="shopId"
+              name="shopId"
+              label="Target Shop"
+              options={shopOptions}
+              required
+              className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+            />
+            <Select
+              id="brandId"
+              name="brandId"
+              label="Product Brand"
+              options={brandOptions}
+              required
+              className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Input
+              id="quantity"
+              name="quantity"
+              label="Release Qty"
+              type="number"
+              placeholder="0"
+              required
+              min="1"
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+            />
+            <Input
+              id="unitPrice"
+              name="unitPrice"
+              label="Unit Price"
+              type="number"
+              step="0.01"
+              placeholder="0.00"
+              required
+              onChange={(e) => setUnitPrice(Number(e.target.value))}
+              className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+            />
+            <div className="flex flex-col gap-[clamp(0.3rem,1vw,0.5rem)]">
+              <label className="text-[clamp(0.7rem,1vw,0.8rem)] font-bold text-[#475569] uppercase tracking-wide">
+                Total Amount
+              </label>
+              <div className="flex-1 bg-slate-100 rounded-md flex items-center px-4 font-bold text-slate-700 min-h-[48px]">
+                RS.{" "}
+                {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input
+              id="distributionDate"
+              name="distributionDate"
+              label="Issuance Date"
+              type="date"
+              defaultValue={new Date().toISOString().split("T")[0]}
+              required
+              className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+            />
+          </div>
+
+          <Textarea
+            id="notes"
+            name="notes"
+            label="Transaction Remarks"
+            placeholder="Driver details, vehicle number, or special terms..."
+            className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+          />
+
+          {/* Error Message */}
+          {state.error && (
+            <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-bold">
+              {state.error}
+            </p>
+          )}
+
+          {/* Submit */}
+          <Button
+            type="submit"
+            className="w-full mt-4 h-12"
+            disabled={isPending}
+          >
+            {isPending ? "Synchronizing Entries..." : "Authorize Distribution"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}

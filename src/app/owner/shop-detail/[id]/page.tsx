@@ -129,7 +129,7 @@ export default async function ShopDetailsPage({
                 className="font-bold"
                 style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
               >
-                Pending Debt (Udhaar)
+                Pending Debt
               </p>
             </div>
             <p
