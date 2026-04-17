@@ -26,7 +26,7 @@ export default async function ShopDetailsPage({
 
   return (
     <div
-      className="min-h-screen bg-[#F1F5F9] font-sans"
+      className="min-h-screen bg-(--color-page-bg) font-sans"
       style={{ padding: "clamp(16px, 3vw, 40px)" }}
     >
       {/* ── Top Header Section ── */}

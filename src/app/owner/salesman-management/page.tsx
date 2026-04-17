@@ -10,7 +10,7 @@ export default async function SalesmenPage() {
   const salesmen = await getSalesmen();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-3 lg:p-10">
+    <div className="min-h-screen bg-(--color-page-bg) p-3 lg:p-10">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">

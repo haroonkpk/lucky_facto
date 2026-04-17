@@ -3,9 +3,15 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { TransactionType, DealType, PaymentType, PaymentMethod, InventoryTransactionType } from "@/lib/generated/prisma/enums";
+import {
+  TransactionType,
+  DealType,
+  PaymentType,
+  PaymentMethod,
+  InventoryTransactionType,
+} from "@/lib/generated/prisma/enums";
 
-// ─── Fetchers 
+// ─── Fetchers
 
 export async function getBrands() {
   return prisma.brand.findMany({
@@ -19,11 +25,11 @@ export async function getShops() {
     where: { isActive: true },
     orderBy: { name: "asc" },
   });
-  
+
   // Convert Decimal to number for serialization
-  return shops.map(shop => ({
+  return shops.map((shop) => ({
     ...shop,
-    currentBalance: Number(shop.currentBalance)
+    currentBalance: Number(shop.currentBalance),
   }));
 }
 
@@ -31,20 +37,20 @@ export async function getInventoryBalances() {
   return prisma.inventoryBalance.findMany({
     include: {
       brand: {
-        select: { name: true }
-      }
-    }
+        select: { name: true },
+      },
+    },
   });
 }
 
-// ─── State Types 
+// ─── State Types
 
 export type ActionState = {
   success: boolean;
   error: string | null;
 };
 
-// ─── Inventory Intake Action 
+// ─── Inventory Intake Action
 
 export async function createInventoryIntakeAction(
   _prevState: ActionState,
@@ -60,7 +66,10 @@ export async function createInventoryIntakeAction(
   }
 
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { success: false, error: "Unauthorized: session not found." };
@@ -114,14 +123,15 @@ export async function createInventoryIntakeAction(
     return { success: true, error: null };
   } catch (err) {
     console.error("Intake Error:", err);
-    return { 
-      success: false, 
-      error: err instanceof Error ? err.message : "Failed to record factory intake." 
+    return {
+      success: false,
+      error:
+        err instanceof Error ? err.message : "Failed to record factory intake.",
     };
   }
 }
 
-// ─── Distribution Action 
+// ─── Distribution Action
 
 export async function createDistributionAction(
   _prevState: ActionState,
@@ -134,14 +144,26 @@ export async function createDistributionAction(
   const distributionDate = formData.get("distributionDate") as string;
   const notes = formData.get("notes") as string;
 
-  if (!brandId || !shopId || isNaN(quantity) || quantity <= 0 || isNaN(unitPrice)) {
-    return { success: false, error: "All fields are required and must be valid." };
+  if (
+    !brandId ||
+    !shopId ||
+    isNaN(quantity) ||
+    quantity <= 0 ||
+    isNaN(unitPrice)
+  ) {
+    return {
+      success: false,
+      error: "All fields are required and must be valid.",
+    };
   }
 
   const totalAmount = quantity * unitPrice;
 
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { success: false, error: "Unauthorized: session not found." };
@@ -156,7 +178,9 @@ export async function createDistributionAction(
         });
 
         if (!balance || balance.currentStock < quantity) {
-          throw new Error(`Insufficient stock. Maximum available is ${balance?.currentStock || 0} bags.`);
+          throw new Error(
+            `Insufficient stock. Maximum available is ${balance?.currentStock || 0} bags.`,
+          );
         }
 
         // 1. Create Distribution record
@@ -167,7 +191,9 @@ export async function createDistributionAction(
             quantity,
             unitPrice,
             totalAmount,
-            distributionDate: distributionDate ? new Date(distributionDate) : new Date(),
+            distributionDate: distributionDate
+              ? new Date(distributionDate)
+              : new Date(),
             notes,
             recordedById: user.id,
             dealType: DealType.VIA_SALESMAN,
@@ -221,14 +247,15 @@ export async function createDistributionAction(
     return { success: true, error: null };
   } catch (err) {
     console.error("Distribution Error:", err);
-    return { 
-      success: false, 
-      error: err instanceof Error ? err.message : "Failed to record distribution." 
+    return {
+      success: false,
+      error:
+        err instanceof Error ? err.message : "Failed to record distribution.",
     };
   }
 }
 
-// ─── Payment Action 
+// ─── Payment Action
 
 export async function createPaymentAction(
   _prevState: ActionState,
@@ -246,7 +273,10 @@ export async function createPaymentAction(
   }
 
   const supabase = await createClient();
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
     return { success: false, error: "Unauthorized: session not found." };
@@ -298,4 +328,167 @@ export async function createPaymentAction(
     console.error("Payment Error:", err);
     return { success: false, error: "Failed to record payment." };
   }
+}
+
+// ─── Dashboard Actions ────────────────────────────────────────────────────────
+
+export async function getSalesmanSales(userId: string) {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  const [monthlyDistributions, todayDistributions] = await Promise.all([
+    prisma.distribution.findMany({
+      where: {
+        recordedById: userId,
+        distributionDate: { gte: startOfMonth },
+      },
+      select: { totalAmount: true },
+    }),
+    prisma.distribution.findMany({
+      where: {
+        recordedById: userId,
+        distributionDate: { gte: startOfDay },
+      },
+      select: { totalAmount: true },
+    }),
+  ]);
+
+  const monthlySales = monthlyDistributions.reduce(
+    (sum, d) => sum + Number(d.totalAmount),
+    0,
+  );
+  const todaySales = todayDistributions.reduce(
+    (sum, d) => sum + Number(d.totalAmount),
+    0,
+  );
+
+  return { monthlySales, todaySales };
+}
+
+export async function getSalesmanPendingPayments(userId: string) {
+  // Get total distributions by this salesman, grouped by shop
+  const [allDistributions, allCollections] = await Promise.all([
+    prisma.distribution.findMany({
+      where: { recordedById: userId },
+      select: { shopId: true, totalAmount: true },
+    }),
+    prisma.payment.findMany({
+      where: {
+        recordedById: userId,
+        type: "SHOP_COLLECTION",
+        shopId: { not: null },
+      },
+      select: { shopId: true, amount: true },
+    }),
+  ]);
+
+  // Sum distributions per shop
+  const shopTotals = new Map<
+    string,
+    { distributed: number; collected: number }
+  >();
+
+  for (const d of allDistributions) {
+    const entry = shopTotals.get(d.shopId) ?? { distributed: 0, collected: 0 };
+    entry.distributed += Number(d.totalAmount);
+    shopTotals.set(d.shopId, entry);
+  }
+
+  for (const p of allCollections) {
+    if (!p.shopId) continue;
+    const entry = shopTotals.get(p.shopId) ?? { distributed: 0, collected: 0 };
+    entry.collected += Number(p.amount);
+    shopTotals.set(p.shopId, entry);
+  }
+
+  // Only count shops where this salesman has a net positive pending amount
+  let totalPending = 0;
+  let shopCount = 0;
+
+  for (const { distributed, collected } of shopTotals.values()) {
+    const pending = distributed - collected;
+    if (pending > 0) {
+      totalPending += pending;
+      shopCount++;
+    }
+  }
+
+  return { totalPending, shopCount };
+}
+
+export type ActivityItem = {
+  id: string;
+  type: "distribution" | "payment" | "intake";
+  description: string;
+  amount: number;
+  date: string;
+  shopName: string | null;
+};
+
+export async function getSalesmanLatestActivity(
+  userId: string,
+): Promise<ActivityItem[]> {
+  const [distributions, payments, intakes] = await Promise.all([
+    prisma.distribution.findMany({
+      where: { recordedById: userId },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      include: {
+        brand: { select: { name: true } },
+        shop: { select: { name: true } },
+      },
+    }),
+    prisma.payment.findMany({
+      where: { recordedById: userId },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      include: {
+        shop: { select: { name: true } },
+      },
+    }),
+    prisma.inventoryIntake.findMany({
+      where: { recordedById: userId },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+      include: {
+        brand: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const activities: ActivityItem[] = [
+    // 1. Distributions
+    ...distributions.map((d) => ({
+      id: d.id,
+      type: "distribution" as const,
+      description: `${d.brand.name} × ${d.quantity} bags`,
+      amount: Number(d.totalAmount),
+      date: d.createdAt.toISOString(),
+      shopName: d.shop.name,
+    })),
+    // 2. Payments
+    ...payments.map((p) => ({
+      id: p.id,
+      type: "payment" as const,
+      description: `${p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment"} via ${p.paymentMethod.replace("_", " ")}`,
+      amount: Number(p.amount),
+      date: p.createdAt.toISOString(),
+      shopName: p.shop?.name || null,
+    })),
+    // 3. Inventory Intakes 
+    ...intakes.map((i) => ({
+      id: i.id,
+      type: "intake" as const,
+      description: `Factory Intake: ${i.brand.name} × ${i.quantity} bags`,
+      amount: 0,
+      date: i.createdAt.toISOString(),
+      shopName: "Factory",
+    })),
+  ];
+
+  activities.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+  );
+  return activities.slice(0, 10);
 }

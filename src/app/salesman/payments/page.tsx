@@ -5,7 +5,7 @@ export default async function PaymentsPage() {
   const shops = await getShops();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-3 lg:p-10 md:pl-20!">
+    <div className="min-h-screen bg-(--color-page-bg) p-3 lg:p-10 md:pl-20!">
       <div className="mb-8">
         <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">
           Financial Management
