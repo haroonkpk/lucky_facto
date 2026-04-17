@@ -32,6 +32,8 @@ interface LedgerSectionProps {
     totalPayments: number;
     totalBilling: number;
     balanceOwed: number;
+    currentBalance: number;
+    lastPaymentDate: Date | string | null;
   };
 }
 

@@ -16,6 +16,16 @@ export function formatPKR(amount: number): string {
 }
 
 
+export function NumberFormat(amount: number): string {
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency: "PKR",
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(amount);
+}
+
+
 export function getInitials(name: string): string {
   const parts = name.trim().split(" ");
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();

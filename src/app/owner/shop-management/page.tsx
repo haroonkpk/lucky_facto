@@ -22,14 +22,14 @@ export default async function ShopsPage() {
       </div>
 
       {/* Main Layout */}
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col-reverse lg:flex-row gap-8">
         {/* ── LEFT: Shops List */}
         <div className="w-full lg:flex-1 min-w-0">
           <ShopsList shops={shops} regions={regions} />
         </div>
 
         {/* ── RIGHT: Register Form ── */}
-        <div className="w-full lg:w-[400px] xl:w-[440px] shrink-0">
+        <div className="shrink-0">
           <RegisterShopForm regions={regions} />
         </div>
       </div>

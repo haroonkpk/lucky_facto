@@ -67,7 +67,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by shop name or ID..."
+            placeholder="Search by shop name"
             className="w-full bg-white focus:outline-none focus:ring-2 focus:ring-[#053B70]"
             style={{
               borderRadius: "clamp(6px, 1vw, 8px)",

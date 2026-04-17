@@ -16,11 +16,13 @@ export default async function ShopDetailsPage({
 
   const { shop, metrics } = data;
 
-  // todo
-  const isAdvance = metrics.currentBalance < 0;
-
-  // todo
-  const lastPaymentDaysAgo = 12;
+  const isDebt = metrics.totalPayments < metrics.totalBilling;
+  const statusColor = isDebt ? "#C0392B" : "#28A745";
+  const statusBg = isDebt ? "#FBE9E9" : "#D4EDDA";
+  
+  const lastPaymentDaysAgo = metrics.lastPaymentDate 
+    ? Math.floor((new Date().getTime() - new Date(metrics.lastPaymentDate).getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
   return (
     <div
@@ -99,10 +101,11 @@ export default async function ShopDetailsPage({
 
         {/* Right: Balance Card  */}
         <div
-          className="w-full md:w-[360px] flex-shrink-0 bg-[#FBE9E9] flex flex-col"
+          className="w-full md:w-[360px] flex-shrink-0 transition-colors duration-300 flex flex-col"
           style={{
             padding: "clamp(16px, 3vw, 32px)",
             borderRadius: "clamp(12px, 2vw, 16px)",
+            backgroundColor: statusBg,
           }}
         >
           <div className="flex items-center justify-between mb-2">
@@ -112,31 +115,40 @@ export default async function ShopDetailsPage({
             >
               Current Balance
             </p>
-            <Building2 size={24} className="text-[#C0392B] opacity-40" />
+            <Building2 size={24} style={{ color: statusColor }} className="opacity-40" />
           </div>
 
           <h2
-            className="font-extrabold text-[#C0392B] tracking-tight mb-5"
-            style={{ fontSize: "clamp(32px, 5vw, 48px)" }}
+            className="font-extrabold tracking-tight mb-5"
+            style={{ 
+              fontSize: "clamp(32px, 5vw, 48px)",
+              color: statusColor
+            }}
           >
-            {formatPKR(Math.abs(metrics.currentBalance))}
+            {formatPKR(Math.abs(metrics.balanceOwed))}
           </h2>
 
           <div className="pt-5 mt-auto flex flex-col gap-2">
-            <div className="flex items-center gap-2.5 text-[#C0392B]">
-              <AlertTriangle size={18} fill="#FBE9E9" />
+            <div className="flex items-center gap-2.5" style={{ color: statusColor }}>
+              {isDebt ? (
+                <AlertTriangle size={18} fill={statusBg} />
+              ) : (
+                <Building2 size={18} />
+              )}
               <p
                 className="font-bold"
                 style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
               >
-                Pending Debt
+                {isDebt ? "Pending Debt" : metrics.balanceOwed < 0 ? "Advance Balance" : "Fully Paid"}
               </p>
             </div>
             <p
               className="text-[#64748B] font-medium pl-8"
               style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
             >
-              Last payment received {lastPaymentDaysAgo} days ago
+              {lastPaymentDaysAgo !== null 
+                ? `Last payment received ${lastPaymentDaysAgo === 0 ? "today" : `${lastPaymentDaysAgo} days ago`}`
+                : "No payments yet"}
             </p>
           </div>
         </div>

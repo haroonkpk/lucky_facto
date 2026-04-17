@@ -63,7 +63,6 @@ export async function getShops(): Promise<ShopWithStats[]> {
   });
 }
 
-
 export async function getSalesmen(): Promise<SalesmanWithStats[]> {
   const salesmen = await prisma.user.findMany({
     where: { role: Role.SALESMAN },
@@ -104,8 +103,6 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
     };
   });
 }
-
-
 
 export async function getRegions() {
   return prisma.region.findMany({
@@ -148,7 +145,6 @@ export async function registerShopAction(
   }
 }
 
-
 export async function getShopDetails(shopId: string) {
   const shop = await prisma.shop.findUnique({
     where: { id: shopId },
@@ -174,7 +170,7 @@ export async function getShopLedgerData(shopId: string) {
     include: {
       region: true,
       ledgers: {
-        orderBy: { createdAt: "asc" },
+        orderBy: { createdAt: "desc" },
         include: {
           payment: true,
           distribution: true,
@@ -195,6 +191,8 @@ export async function getShopLedgerData(shopId: string) {
 
   const balanceOwed = totalBilling - totalPayments;
 
+  const lastPayment = shop.ledgers.find((l) => l.transactionType === "CREDIT");
+
   return {
     shop,
     metrics: {
@@ -202,6 +200,7 @@ export async function getShopLedgerData(shopId: string) {
       totalPayments,
       totalBilling,
       balanceOwed,
+      lastPaymentDate: lastPayment ? lastPayment.createdAt : null,
     },
   };
 }

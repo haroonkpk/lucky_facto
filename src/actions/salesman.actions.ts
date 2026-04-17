@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { TransactionType, DealType } from "@/lib/generated/prisma/enums";
+import { TransactionType, DealType, PaymentType, PaymentMethod } from "@/lib/generated/prisma/enums";
 
 // ─── Fetchers 
 
@@ -177,5 +177,74 @@ export async function createDistributionAction(
   } catch (err) {
     console.error("Distribution Error:", err);
     return { success: false, error: "Failed to record distribution." };
+  }
+}
+
+// ─── Payment Action 
+
+export async function createPaymentAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const type = formData.get("type") as PaymentType;
+  const paymentMethod = formData.get("paymentMethod") as PaymentMethod;
+  const amount = parseFloat(formData.get("amount") as string);
+  const paymentDate = formData.get("paymentDate") as string;
+  const shopId = formData.get("shopId") as string;
+  const cashNote = formData.get("cashNote") as string;
+
+  if (!type || !paymentMethod || isNaN(amount) || amount <= 0) {
+    return { success: false, error: "Type, method, and amount are required." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { success: false, error: "Unauthorized: session not found." };
+  }
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1. Create Payment record
+      const payment = await tx.payment.create({
+        data: {
+          type,
+          paymentMethod,
+          amount,
+          paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+          shopId: shopId || null,
+          cashNote,
+          recordedById: user.id,
+          dealType: DealType.VIA_SALESMAN,
+        },
+      });
+
+      // 2. If it's a shop collection, update ledger and balance
+      if (type === PaymentType.SHOP_COLLECTION && shopId) {
+        await tx.ledger.create({
+          data: {
+            shopId,
+            transactionType: TransactionType.CREDIT,
+            amount,
+            description: `Payment received via ${paymentMethod}`,
+            paymentId: payment.id,
+          },
+        });
+
+        await tx.shop.update({
+          where: { id: shopId },
+          data: {
+            currentBalance: { decrement: amount }
+          }
+        });
+      }
+    });
+
+    revalidatePath("/salesman/payments");
+    return { success: true, error: null };
+  } catch (err) {
+    console.error("Payment Error:", err);
+    return { success: false, error: "Failed to record payment." };
   }
 }

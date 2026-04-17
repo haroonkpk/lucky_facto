@@ -1,6 +1,6 @@
 import { getSalesmen } from "@/actions/owner.actions";
 import { RegisterSalesmanForm } from "@/components/auth/sign-up-form";
-import { formatPKR } from "@/lib/helper";
+import { NumberFormat } from "@/lib/helper";
 import { User2 } from "lucide-react";
 import Image from "next/image";
 
@@ -10,7 +10,7 @@ export default async function SalesmenPage() {
   const salesmen = await getSalesmen();
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-6 lg:p-10">
+    <div className="min-h-screen bg-[#F8FAFC] p-3 lg:p-10">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -126,7 +126,7 @@ export default async function SalesmenPage() {
                       className="font-bold text-[#0A2540] tracking-tight whitespace-nowrap"
                       style={{ fontSize: "clamp(16px, 2.5vw, 24px)" }}
                     >
-                      {formatPKR(salesman.totalSales)}
+                      {NumberFormat(salesman.totalSales)}
                     </p>
                   </div>
 
