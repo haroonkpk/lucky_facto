@@ -1,7 +1,10 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
-import { createInventoryIntakeAction, ActionState } from "@/actions/salesman.actions";
+import {
+  createInventoryIntakeAction,
+  ActionState,
+} from "@/actions/salesman.actions";
 import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
@@ -19,7 +22,7 @@ const initialState: ActionState = {
 export default function FactoryIntakeForm({ brands }: FactoryIntakeFormProps) {
   const [state, formAction, isPending] = useActionState(
     createInventoryIntakeAction,
-    initialState
+    initialState,
   );
 
   const formRef = useRef<HTMLFormElement>(null);
@@ -36,7 +39,7 @@ export default function FactoryIntakeForm({ brands }: FactoryIntakeFormProps) {
   ];
 
   return (
-    <div className="bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full mx-auto">
+    <div className="bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full mb-20 mx-auto">
       {/* Header */}
       <div className="mb-[clamp(1.5rem,3vw,2rem)]">
         <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">

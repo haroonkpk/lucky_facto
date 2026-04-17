@@ -39,7 +39,6 @@ export default function PaymentForm({ shops }: PaymentFormProps) {
   const typeOptions = [
     { value: PaymentType.SHOP_COLLECTION, label: "Shop Collection" },
     { value: PaymentType.FACTORY_PAYMENT, label: "Factory Payment" },
-    { value: PaymentType.ADVANCE_PAYMENT, label: "Advance Payment" },
   ];
 
   const methodOptions = [

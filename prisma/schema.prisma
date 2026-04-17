@@ -17,7 +17,6 @@ enum Role {
 enum PaymentType {
   SHOP_COLLECTION
   FACTORY_PAYMENT
-  ADVANCE_PAYMENT 
 }
 
 enum PaymentMethod {
