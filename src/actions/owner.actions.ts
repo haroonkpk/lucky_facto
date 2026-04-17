@@ -66,8 +66,8 @@ export async function getShops(): Promise<ShopWithStats[]> {
 export async function getSalesmen(): Promise<SalesmanWithStats[]> {
   const salesmen = await prisma.user.findMany({
     where: { role: Role.SALESMAN },
-    orderBy: { createdAt: "desc" },
-    include: {
+    orderBy: { createdAt: "asc" },
+    include: { 
       payments: {
         select: { amount: true },
       },
