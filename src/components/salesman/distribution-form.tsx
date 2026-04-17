@@ -9,10 +9,16 @@ import Button from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import Textarea from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface DistributionFormProps {
   brands: { id: string; name: string }[];
   shops: { id: string; name: string }[];
+  inventoryBalances: {
+    brandId: string;
+    currentStock: number;
+    brand: { name: string };
+  }[];
 }
 
 const initialState: ActionState = {
@@ -23,6 +29,7 @@ const initialState: ActionState = {
 export default function DistributionForm({
   brands,
   shops,
+  inventoryBalances,
 }: DistributionFormProps) {
   const [state, formAction, isPending] = useActionState(
     createDistributionAction,
@@ -30,9 +37,13 @@ export default function DistributionForm({
   );
 
   const formRef = useRef<HTMLFormElement>(null);
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(0);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
+
+  const availableStock = inventoryBalances.find(b => b.brandId === selectedBrandId)?.currentStock ?? 0;
+  const isOverStock = selectedBrandId !== "" && quantity > availableStock;
 
   useEffect(() => {
     setTotal(quantity * unitPrice);
@@ -44,6 +55,7 @@ export default function DistributionForm({
       setQuantity(0);
       setUnitPrice(0);
       setTotal(0);
+      setSelectedBrandId("");
     }
   }, [state.success]);
 
@@ -97,22 +109,39 @@ export default function DistributionForm({
               label="Product Brand"
               options={brandOptions}
               required
+              onChange={(e) => setSelectedBrandId(e.target.value)}
               className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Input
-              id="quantity"
-              name="quantity"
-              label="Release Qty"
-              type="number"
-              placeholder="0"
-              required
-              min="1"
-              onChange={(e) => setQuantity(Number(e.target.value))}
-              className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
-            />
+            <div className="flex flex-col gap-1">
+              <Input
+                id="quantity"
+                name="quantity"
+                label="Release Qty"
+                type="number"
+                placeholder="0"
+                required
+                min="1"
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className={cn(
+                  "bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]",
+                  isOverStock && "border-red-500!"
+                )}
+              />
+              {selectedBrandId && (
+                <p className={cn(
+                  "text-[10px] font-bold uppercase tracking-wider",
+                  isOverStock ? "text-red-500" : "text-slate-400"
+                )}>
+                  {isOverStock 
+                    ? `Maximum available stock is ${availableStock} bags` 
+                    : `Available Stock: ${availableStock} bags`}
+                </p>
+              )}
+            </div>
+            
             <Input
               id="unitPrice"
               name="unitPrice"
@@ -166,9 +195,9 @@ export default function DistributionForm({
           <Button
             type="submit"
             className="w-full mt-4 h-12"
-            disabled={isPending}
+            disabled={isPending || isOverStock || (selectedBrandId !== "" && availableStock <= 0)}
           >
-            {isPending ? "Synchronizing Entries..." : "Authorize Distribution"}
+            {isPending ? "Synchronizing Entries..." : isOverStock ? "Insufficient Stock" : "Authorize Distribution"}
           </Button>
         </div>
       </form>

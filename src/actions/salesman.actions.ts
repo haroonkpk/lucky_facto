@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
-import { TransactionType, DealType, PaymentType, PaymentMethod } from "@/lib/generated/prisma/enums";
+import { TransactionType, DealType, PaymentType, PaymentMethod, InventoryTransactionType } from "@/lib/generated/prisma/enums";
 
 // ─── Fetchers 
 
@@ -25,6 +25,16 @@ export async function getShops() {
     ...shop,
     currentBalance: Number(shop.currentBalance)
   }));
+}
+
+export async function getInventoryBalances() {
+  return prisma.inventoryBalance.findMany({
+    include: {
+      brand: {
+        select: { name: true }
+      }
+    }
+  });
 }
 
 // ─── State Types 
@@ -57,39 +67,57 @@ export async function createInventoryIntakeAction(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      // 1. Create the intake entry
-      await tx.inventoryIntake.create({
-        data: {
-          brandId,
-          quantity,
-          intakeDate: intakeDate ? new Date(intakeDate) : new Date(),
-          notes,
-          recordedById: user.id,
-        },
-      });
+    await prisma.$transaction(
+      async (tx) => {
+        // 1. Create the intake entry
+        const intake = await tx.inventoryIntake.create({
+          data: {
+            brandId,
+            quantity,
+            intakeDate: intakeDate ? new Date(intakeDate) : new Date(),
+            notes,
+            recordedById: user.id,
+          },
+        });
 
-      // 2. Update the balance
-      await tx.inventoryBalance.upsert({
-        where: { brandId },
-        update: {
-          totalIntake: { increment: quantity },
-          currentStock: { increment: quantity },
-        },
-        create: {
-          brandId,
-          totalIntake: quantity,
-          currentStock: quantity,
-          totalDistributed: 0,
-        },
-      });
-    });
+        // 2. Update the balance
+        await tx.inventoryBalance.upsert({
+          where: { brandId },
+          update: {
+            totalIntake: { increment: quantity },
+            currentStock: { increment: quantity },
+          },
+          create: {
+            brandId,
+            totalIntake: quantity,
+            currentStock: quantity,
+            totalDistributed: 0,
+          },
+        });
+
+        // Record in Inventory Ledger
+        await tx.inventoryLedger.create({
+          data: {
+            brandId,
+            quantity,
+            type: InventoryTransactionType.STOCK_IN,
+            referenceId: intake.id,
+            description: "Factory Intake",
+            date: intakeDate ? new Date(intakeDate) : new Date(),
+          },
+        });
+      },
+      { timeout: 15000 },
+    );
 
     revalidatePath("/salesman/factory-intake");
     return { success: true, error: null };
   } catch (err) {
     console.error("Intake Error:", err);
-    return { success: false, error: "Failed to record factory intake." };
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Failed to record factory intake." 
+    };
   }
 }
 
@@ -120,63 +148,83 @@ export async function createDistributionAction(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      // 1. Create Distribution record
-      const distribution = await tx.distribution.create({
-        data: {
-          brandId,
-          shopId,
-          quantity,
-          unitPrice,
-          totalAmount,
-          distributionDate: distributionDate ? new Date(distributionDate) : new Date(),
-          notes,
-          recordedById: user.id,
-          dealType: DealType.VIA_SALESMAN,
-        },
-      });
+    await prisma.$transaction(
+      async (tx) => {
+        // 0. Check Stock Availability
+        const balance = await tx.inventoryBalance.findUnique({
+          where: { brandId },
+        });
 
-      // 2. Create Ledger entry (DEBIT for the shop)
-      await tx.ledger.create({
-        data: {
-          shopId,
-          transactionType: TransactionType.DEBIT,
-          amount: totalAmount,
-          description: `Distribution of brand (${brandId}) - Qty: ${quantity}`,
-          distributionId: distribution.id,
-        },
-      });
-
-      // 3. Update Inventory Balance
-      await tx.inventoryBalance.upsert({
-        where: { brandId },
-        update: {
-          totalDistributed: { increment: quantity },
-          currentStock: { decrement: quantity },
-        },
-        create: {
-          brandId,
-          totalIntake: 0,
-          totalDistributed: quantity,
-          currentStock: -quantity, 
-        },
-      });
-      
-      // 4. Update Shop Balance
-      await tx.shop.update({
-        where: { id: shopId },
-        data: {
-          currentBalance: { increment: totalAmount }
+        if (!balance || balance.currentStock < quantity) {
+          throw new Error(`Insufficient stock. Maximum available is ${balance?.currentStock || 0} bags.`);
         }
-      });
 
-    });
+        // 1. Create Distribution record
+        const distribution = await tx.distribution.create({
+          data: {
+            brandId,
+            shopId,
+            quantity,
+            unitPrice,
+            totalAmount,
+            distributionDate: distributionDate ? new Date(distributionDate) : new Date(),
+            notes,
+            recordedById: user.id,
+            dealType: DealType.VIA_SALESMAN,
+          },
+        });
+
+        // 2. Create Ledger entry (DEBIT for the shop)
+        await tx.ledger.create({
+          data: {
+            shopId,
+            transactionType: TransactionType.DEBIT,
+            amount: totalAmount,
+            description: `Distribution of brand (${brandId}) - Qty: ${quantity}`,
+            distributionId: distribution.id,
+          },
+        });
+
+        // 3. Update Inventory Balance
+        await tx.inventoryBalance.update({
+          where: { brandId },
+          data: {
+            totalDistributed: { increment: quantity },
+            currentStock: { decrement: quantity },
+          },
+        });
+
+        // 4. Update Shop Balance
+        await tx.shop.update({
+          where: { id: shopId },
+          data: {
+            currentBalance: { increment: totalAmount },
+          },
+        });
+
+        // 5. Record in Inventory Ledger
+        await tx.inventoryLedger.create({
+          data: {
+            brandId,
+            quantity,
+            type: InventoryTransactionType.STOCK_OUT,
+            referenceId: distribution.id,
+            description: `Distribution to Shop ID: ${shopId}`,
+            date: distributionDate ? new Date(distributionDate) : new Date(),
+          },
+        });
+      },
+      { timeout: 15000 },
+    );
 
     revalidatePath("/salesman/distribution");
     return { success: true, error: null };
   } catch (err) {
     console.error("Distribution Error:", err);
-    return { success: false, error: "Failed to record distribution." };
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : "Failed to record distribution." 
+    };
   }
 }
 
@@ -205,41 +253,44 @@ export async function createPaymentAction(
   }
 
   try {
-    await prisma.$transaction(async (tx) => {
-      // 1. Create Payment record
-      const payment = await tx.payment.create({
-        data: {
-          type,
-          paymentMethod,
-          amount,
-          paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
-          shopId: shopId || null,
-          cashNote,
-          recordedById: user.id,
-          dealType: DealType.VIA_SALESMAN,
-        },
-      });
-
-      // 2. If it's a shop collection, update ledger and balance
-      if (type === PaymentType.SHOP_COLLECTION && shopId) {
-        await tx.ledger.create({
+    await prisma.$transaction(
+      async (tx) => {
+        // 1. Create Payment record
+        const payment = await tx.payment.create({
           data: {
-            shopId,
-            transactionType: TransactionType.CREDIT,
+            type,
+            paymentMethod,
             amount,
-            description: `Payment received via ${paymentMethod}`,
-            paymentId: payment.id,
+            paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
+            shopId: shopId || null,
+            cashNote,
+            recordedById: user.id,
+            dealType: DealType.VIA_SALESMAN,
           },
         });
 
-        await tx.shop.update({
-          where: { id: shopId },
-          data: {
-            currentBalance: { decrement: amount }
-          }
-        });
-      }
-    });
+        // 2. If it's a shop collection, update ledger and balance
+        if (type === PaymentType.SHOP_COLLECTION && shopId) {
+          await tx.ledger.create({
+            data: {
+              shopId,
+              transactionType: TransactionType.CREDIT,
+              amount,
+              description: `Payment received via ${paymentMethod}`,
+              paymentId: payment.id,
+            },
+          });
+
+          await tx.shop.update({
+            where: { id: shopId },
+            data: {
+              currentBalance: { decrement: amount },
+            },
+          });
+        }
+      },
+      { timeout: 15000 },
+    );
 
     revalidatePath("/salesman/payments");
     return { success: true, error: null };

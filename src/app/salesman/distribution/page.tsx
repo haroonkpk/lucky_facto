@@ -1,10 +1,11 @@
-import { getBrands, getShops } from "@/actions/salesman.actions";
+import { getBrands, getShops, getInventoryBalances } from "@/actions/salesman.actions";
 import DistributionForm from "@/components/salesman/distribution-form";
 
 export default async function DistributionPage() {
-  const [brands, shops] = await Promise.all([
+  const [brands, shops, inventoryBalances] = await Promise.all([
     getBrands(),
     getShops(),
+    getInventoryBalances(),
   ]);
 
   return (
@@ -23,7 +24,11 @@ export default async function DistributionPage() {
       
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:flex-1 shrink-0 max-w-2xl">
-          <DistributionForm brands={brands} shops={shops} />
+          <DistributionForm 
+            brands={brands} 
+            shops={shops} 
+            inventoryBalances={inventoryBalances} 
+          />
         </div>
       </div>
     </div>

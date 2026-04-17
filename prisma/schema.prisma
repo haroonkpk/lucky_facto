@@ -36,6 +36,11 @@ enum TransactionType {
   DEBIT
 }
 
+enum InventoryTransactionType {
+  STOCK_IN
+  STOCK_OUT
+}
+
 // --- MODELS ---
 
 model Region {
@@ -57,6 +62,7 @@ model Brand {
   inventoryIntakes  InventoryIntake[]
   distributions     Distribution[]
   inventoryBalances InventoryBalance[]
+  inventoryLedgers  InventoryLedger[]
 
   @@map("brands")
 }
@@ -185,6 +191,22 @@ model Ledger {
   createdAt       DateTime        @default(now())
 
   @@map("ledgers")
+}
+
+model InventoryLedger {
+  id              String                   @id @default(uuid())
+  brandId         String
+  brand           Brand                    @relation(fields: [brandId], references: [id])
+  quantity        Int
+  type            InventoryTransactionType
+  date            DateTime                 @default(now())
+  
+  referenceId     String?                  // ID of the Intake or Distribution record
+  description     String?
+
+  createdAt       DateTime                 @default(now())
+
+  @@map("inventory_ledgers")
 }
 
 model InventoryBalance {
