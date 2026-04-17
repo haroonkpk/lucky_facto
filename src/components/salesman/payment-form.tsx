@@ -49,7 +49,7 @@ export default function PaymentForm({ shops }: PaymentFormProps) {
   ];
 
   return (
-    <div className="bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full mx-auto">
+    <div className="bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full mb-20 mx-auto">
       {/* Header */}
       <div className="mb-[clamp(1.5rem,3vw,2rem)] border-b border-slate-100 pb-5">
         <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">

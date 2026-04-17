@@ -88,7 +88,7 @@ export function Sidebar({
                 "group flex items-center transition-all duration-200",
                 // MOBILE
                 "flex-col justify-center gap-1 min-w-14 py-2 px-1 rounded-xl",
-                "text-[0.6rem] font-semibold uppercase tracking-wider",
+                "text-[0.08rem] font-semibold uppercase tracking-wider",
                 // DESKTOP
                 "md:flex-row md:justify-start md:w-full md:rounded-lg md:px-3 md:py-2.5",
                 "md:text-[clamp(0.875rem,1vw,0.95rem)] md:font-medium md:capitalize md:tracking-normal",
