@@ -4,7 +4,6 @@ import { NumberFormat } from "@/lib/helper";
 import { User2 } from "lucide-react";
 import Image from "next/image";
 
-
 // Page
 export default async function SalesmenPage() {
   const salesmen = await getSalesmen();
@@ -25,8 +24,7 @@ export default async function SalesmenPage() {
       <div className="flex flex-col-reverse md:flex-row gap-8">
         {/* ── LEFT ── */}
         <div className=" w-full max-w-3xl flex flex-col gap-4">
-          {salesmen.length === 0
-           ? (
+          {salesmen.length === 0 ? (
             <div className="bg-[#E5F0F6] rounded-2xl p-12 text-center">
               <User2 size={40} className="mx-auto text-gray-400 mb-3" />
               <p className="text-gray-500 font-medium">No salesmen found</p>
@@ -130,27 +128,40 @@ export default async function SalesmenPage() {
                     </p>
                   </div>
 
-                  <div
-                    className="flex items-end"
-                    style={{
-                      gap: "clamp(2px, 0.4vw, 4px)",
-                      height: "clamp(24px, 4vw, 40px)",
-                    }}
-                  >
-                    {[5, 8, 4, 7, 10].map((h, i) => (
-                      <div
-                        key={i}
-                        className="rounded-[1px]"
-                        style={{
-                          width: "clamp(6px, 1vw, 11px)",
-                          height: `${h * 10}%`,
-                          backgroundColor: salesman.isActive
-                            ? "#053B70"
-                            : "#B8C9D8",
-                        }}
-                      />
-                    ))}
-                  </div>
+                  {(() => {
+                      const vals = salesman.dailySales;
+                      const maxVal = Math.max(...vals, 0);
+                      return (
+                        <div
+                          className="flex items-end"
+                          style={{
+                            gap: "clamp(2px, 0.4vw, 4px)",
+                            height: "clamp(24px, 4vw, 40px)",
+                          }}
+                        >
+                          {vals.map((v, i) => {
+                            // normalise: 4% minimum so zero-days still show a tiny bar
+                            const pct =
+                              maxVal === 0
+                                ? 4
+                                : Math.max(4, (v / maxVal) * 100);
+                            return (
+                              <div
+                                key={i}
+                                className="rounded-[1px]"
+                                style={{
+                                  width: "clamp(6px, 1vw, 11px)",
+                                  height: `${pct}%`,
+                                  backgroundColor: salesman.isActive
+                                    ? "#053B70"
+                                    : "#B8C9D8",
+                                }}
+                              />
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
                 </div>
               </div>
             ))

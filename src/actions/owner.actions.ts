@@ -13,6 +13,8 @@ export type SalesmanWithStats = {
   isActive: boolean;
   totalSales: number;
   regions: string[];
+  /** Sales total (sum of totalAmount) for each of the last 7 days, oldest first */
+  dailySales: number[];
 };
 
 export type ShopWithStats = {
@@ -64,25 +66,45 @@ export async function getShops(): Promise<ShopWithStats[]> {
 }
 
 export async function getSalesmen(): Promise<SalesmanWithStats[]> {
+  // Build the last-7-days date range (start of 6 days ago → end of today)
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const sevenDaysAgo = new Date(todayStart);
+  sevenDaysAgo.setDate(todayStart.getDate() - 6); // inclusive: day-6 … today = 7 days
+
   const salesmen = await prisma.user.findMany({
     where: { role: Role.SALESMAN },
     orderBy: { createdAt: "asc" },
-    include: { 
+    include: {
       distributions: {
+        where: { distributionDate: { gte: sevenDaysAgo } },
         include: {
           shop: {
             include: {
-              region: {
-                select: { name: true },
-              },
+              region: { select: { name: true } },
             },
           },
         },
       },
+      // Also fetch all distributions (without date filter) for totalSales
+      _count: false,
     },
   });
 
+  // Separately fetch totalSales for all time (no date filter)
+  const allDistributions = await prisma.distribution.findMany({
+    select: { recordedById: true, totalAmount: true },
+  });
+
+  // Group all-time sales by salesman id
+  const totalSalesMap = new Map<string, number>();
+  allDistributions.forEach((d) => {
+    const prev = totalSalesMap.get(d.recordedById) ?? 0;
+    totalSalesMap.set(d.recordedById, prev + Number(d.totalAmount));
+  });
+
   return salesmen.map((s) => {
+    // ── Regions ────────────────────────────────────────────────
     const regionSet = new Set<string>();
     s.distributions.forEach((d) => {
       if (d.shop?.region?.name) {
@@ -90,13 +112,33 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
       }
     });
 
+    // ── Daily sales for last 7 days ────────────────────────────
+    // Build a map: "YYYY-MM-DD" → total sales amount
+    const dailyMap = new Map<string, number>();
+    s.distributions.forEach((d) => {
+      const date = new Date(d.distributionDate);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      const prev = dailyMap.get(key) ?? 0;
+      dailyMap.set(key, prev + Number(d.totalAmount));
+    });
+
+    // Generate ordered array of 7 values (oldest → newest)
+    const dailySales: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(todayStart);
+      d.setDate(todayStart.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      dailySales.push(dailyMap.get(key) ?? 0);
+    }
+
     return {
       id: s.id,
       name: s.name,
       email: s.email,
       isActive: s.isActive,
-      totalSales: s.distributions.reduce((acc, d) => acc + Number(d.totalAmount), 0),
+      totalSales: totalSalesMap.get(s.id) ?? 0,
       regions: Array.from(regionSet),
+      dailySales,
     };
   });
 }
