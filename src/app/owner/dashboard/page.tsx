@@ -35,7 +35,7 @@ export default async function DashboardPage() {
     </div>
 
       {/* chart*/}
-      <div className="w-full bg-white rounded-xl shadow-xs p-[clamp(1rem,3vw,2.5rem)]">
+      <div className="w-full bg-white rounded-xl  p-[clamp(1rem,3vw,2.5rem)]">
         <div className="mb-[clamp(1rem,2.5vw,1.5rem)]">
           <h2 className="font-bold text-[#0A2540] text-[clamp(1.125rem,2vw,1.25rem)]">
             Brand Revenue Over Time (last 3 months)
