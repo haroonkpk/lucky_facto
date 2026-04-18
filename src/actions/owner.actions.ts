@@ -68,9 +68,6 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
     where: { role: Role.SALESMAN },
     orderBy: { createdAt: "asc" },
     include: { 
-      payments: {
-        select: { amount: true },
-      },
       distributions: {
         include: {
           shop: {
@@ -98,7 +95,7 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
       name: s.name,
       email: s.email,
       isActive: s.isActive,
-      totalSales: s.payments.reduce((acc, p) => acc + Number(p.amount), 0),
+      totalSales: s.distributions.reduce((acc, d) => acc + Number(d.totalAmount), 0),
       regions: Array.from(regionSet),
     };
   });
