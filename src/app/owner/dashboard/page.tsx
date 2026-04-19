@@ -8,7 +8,7 @@ import { OverdueShopsTable } from "@/components/owner/dashboard/overdue-shops-ta
 import { RecentActivityFeed } from "@/components/owner/dashboard/recent-activity-feed";
 import { DashboardChart } from "@/components/owner/dashboard-chart";
 
-export const revalidate = 60; 
+export const revalidate = 60;
 
 export default async function DashboardPage() {
   const data = await getOwnerDashboardData();
@@ -50,25 +50,37 @@ export default async function DashboardPage() {
 
         {/* ROW 2: KPIs & Chart Block*/}
         <div className="bg-[#E5F0F6] rounded-[clamp(12px,2vw,20px)] p-[clamp(12px,2vw,24px)] flex flex-col gap-[clamp(1.25rem,2.5vw,1.75rem)]">
-           <div className="flex flex-col md:flex-row justify-between items-start md:items-center px-1">
-              <h2 className="text-[#053B70] font-bold" style={{ fontSize: "clamp(16px, 2.2vw, 20px)" }}>
-                Core Performance Metrics
-              </h2>
-              <span className="text-[#64748B] font-medium" style={{ fontSize: "clamp(11px, 1.2vw, 13px)" }}>
-                Last 30 Days Activity
-              </span>
-           </div>
-           
-           <section className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,1.5fr)] gap-[clamp(1.25rem,2vw,1.75rem)] items-stretch">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center px-1">
+            <h2
+              className="text-[#053B70] font-bold"
+              style={{ fontSize: "clamp(16px, 2.2vw, 20px)" }}
+            >
+              Core Performance Metrics
+            </h2>
+            <span
+              className="text-[#64748B] font-medium"
+              style={{ fontSize: "clamp(11px, 1.2vw, 13px)" }}
+            >
+              Last 30 Days Activity
+            </span>
+          </div>
+
+          <section className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,1.5fr)] gap-[clamp(1.25rem,2vw,1.75rem)] items-stretch">
             <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
               <KPICards kpis={data.kpis} />
             </div>
             <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,2rem)] flex flex-col">
               <div>
-                <h3 className="font-bold text-[#0A2540]" style={{ fontSize: "clamp(1.125rem, 1.5vw, 1.25rem)" }}>
+                <h3
+                  className="font-bold text-[#0A2540]"
+                  style={{ fontSize: "clamp(1.125rem, 1.5vw, 1.25rem)" }}
+                >
                   Sales vs Payments Trend
                 </h3>
-                <p className="text-[#94A3B8] mt-1" style={{ fontSize: "clamp(0.8rem, 1.2vw, 0.9rem)" }}>
+                <p
+                  className="text-[#94A3B8] mt-1"
+                  style={{ fontSize: "clamp(0.8rem, 1.2vw, 0.9rem)" }}
+                >
                   Comparative analysis of distributions and collections
                 </p>
               </div>
