@@ -9,7 +9,7 @@ import DashboardHeader from "@/components/salesman/dashboard/dashboard-header";
 import SalesCard from "@/components/salesman/dashboard/sales-card";
 import PendingPaymentsCard from "@/components/salesman/dashboard/pending-payments-card";
 import StockOverviewCard from "@/components/salesman/dashboard/stock-overview-card";
-import LatestActivityList from "@/components/salesman/dashboard/latest-activity-list";
+import { ActivityList } from "@/components/shared/activity-list";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -58,7 +58,7 @@ export default async function SalesmanDashboardPage() {
         <StockOverviewCard inventoryBalances={inventoryBalances} />
 
         {/* Latest Activity */}
-        <LatestActivityList activities={activities} />
+        <ActivityList activities={activities} />
       </div>
     </div>
   );

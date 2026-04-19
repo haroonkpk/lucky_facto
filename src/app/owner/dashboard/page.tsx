@@ -5,7 +5,7 @@ import { KPICards } from "@/components/owner/dashboard/kpi-cards";
 import { BrandStockList } from "@/components/owner/dashboard/brand-stock-list";
 import { RegionPerformanceList } from "@/components/owner/dashboard/region-performance-list";
 import { OverdueShopsTable } from "@/components/owner/dashboard/overdue-shops-table";
-import { RecentActivityFeed } from "@/components/owner/dashboard/recent-activity-feed";
+import { ActivityList } from "@/components/shared/activity-list";
 import { DashboardChart } from "@/components/owner/dashboard-chart";
 
 export const revalidate = 60;
@@ -99,7 +99,7 @@ export default async function DashboardPage() {
 
         {/* ROW 4: Table & Feed */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
-          <RecentActivityFeed activities={data.activities} />
+          <ActivityList activities={data.activities} title="Network Activity" />
           <OverdueShopsTable shops={data.overdueShopsList} />
         </section>
       </div>

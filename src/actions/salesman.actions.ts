@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { Activity } from "@/types/activity";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import {
@@ -412,18 +413,9 @@ export async function getSalesmanPendingPayments(userId: string) {
   return { totalPending, shopCount };
 }
 
-export type ActivityItem = {
-  id: string;
-  type: "distribution" | "payment" | "intake";
-  description: string;
-  amount: number;
-  date: string;
-  shopName: string | null;
-};
-
 export async function getSalesmanLatestActivity(
   userId: string,
-): Promise<ActivityItem[]> {
+): Promise<Activity[]> {
   const [distributions, payments, intakes] = await Promise.all([
     prisma.distribution.findMany({
       where: { recordedById: userId },
@@ -432,6 +424,7 @@ export async function getSalesmanLatestActivity(
       include: {
         brand: { select: { name: true } },
         shop: { select: { name: true } },
+        recordedBy: { select: { name: true, role: true } },
       },
     }),
     prisma.payment.findMany({
@@ -440,6 +433,7 @@ export async function getSalesmanLatestActivity(
       take: 10,
       include: {
         shop: { select: { name: true } },
+        recordedBy: { select: { name: true, role: true } },
       },
     }),
     prisma.inventoryIntake.findMany({
@@ -448,37 +442,63 @@ export async function getSalesmanLatestActivity(
       take: 10,
       include: {
         brand: { select: { name: true } },
+        recordedBy: { select: { name: true, role: true } },
       },
     }),
   ]);
 
-  const activities: ActivityItem[] = [
+  const activities: Activity[] = [
     // 1. Distributions
     ...distributions.map((d) => ({
       id: d.id,
       type: "distribution" as const,
-      description: `${d.brand.name} × ${d.quantity} bags`,
+      title: `${d.brand.name} Distribution`,
+      subtitle: d.shop.name,
       amount: Number(d.totalAmount),
       date: d.createdAt.toISOString(),
-      shopName: d.shop.name,
+      recordedBy: d.recordedBy?.name || "System",
+      role: d.recordedBy?.role || "SALESMAN",
+      details: [
+        { label: "Quantity", value: `${d.quantity} bags` },
+        { label: "Unit Price", value: Number(d.unitPrice) },
+        { label: "Shop", value: d.shop.name },
+        { label: "Recorded By", value: d.recordedBy?.name || "System" }
+      ]
     })),
     // 2. Payments
     ...payments.map((p) => ({
       id: p.id,
       type: "payment" as const,
-      description: `${p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment"} via ${p.paymentMethod.replace("_", " ")}`,
+      title: p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",
+      subtitle: `${p.shop?.name || "Factory"} via ${p.paymentMethod.replace("_", " ")}`,
       amount: Number(p.amount),
       date: p.createdAt.toISOString(),
-      shopName: p.shop?.name || null,
+      recordedBy: p.recordedBy?.name || "System",
+      role: p.recordedBy?.role || "SALESMAN",
+      details: [
+        { label: "Payment Type", value: p.type.replace("_", " ") },
+        { label: "Method", value: p.paymentMethod.replace("_", " ") },
+        { label: "Amount", value: Number(p.amount) },
+        { label: "Shop", value: p.shop?.name || "Factory" },
+        { label: "Recorded By", value: p.recordedBy?.name || "System" }
+      ]
     })),
     // 3. Inventory Intakes
     ...intakes.map((i) => ({
       id: i.id,
       type: "intake" as const,
-      description: `Factory Intake: ${i.brand.name} × ${i.quantity} bags`,
+      title: "Factory Intake",
+      subtitle: `${i.brand.name} stock increase`,
       amount: 0,
       date: i.createdAt.toISOString(),
-      shopName: "Factory",
+      recordedBy: i.recordedBy?.name || "System",
+      role: i.recordedBy?.role || "SALESMAN",
+      details: [
+        { label: "Brand", value: i.brand.name },
+        { label: "Quantity", value: `${i.quantity} bags` },
+        { label: "Recorded By", value: i.recordedBy?.name || "System" },
+        { label: "Notes", value: i.notes || "None" }
+      ]
     })),
   ];
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { Activity } from "@/types/activity";
 
 export async function getOwnerDashboardData() {
   const now = new Date();
@@ -135,7 +136,10 @@ export async function getOwnerDashboardData() {
       select: {
         id: true,
         quantity: true,
+        totalAmount: true,
+        unitPrice: true,
         createdAt: true,
+        brand: { select: { name: true } },
         shop: { select: { name: true } },
         recordedBy: { select: { name: true, role: true } },
       },
@@ -145,6 +149,9 @@ export async function getOwnerDashboardData() {
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
+        amount: true,
+        type: true,
+        paymentMethod: true,
         createdAt: true,
         shop: { select: { name: true } },
         recordedBy: { select: { name: true, role: true } },
@@ -159,6 +166,7 @@ export async function getOwnerDashboardData() {
         createdAt: true,
         brand: { select: { name: true } },
         recordedBy: { select: { name: true, role: true } },
+        notes: true,
       },
     }),
     // Chart Data - Using ninetyDaysAgo instead of 3 months
@@ -290,41 +298,57 @@ export async function getOwnerDashboardData() {
     .slice(0, 8);
 
   // Recent Activity Feed
-  type Activity = {
-    id: string;
-    type: "distribution" | "payment" | "intake";
-    text: string;
-    date: Date;
-    recordedBy: string;
-    role: string;
-  };
   const activities: Activity[] = [
     ...recentDistributions.map((d) => ({
       id: d.id,
       type: "distribution" as const,
-      text: `Distributed ${d.quantity} items to ${d.shop?.name || "Unknown"}`,
+      title: `${d.brand?.name || "Unknown"} Distribution`,
+      subtitle: `${d.shop?.name || "Unknown"}`,
+      amount: Number(d.totalAmount),
       date: d.createdAt,
       recordedBy: d.recordedBy?.name || "System",
       role: d.recordedBy?.role || "UNKNOWN",
+      details: [
+        { label: "Quantity", value: `${d.quantity} bags` },
+        { label: "Unit Price", value: Number(d.unitPrice) },
+        { label: "Shop", value: d.shop?.name || "N/A" },
+        { label: "Recorded By", value: d.recordedBy?.name || "System" }
+      ]
     })),
     ...recentPayments.map((p) => ({
       id: p.id,
       type: "payment" as const,
-      text: `Received payment from ${p.shop?.name || "Factory"}`,
+      title: p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",
+      subtitle: `${p.shop?.name || "Factory"} via ${p.paymentMethod.replace("_", " ")}`,
+      amount: Number(p.amount),
       date: p.createdAt,
       recordedBy: p.recordedBy?.name || "System",
       role: p.recordedBy?.role || "UNKNOWN",
+      details: [
+        { label: "Payment Type", value: p.type.replace("_", " ") },
+        { label: "Method", value: p.paymentMethod.replace("_", " ") },
+        { label: "Amount", value: Number(p.amount) },
+        { label: "Shop", value: p.shop?.name || "Factory" },
+        { label: "Recorded By", value: p.recordedBy?.name || "System" }
+      ]
     })),
     ...recentIntakes.map((i) => ({
       id: i.id,
       type: "intake" as const,
-      text: `Stock intake of ${i.quantity} for ${i.brand?.name || "Unknown"}`,
+      title: "Factory Intake",
+      subtitle: `${i.brand?.name || "Unknown"} stock increase`,
       date: i.createdAt,
       recordedBy: i.recordedBy?.name || "System",
       role: i.recordedBy?.role || "UNKNOWN",
+      details: [
+        { label: "Brand", value: i.brand?.name || "N/A" },
+        { label: "Quantity", value: `${i.quantity} bags` },
+        { label: "Recorded By", value: i.recordedBy?.name || "System" },
+        { label: "Notes", value: i.notes || "None" }
+      ]
     })),
   ]
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 10);
 
   // ---7-DAY INTERVAL CHART DATA PREPARATION ---

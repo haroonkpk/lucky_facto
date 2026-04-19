@@ -9,7 +9,7 @@ export function OverdueShopsTable({ shops }: { shops: any[] }) {
   };
 
   return (
-    <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] overflow-hidden flex flex-col h-full">
+    <div className="bg-amber-50 rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] overflow-hidden flex flex-col">
       <div className="flex justify-between items-center mb-6 px-1">
         <h3 className="font-bold text-[#0A2540]" style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}>
           Overdue Shops
@@ -19,7 +19,7 @@ export function OverdueShopsTable({ shops }: { shops: any[] }) {
         </span>
       </div>
       
-      <div className="overflow-x-auto scrollbar-hide">
+      <div className="overflow-x-auto scrollbar-hide ">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#F1F5F9]">
@@ -31,14 +31,14 @@ export function OverdueShopsTable({ shops }: { shops: any[] }) {
           </thead>
           <tbody>
             {shops.map((shop, i) => (
-              <tr key={i} className="border-b border-[#F8FAFC] last:border-0 hover:bg-[#F8FAFC]/50 transition-colors">
-                <td className="py-4 pr-4 font-bold text-[#0A2540]" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
+              <tr key={i} className="border-b border-[#F8FAFC] last:border-0 hover:bg-amber-600/10 transition-colors">
+                <td className="py-4 pr-4 font-bold text-amber-600" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
                   {shop.name}
                 </td>
                 {/* <td className="py-4 px-2 text-[#64748B] font-medium" style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)" }}>
                   {shop.region}
                 </td> */}
-                <td className="py-4 px-2 text-right font-bold text-[#C0392B]" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
+                <td className="py-4 px-2 text-right font-bold text-amber-600" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
                   {formatPKR(shop.balance)}
                 </td>
                 <td className="py-4 pl-4 text-center">
