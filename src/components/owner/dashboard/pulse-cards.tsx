@@ -1,5 +1,6 @@
 import { formatPKR, calcDeltaPercentage } from "@/lib/dashboard-utils";
-import { CircleDollarSign, TrendingUp, TrendingDown, Users, Package } from "lucide-react";
+import { CircleDollarSign, TrendingUp, Users, Package } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function PulseCards({ pulse }: { pulse: any }) {
   const cards = [
@@ -30,28 +31,34 @@ export function PulseCards({ pulse }: { pulse: any }) {
   ];
 
   return (
-    <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[clamp(1rem,2vw,1.5rem)]">
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-[clamp(1rem,2vw,1.5rem)]">
       {cards.map((card, i) => (
-        <div key={i} className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)] shadow-sm border border-slate-100 flex flex-col justify-between">
-          <div className="flex justify-between items-start mb-2">
-            <p className="text-[#64748B] font-medium" style={{ fontSize: "clamp(0.75rem, 1.2vw, 0.875rem)" }}>
+        <div 
+          key={i} 
+          className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start mb-4">
+            <p className="text-[#64748B] font-bold uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.2vw, 11px)" }}>
               {card.label}
             </p>
-            <div className="bg-[#F8FAFC] p-2 rounded-lg">
+            <div className="bg-[#F1F5F9] p-[clamp(8px,1vw,10px)] rounded-[clamp(6px,1vw,10px)]">
               {card.icon}
             </div>
           </div>
           <div className="flex items-end justify-between">
-            <h3 className="text-[#0A2540] font-bold" style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)" }}>
+            <h3 className="text-[#0A2540] font-bold" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}>
               {card.value}
             </h3>
             {card.delta !== null && (
-              <p 
-                className={`font-semibold ${card.delta >= 0 ? "text-green-600" : "text-red-600"}`}
-                style={{ fontSize: "clamp(0.75rem, 1.2vw, 0.875rem)" }}
+              <div 
+                className={cn(
+                  "flex items-center gap-1 font-bold rounded-lg px-2 py-1",
+                  card.delta >= 0 ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
+                )}
+                style={{ fontSize: "clamp(11px, 1.2vw, 13px)" }}
               >
                 {card.delta >= 0 ? "+" : ""}{card.delta}%
-              </p>
+              </div>
             )}
           </div>
         </div>
