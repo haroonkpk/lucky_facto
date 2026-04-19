@@ -1,43 +1,116 @@
+"use client";
 import { formatNumber } from "@/lib/dashboard-utils";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
-export function BrandStockList({ stock }: { stock: any[] }) {
-  const maxStock = Math.max(...stock.map(s => s.currentStock), 1);
+interface BrandStock {
+  brandName: string;
+  currentStock: number;
+}
 
+const COLORS = [
+  "#0D3E8D",
+  "#1A56DB",
+  "#3B82F6",
+  "#60A5FA",
+  "#93C5FD",
+  "#1E3A8A",
+  "#1E40AF",
+  "#2563EB",
+];
+
+export function BrandStockList({ stock }: { stock: BrandStock[] }) {
   return (
-    <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] h-full flex flex-col">
+    <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] h-full flex flex-col min-h-[350px]">
       <div className="flex justify-between items-center mb-6 px-1">
-        <h3 className="font-bold text-[#0A2540]" style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}>
+        <h3
+          className="font-bold text-[#0A2540]"
+          style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}
+        >
           Brand-Wise Stock
         </h3>
-        <span className="text-[#64748B] font-bold uppercase tracking-widest" style={{ fontSize: "clamp(9px, 1vw, 11px)" }}>
+        <span
+          className="text-[#64748B] font-bold uppercase tracking-widest"
+          style={{ fontSize: "clamp(9px, 1vw, 11px)" }}
+        >
           Current Units
         </span>
       </div>
-      
-      <div className="flex-1 flex flex-col gap-5 overflow-y-auto pr-2 scrollbar-hide">
-        {stock.map((item, i) => {
-          const percentage = Math.min(100, Math.max(0, (item.currentStock / maxStock) * 100));
-          return (
-            <div key={i} className="flex flex-col gap-2">
-              <div className="flex justify-between items-end px-1">
-                <span className="text-[#0A2540] font-bold" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
-                  {item.brandName}
-                </span>
-                <span className="text-[#053B70] font-bold" style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)" }}>
-                  {formatNumber(item.currentStock)}
-                </span>
-              </div>
-              <div className="w-full bg-[#F1F5F9] h-[clamp(6px,0.8vw,8px)] rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-[#0D3E8D] rounded-full transition-all duration-500"
-                  style={{ width: `${percentage}%` }}
-                />
-              </div>
-            </div>
-          );
-        })}
-        {stock.length === 0 && (
-          <p className="text-gray-400 text-sm italic text-center mt-4">No stock records found</p>
+
+      <div className="flex-1 w-full relative">
+        {stock.length > 0 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={stock}
+                dataKey="currentStock"
+                nameKey="brandName"
+                cx="50%"
+                cy="50%"
+                innerRadius="50%"
+                outerRadius="75%"
+                paddingAngle={2}
+                stroke="none"
+                label={({ value }: { value: number }) => formatNumber(value)}
+                labelLine={{ stroke: "#94A3B8", strokeWidth: 1 }}
+              >
+                {stock.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(
+                  value:
+                    | number
+                    | string
+                    | readonly (number | string)[]
+                    | undefined,
+                ) => {
+                  const val = Array.isArray(value) ? value[0] : value;
+                  return [formatNumber(Number(val) || 0), "Stock"];
+                }}
+                contentStyle={{
+                  borderRadius: "8px",
+                  border: "none",
+                  boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                }}
+              />
+              <Legend
+                verticalAlign="bottom"
+                height={36}
+                iconType="circle"
+                wrapperStyle={{ fontSize: "12px", color: "#64748B" }}
+                formatter={(value: string, entry: { payload?: object }) => {
+                  const payload = entry.payload as BrandStock | undefined;
+                  const stockValue = payload?.currentStock || 0;
+
+                  return (
+                    <span className="text-[#0A2540] ml-1">
+                      {value}{" "}
+                      <span className="font-bold">
+                        ({formatNumber(stockValue)})
+                      </span>
+                    </span>
+                  );
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <p className="text-gray-400 text-sm italic">
+              No stock records found
+            </p>
+          </div>
         )}
       </div>
     </div>

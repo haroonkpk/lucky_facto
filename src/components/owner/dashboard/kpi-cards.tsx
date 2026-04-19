@@ -1,42 +1,62 @@
 import { formatNumber } from "@/lib/dashboard-utils";
+import { formatPKR } from "@/lib/helper";
 import { cn } from "@/lib/utils";
 
-export function KPICards({ kpis }: { kpis: any }) {
+interface KPIData {
+  totalPendingReceivable: number;
+  collectionEfficiency: number;
+  totalStockCount: number;
+}
+
+export function KPICards({ kpis }: { kpis: KPIData }) {
   const cards = [
     {
-      title: "Pending Receivable",
-      value: kpis.totalPendingReceivable,
-      desc: "Total shop balance > 0",
-      colorClass: "text-[#C0392B]",
+      title: "Pending Payments",
+      value: formatPKR(kpis.totalPendingReceivable),
+      desc: "Outstanding shop balances",
+      colorClass: "text-amber-600",
+      bgClass: "bg-amber-50",
     },
     {
       title: "Collection Efficiency",
       value: `${kpis.collectionEfficiency.toFixed(1)}%`,
       desc: "Payments / Distribution Ratio",
       colorClass: "text-[#053B70]",
+      bgClass: "bg-white",
     },
-    {
-      title: "Stock in Hand",
-      value: formatNumber(kpis.totalStockCount),
-      desc: "Units across all brands",
-      colorClass: "text-[#0D3E8D]",
-    }
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-3 gap-[clamp(1rem,2vw,1.5rem)]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 h-full lg:grid-cols-1 gap-[clamp(1rem,2vw,1.5rem)]">
       {cards.map((card, i) => (
-        <div 
-          key={i} 
-          className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-center"
+        <div
+          key={i}
+          className={cn(
+            "rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-center transition-colors",
+            card.bgClass,
+          )}
         >
-          <p className="text-[#64748B] font-bold uppercase tracking-wider mb-2" style={{ fontSize: "clamp(10px, 1.2vw, 11px)" }}>
+          <p
+            className={cn(
+              "font-bold uppercase tracking-wider mb-2",
+              card.colorClass,
+            )}
+            style={{ fontSize: "clamp(10px, 1.2vw, 11px)", opacity: 0.8 }}
+          >
             {card.title}
           </p>
-          <h3 className={cn("font-bold", card.colorClass)} style={{ fontSize: "clamp(1.5rem, 2.5vw, 1.875rem)" }}>
-            {card.value}
+          <h3
+            className={cn("font-bold", card.colorClass)}
+            style={{ fontSize: "clamp(1.5rem, 2.5vw, 1.875rem)" }}
+          >
+            {typeof card.value === "number"
+              ? formatNumber(card.value)
+              : card.value}
           </h3>
-          <p className="text-[#94A3B8] mt-2 font-medium" style={{ fontSize: "clamp(12px, 1vw, 13px)" }}>
+          <p
+            className="text-[#64748B] mt-2 font-medium"
+            style={{ fontSize: "clamp(12px, 1vw, 13px)" }}
+          >
             {card.desc}
           </p>
         </div>

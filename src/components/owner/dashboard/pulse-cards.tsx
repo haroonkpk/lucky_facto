@@ -1,5 +1,5 @@
 import { formatPKR, calcDeltaPercentage } from "@/lib/dashboard-utils";
-import { CircleDollarSign, TrendingUp, Users, Package } from "lucide-react";
+import { CircleDollarSign, TrendingUp, Users, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function PulseCards({ pulse }: { pulse: any }) {
@@ -8,25 +8,29 @@ export function PulseCards({ pulse }: { pulse: any }) {
       label: "Distributed Today",
       value: formatPKR(pulse.todayDistributed),
       delta: calcDeltaPercentage(pulse.todayDistributed, pulse.yesterdayDistributed),
-      icon: <Package className="text-[var(--color-primary)] w-5 h-5" />
+      Icon: Truck,
+      iconColor: "text-white/5" 
     },
     {
       label: "Payments Today",
       value: formatPKR(pulse.todayPayments),
       delta: calcDeltaPercentage(pulse.todayPayments, pulse.yesterdayPayments),
-      icon: <CircleDollarSign className="text-green-600 w-5 h-5" />
+      Icon: CircleDollarSign,
+      iconColor: "text-green-500/10"
     },
     {
       label: "Active Salesmen",
       value: `${pulse.activeSalesmenCount} / ${pulse.totalSalesmenCount}`,
       delta: null,
-      icon: <Users className="text-orange-500 w-5 h-5" />
+      Icon: Users,
+      iconColor: "text-orange-500/10"
     },
     {
       label: "Deliveries Today",
       value: pulse.todayDeliveriesCount.toString(),
       delta: null,
-      icon: <TrendingUp className="text-blue-500 w-5 h-5" />
+      Icon: TrendingUp,
+      iconColor: "text-blue-300/10"
     }
   ];
 
@@ -35,25 +39,30 @@ export function PulseCards({ pulse }: { pulse: any }) {
       {cards.map((card, i) => (
         <div 
           key={i} 
-          className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between"
+          className="relative overflow-hidden bg-(--color-primary) rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between min-h-35 md:min-h-40"
         >
-          <div className="flex justify-between items-start mb-4">
-            <p className="text-[#64748B] font-bold uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.2vw, 11px)" }}>
+          <card.Icon 
+            className={cn(
+              "absolute -top-4 -right-4 w-28 h-28 -rotate-12 pointer-events-none z-0",
+              card.iconColor
+            )} 
+          />
+
+          <div className="relative z-10 flex justify-between items-start mb-4">
+            <p className="text-blue-300 font-bold uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.2vw, 11px)" }}>
               {card.label}
             </p>
-            <div className="bg-[#F1F5F9] p-[clamp(8px,1vw,10px)] rounded-[clamp(6px,1vw,10px)]">
-              {card.icon}
-            </div>
           </div>
-          <div className="flex items-end justify-between">
-            <h3 className="text-[#0A2540] font-bold" style={{ fontSize: "clamp(1.5rem, 3.5vw, 2.25rem)" }}>
+          
+          <div className="relative z-10 flex items-end justify-between">
+            <h3 className="text-blue-100 font-bold" style={{ fontSize: "clamp(1.9rem, 3.5vw, 2.25rem)" }}>
               {card.value}
             </h3>
             {card.delta !== null && (
               <div 
                 className={cn(
-                  "flex items-center gap-1 font-bold rounded-lg px-2 py-1",
-                  card.delta >= 0 ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
+                  "flex items-center gap-1 font-bold px-2 py-1",
+                  card.delta >= 0 ? "text-green-600 bg-white/10" : "text-red-600 bg-red-50"
                 )}
                 style={{ fontSize: "clamp(11px, 1.2vw, 13px)" }}
               >

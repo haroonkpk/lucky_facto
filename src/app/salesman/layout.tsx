@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { LayoutDashboard, Users, Package, Truck, Banknote } from "lucide-react";
+import { LayoutDashboard, Package, Truck, Banknote } from "lucide-react";
 import { Sidebar } from "@/components/layouts/sidebar";
 
 interface SalesmanDashboardLayoutProps {

@@ -17,7 +17,7 @@ export default function DashboardLoading() {
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)] shadow-sm border border-slate-100 flex flex-col justify-between h-[120px]"
+              className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)]  flex flex-col justify-between h-[120px]"
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="h-4 bg-slate-200 rounded w-1/2"></div>
@@ -38,7 +38,7 @@ export default function DashboardLoading() {
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-xl p-[clamp(1rem,1.5vw,1.5rem)] shadow-sm border border-slate-100 flex flex-col justify-center items-center h-[140px]"
+                  className="bg-white rounded-xl p-[clamp(1rem,1.5vw,1.5rem)]  flex flex-col justify-center items-center h-[140px]"
                 >
                   <div className="h-4 bg-slate-200 rounded w-2/3 mb-4"></div>
                   <div className="h-8 bg-slate-200 rounded w-1/2 mb-2"></div>
@@ -47,7 +47,7 @@ export default function DashboardLoading() {
               ))}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)] shadow-sm border border-slate-100 h-[350px]">
+          <div className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)]  h-[350px]">
             <div className="h-6 bg-slate-200 rounded w-1/3 mb-2"></div>
             <div className="h-4 bg-slate-200 rounded w-1/4 mb-6"></div>
             <div className="w-full h-[250px] bg-slate-100 rounded-lg"></div>
@@ -59,7 +59,7 @@ export default function DashboardLoading() {
           {[...Array(2)].map((_, i) => (
             <div
               key={i}
-              className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)] shadow-sm border border-slate-100 h-[300px]"
+              className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)]  h-[300px]"
             >
               <div className="h-6 bg-slate-200 rounded w-1/3 mb-6"></div>
               <div className="flex flex-col gap-4">
@@ -79,7 +79,7 @@ export default function DashboardLoading() {
 
         {/* ROW 4: Table & Feed */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2rem)] items-start">
-          <div className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)] shadow-sm border border-slate-100 h-[400px]">
+          <div className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)]  h-[400px]">
             <div className="h-6 bg-slate-200 rounded w-1/4 mb-6"></div>
             <div className="flex flex-col gap-4">
               <div className="h-8 bg-slate-200 rounded w-full"></div>
@@ -88,7 +88,7 @@ export default function DashboardLoading() {
               ))}
             </div>
           </div>
-          <div className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)] shadow-sm border border-slate-100 h-[400px]">
+          <div className="bg-white rounded-xl p-[clamp(1rem,2vw,1.5rem)]  h-[400px]">
             <div className="h-6 bg-slate-200 rounded w-1/2 mb-6"></div>
             <div className="flex flex-col gap-6">
               {[...Array(4)].map((_, j) => (

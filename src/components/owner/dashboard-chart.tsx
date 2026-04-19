@@ -1,6 +1,15 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { 
+  Area, 
+  AreaChart, 
+  CartesianGrid, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from "recharts";
 import { formatPKR } from "@/lib/dashboard-utils";
 
 interface ChartData {
@@ -18,8 +27,12 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
     );
   }
 
-  const formatTooltip = (value: any) => {
-    return formatPKR(Number(value));
+  const formatTooltip = (
+    value: number | string | readonly (number | string)[] | undefined,
+    name: number | string | undefined
+  ) => {
+    const val = Array.isArray(value) ? value[0] : value;
+    return [formatPKR(Number(val) || 0), name];
   };
 
   const formatYAxis = (value: number) => {
@@ -31,10 +44,21 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
   return (
     <div className="w-full h-64 sm:h-72 mt-4">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart
+        <AreaChart
           data={data}
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
         >
+          <defs>
+            <linearGradient id="colorDistribution" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="var(--color-primary, #3B82F6)" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="var(--color-primary, #3B82F6)" stopOpacity={0}/>
+            </linearGradient>
+            <linearGradient id="colorPayment" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8}/>
+              <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
+            </linearGradient>
+          </defs>
+
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
           <XAxis 
             dataKey="month" 
@@ -51,31 +75,40 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
             tickFormatter={formatYAxis}
             width={60}
           />
+          
           <Tooltip 
             formatter={formatTooltip} 
-            cursor={{ fill: "#F1F5F9" }}
             contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
+            labelStyle={{ fontWeight: "bold", color: "#0A2540", marginBottom: "4px" }}
           />
+          
           <Legend 
             wrapperStyle={{ paddingTop: "20px", fontSize: "12px", color: "#64748B" }} 
             iconType="circle"
           />
           
-          <Bar 
+          {/* Distribution Area */}
+          <Area 
+            type="monotone" 
             dataKey="distribution" 
             name="Distribution" 
-            fill="var(--color-primary)" 
-            radius={[4, 4, 0, 0]} 
-            maxBarSize={40}
+            stroke="var(--color-primary, #3B82F6)" 
+            strokeWidth={3}
+            fillOpacity={1}
+            fill="url(#colorDistribution)" 
           />
-          <Bar 
+          
+          {/* Payment Collected Area */}
+          <Area 
+            type="monotone" 
             dataKey="payment" 
             name="Payment Collected" 
-            fill="#22c55e" 
-            radius={[4, 4, 0, 0]} 
-            maxBarSize={40}
+            stroke="#22c55e" 
+            strokeWidth={3}
+            fillOpacity={1}
+            fill="url(#colorPayment)" 
           />
-        </BarChart>
+        </AreaChart>
       </ResponsiveContainer>
     </div>
   );

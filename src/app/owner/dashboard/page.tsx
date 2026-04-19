@@ -26,7 +26,7 @@ export default async function DashboardPage() {
           </p>
           <h1
             className="text-[#0A2540] font-bold truncate leading-tight"
-            style={{ fontSize: "clamp(1.75rem, 4.5vw, 2.5rem)" }}
+            style={{ fontSize: "clamp(1.3rem, 4.5vw, 2.5rem)" }}
           >
             Owner Dashboard
           </h1>
@@ -34,7 +34,7 @@ export default async function DashboardPage() {
             className="text-[#94A3B8] mt-1.5"
             style={{ fontSize: "clamp(13px, 1.6vw, 15px)" }}
           >
-            Real-time overview of your distribution network's pulse.
+            Real-time overview of your distribution network&lsquo;s pulse.
           </p>
         </div>
         <div className="shrink-0 pt-2">
