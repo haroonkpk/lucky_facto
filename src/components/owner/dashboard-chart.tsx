@@ -1,193 +1,82 @@
 "use client";
 
-import { useMemo } from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  ChartLegend,
-  ChartLegendContent,
-} from "@/components/ui/chart";
-import { BrandRevenueEntry } from "@/types/chart";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { formatPKR } from "@/lib/dashboard-utils";
 
-const COLORS = [
-  "#0053da",
-  "#93cbff",
-  "#ea580c",
-  "#9333ea",
-  "#e11d48",
-  "#0891b2",
-  "#ca8a04",
-];
-
-interface DashboardChartProps {
-  data: BrandRevenueEntry[];
-  brands: string[];
+interface ChartData {
+  month: string;
+  distribution: number;
+  payment: number;
 }
-export function DashboardChart({ data, brands }: DashboardChartProps) {
-  const safeBrands = useMemo(
-    () =>
-      brands.map((brand) => ({
-        original: brand,
-        safe: brand.replace(/\s+/g, "_"),
-      })),
-    [brands],
-  );
 
-  const safeData = useMemo(
-    () =>
-      data.map((item) => {
-        const newItem = { ...item };
-        safeBrands.forEach(({ original, safe }) => {
-          if (original !== safe) newItem[safe] = newItem[original];
-        });
-        return newItem;
-      }),
-    [data, safeBrands],
-  );
-
-  const chartConfig = useMemo(() => {
-    const config: ChartConfig = {};
-    safeBrands.forEach(({ original, safe }, index) => {
-      config[safe] = {
-        label: original,
-        color: COLORS[index % COLORS.length],
-      };
-    });
-    return config;
-  }, [safeBrands]);
-
-  const xAxisTicks = useMemo(() => {
-    return safeData
-      .filter((item) => {
-        const day = Number(String(item.date).split("-")[2]);
-        return day % 5 === 1;
-      })
-      .map((item) => item.date);
-  }, [safeData]);
-
-  const formatXAxis = (value: string) => {
-    const [year, month, day] = value.split("-");
-    if (!year || !month || !day) return value;
-    const d = new Date(Number(year), Number(month) - 1, Number(day));
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-    }).format(d);
-  };
-
-  const formatTooltipLabel = (value: string) => {
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return value;
-    return new Intl.DateTimeFormat("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    }).format(d);
-  };
-
+export function DashboardChart({ data }: { data: ChartData[] }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center w-full h-36">
-        <p className="text-slate-500 text-sm">No revenue data available.</p>
+      <div className="flex items-center justify-center w-full h-44 sm:h-56">
+        <p className="text-slate-500 text-[clamp(0.75rem,2vw,0.875rem)]">No revenue data available.</p>
       </div>
     );
   }
 
+  const formatTooltip = (value: any) => {
+    return formatPKR(Number(value));
+  };
+
+  const formatYAxis = (value: number) => {
+    if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
+    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
+    return value.toString();
+  };
+
   return (
-    <div className="w-full h-44 sm:h-56">
-      <ChartContainer config={chartConfig} className="h-full w-full">
-        <AreaChart
-          data={safeData}
-          margin={{ top: 6, right: 12, left: 0, bottom: 0 }}
+    <div className="w-full h-64 sm:h-72 mt-4">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
         >
-          <defs>
-            {safeBrands.map(({ safe }, index) => {
-              const color = COLORS[index % COLORS.length];
-              return (
-                <linearGradient
-                  key={`color-${safe}`}
-                  id={`color-${safe}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="5%" stopColor={color} stopOpacity={0.7} />
-                  <stop offset="95%" stopColor={color} stopOpacity={0.05} />
-                </linearGradient>
-              );
-            })}
-          </defs>
-
-          <CartesianGrid
-            strokeDasharray="3 3"
-            vertical={false}
-            stroke="#E2E8F0"
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+          <XAxis 
+            dataKey="month" 
+            tickLine={false} 
+            axisLine={false} 
+            tickMargin={10} 
+            tick={{ fontSize: 12, fill: "#64748B" }} 
           />
-
-          <XAxis
-            dataKey="date"
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            ticks={xAxisTicks}
-            tickFormatter={formatXAxis}
-            tick={{ fontSize: 11 }}
-            stroke="#64748B"
+          <YAxis 
+            tickLine={false} 
+            axisLine={false} 
+            tickMargin={10} 
+            tick={{ fontSize: 12, fill: "#64748B" }} 
+            tickFormatter={formatYAxis}
+            width={60}
           />
-
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            tick={{ fontSize: 11 }}
-            width={42}
-            stroke="#64748B"
-            tickFormatter={(v) =>
-              `$${Intl.NumberFormat("en-US", {
-                notation: "compact",
-                maximumFractionDigits: 1,
-              }).format(v)}`
-            }
+          <Tooltip 
+            formatter={formatTooltip} 
+            cursor={{ fill: "#F1F5F9" }}
+            contentStyle={{ borderRadius: "8px", border: "none", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }}
           />
-
-          <ChartTooltip
-            cursor={{
-              stroke: "#94A3B8",
-              strokeWidth: 1,
-              strokeDasharray: "3 3",
-            }}
-            content={
-              <ChartTooltipContent
-                indicator="dot"
-                labelFormatter={(label) => formatTooltipLabel(label)}
-              />
-            }
+          <Legend 
+            wrapperStyle={{ paddingTop: "20px", fontSize: "12px", color: "#64748B" }} 
+            iconType="circle"
           />
-
-          {safeBrands.map(({ safe }, index) => {
-            const color = COLORS[index % COLORS.length];
-            return (
-              <Area
-                key={safe}
-                type="monotone"
-                dataKey={safe}
-                stackId="1"
-                stroke={color}
-                strokeWidth={1.5}
-                fill={`url(#color-${safe})`}
-                activeDot={{ r: 4, strokeWidth: 0, fill: color }}
-                dot={false}
-              />
-            );
-          })}
-
-          <ChartLegend content={<ChartLegendContent />} />
-        </AreaChart>
-      </ChartContainer>
+          
+          <Bar 
+            dataKey="distribution" 
+            name="Distribution" 
+            fill="var(--color-primary)" 
+            radius={[4, 4, 0, 0]} 
+            maxBarSize={40}
+          />
+          <Bar 
+            dataKey="payment" 
+            name="Payment Collected" 
+            fill="#22c55e" 
+            radius={[4, 4, 0, 0]} 
+            maxBarSize={40}
+          />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }

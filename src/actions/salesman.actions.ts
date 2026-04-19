@@ -367,49 +367,44 @@ export async function getSalesmanSales(userId: string) {
 }
 
 export async function getSalesmanPendingPayments(userId: string) {
-  // Get total distributions by this salesman, grouped by shop
-  const [allDistributions, allCollections] = await Promise.all([
-    prisma.distribution.findMany({
-      where: { recordedById: userId },
-      select: { shopId: true, totalAmount: true },
-    }),
-    prisma.payment.findMany({
-      where: {
-        recordedById: userId,
-        type: "SHOP_COLLECTION",
-        shopId: { not: null },
-      },
-      select: { shopId: true, amount: true },
-    }),
-  ]);
+  const shopsWithBalance = await prisma.shop.findMany({
+    where: { currentBalance: { gt: 0 } },
+    select: { id: true, currentBalance: true },
+  });
 
-  // Sum distributions per shop
-  const shopTotals = new Map<
-    string,
-    { distributed: number; collected: number }
-  >();
-
-  for (const d of allDistributions) {
-    const entry = shopTotals.get(d.shopId) ?? { distributed: 0, collected: 0 };
-    entry.distributed += Number(d.totalAmount);
-    shopTotals.set(d.shopId, entry);
+  if (shopsWithBalance.length === 0) {
+    return { totalPending: 0, shopCount: 0 };
   }
 
-  for (const p of allCollections) {
-    if (!p.shopId) continue;
-    const entry = shopTotals.get(p.shopId) ?? { distributed: 0, collected: 0 };
-    entry.collected += Number(p.amount);
-    shopTotals.set(p.shopId, entry);
-  }
-
-  // Only count shops where this salesman has a net positive pending amount
   let totalPending = 0;
   let shopCount = 0;
 
-  for (const { distributed, collected } of shopTotals.values()) {
-    const pending = distributed - collected;
-    if (pending > 0) {
-      totalPending += pending;
+  for (const shop of shopsWithBalance) {
+    const distributions = await prisma.distribution.findMany({
+      where: { shopId: shop.id },
+      orderBy: { createdAt: "desc" },
+      select: { totalAmount: true, recordedById: true },
+    });
+
+    let remainingBalance = Number(shop.currentBalance);
+    let shopPendingForUser = 0;
+
+    for (const dist of distributions) {
+      if (remainingBalance <= 0) break;
+
+      const distAmount = Number(dist.totalAmount);
+
+      const unpaidAmountOfThisDist = Math.min(distAmount, remainingBalance);
+
+      if (dist.recordedById === userId) {
+        shopPendingForUser += unpaidAmountOfThisDist;
+      }
+
+      remainingBalance -= unpaidAmountOfThisDist;
+    }
+
+    if (shopPendingForUser > 0) {
+      totalPending += shopPendingForUser;
       shopCount++;
     }
   }
@@ -476,7 +471,7 @@ export async function getSalesmanLatestActivity(
       date: p.createdAt.toISOString(),
       shopName: p.shop?.name || null,
     })),
-    // 3. Inventory Intakes 
+    // 3. Inventory Intakes
     ...intakes.map((i) => ({
       id: i.id,
       type: "intake" as const,
