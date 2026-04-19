@@ -99,8 +99,8 @@ export default async function DashboardPage() {
 
         {/* ROW 4: Table & Feed */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
-          <OverdueShopsTable shops={data.overdueShopsList} />
           <RecentActivityFeed activities={data.activities} />
+          <OverdueShopsTable shops={data.overdueShopsList} />
         </section>
       </div>
     </div>

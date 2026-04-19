@@ -9,7 +9,7 @@ export function RecentActivityFeed({ activities }: { activities: any[] }) {
       default: return "bg-slate-400";
     }
   };
-
+ 
   return (
     <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] h-full flex flex-col">
       <div className="flex justify-between items-center mb-6 px-1">

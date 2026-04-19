@@ -20,11 +20,11 @@ export function OverdueShopsTable({ shops }: { shops: any[] }) {
       </div>
       
       <div className="overflow-x-auto scrollbar-hide">
-        <table className="w-full text-left border-collapse min-w-[500px]">
+        <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-[#F1F5F9]">
               <th className="pb-4 font-bold text-[#64748B] uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}>Shop Name</th>
-              <th className="pb-4 font-bold text-[#64748B] uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}>Region</th>
+              {/* <th className="pb-4 font-bold text-[#64748B] uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}>Region</th> */}
               <th className="pb-4 text-right font-bold text-[#64748B] uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}>Outstanding</th>
               <th className="pb-4 text-center font-bold text-[#64748B] uppercase tracking-wider" style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}>Latency</th>
             </tr>
@@ -35,9 +35,9 @@ export function OverdueShopsTable({ shops }: { shops: any[] }) {
                 <td className="py-4 pr-4 font-bold text-[#0A2540]" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
                   {shop.name}
                 </td>
-                <td className="py-4 px-2 text-[#64748B] font-medium" style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)" }}>
+                {/* <td className="py-4 px-2 text-[#64748B] font-medium" style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)" }}>
                   {shop.region}
-                </td>
+                </td> */}
                 <td className="py-4 px-2 text-right font-bold text-[#C0392B]" style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}>
                   {formatPKR(shop.balance)}
                 </td>
