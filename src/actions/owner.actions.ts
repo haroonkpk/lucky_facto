@@ -33,25 +33,35 @@ export type ShopWithStats = {
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
 export async function getShops(): Promise<ShopWithStats[]> {
-  const shops = await prisma.shop.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      region: { select: { name: true } },
-      ledgers: { select: { amount: true, transactionType: true } },
-    },
+  const [shops, ledgerAggregates] = await Promise.all([
+    prisma.shop.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { region: { select: { name: true } } },
+    }),
+    prisma.ledger.groupBy({
+      by: ["shopId", "transactionType"],
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const statsMap = new Map<
+    string,
+    { totalPayments: number; totalBilling: number }
+  >();
+  ledgerAggregates.forEach((agg) => {
+    const entry = statsMap.get(agg.shopId) || {
+      totalPayments: 0,
+      totalBilling: 0,
+    };
+    if (agg.transactionType === "CREDIT")
+      entry.totalPayments = Number(agg._sum.amount || 0);
+    if (agg.transactionType === "DEBIT")
+      entry.totalBilling = Number(agg._sum.amount || 0);
+    statsMap.set(agg.shopId, entry);
   });
 
   return shops.map((s) => {
-    const totalPayments = s.ledgers
-      .filter((l) => l.transactionType === "CREDIT")
-      .reduce((sum, entry) => sum + Number(entry.amount), 0);
-
-    const totalBilling = s.ledgers
-      .filter((l) => l.transactionType === "DEBIT")
-      .reduce((sum, entry) => sum + Number(entry.amount), 0);
-
-    const balanceOwed = totalBilling - totalPayments;
-
+    const stats = statsMap.get(s.id) || { totalPayments: 0, totalBilling: 0 };
     return {
       id: s.id,
       name: s.name,
@@ -59,9 +69,9 @@ export async function getShops(): Promise<ShopWithStats[]> {
       phoneNumber: s.phoneNumber,
       isActive: s.isActive,
       region: s.region.name,
-      totalPayments,
-      totalBilling,
-      balanceOwed,
+      totalPayments: stats.totalPayments,
+      totalBilling: stats.totalBilling,
+      balanceOwed: Number(s.currentBalance),
     };
   });
 }
@@ -71,65 +81,59 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const sevenDaysAgo = new Date(todayStart);
-  sevenDaysAgo.setDate(todayStart.getDate() - 6); // inclusive: day-6 … today = 7 days
+  sevenDaysAgo.setDate(todayStart.getDate() - 6);
 
-  const salesmen = await prisma.user.findMany({
-    where: { role: Role.SALESMAN },
-    orderBy: { createdAt: "asc" },
-    include: {
-      distributions: {
-        where: { distributionDate: { gte: sevenDaysAgo } },
-        include: {
-          shop: {
-            include: {
-              region: { select: { name: true } },
-            },
-          },
-        },
+  const [salesmen, totalSalesAgg, last7DaysDistributions] = await Promise.all([
+    prisma.user.findMany({
+      where: { role: Role.SALESMAN },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.distribution.groupBy({
+      by: ["recordedById"],
+      _sum: { totalAmount: true },
+    }),
+    prisma.distribution.findMany({
+      where: { distributionDate: { gte: sevenDaysAgo } },
+      select: {
+        recordedById: true,
+        totalAmount: true,
+        distributionDate: true,
+        shop: { select: { region: { select: { name: true } } } },
       },
-      // Also fetch all distributions (without date filter) for totalSales
-      _count: false,
-    },
-  });
+    }),
+  ]);
 
-  // Separately fetch totalSales for all time (no date filter)
-  const allDistributions = await prisma.distribution.findMany({
-    select: { recordedById: true, totalAmount: true },
-  });
-
-  // Group all-time sales by salesman id
-  const totalSalesMap = new Map<string, number>();
-  allDistributions.forEach((d) => {
-    const prev = totalSalesMap.get(d.recordedById) ?? 0;
-    totalSalesMap.set(d.recordedById, prev + Number(d.totalAmount));
-  });
+  const totalSalesMap = new Map(
+    totalSalesAgg.map((a) => [a.recordedById, Number(a._sum.totalAmount || 0)]),
+  );
 
   return salesmen.map((s) => {
-    // ── Regions ────────────────────────────────────────────────
+    const salesmanDists = last7DaysDistributions.filter(
+      (d) => d.recordedById === s.id,
+    );
+
+    // Regions
     const regionSet = new Set<string>();
-    s.distributions.forEach((d) => {
-      if (d.shop?.region?.name) {
-        regionSet.add(d.shop.region.name.toUpperCase());
-      }
+    salesmanDists.forEach((d) => {
+      if (d.shop?.region?.name) regionSet.add(d.shop.region.name.toUpperCase());
     });
 
-    // ── Daily sales for last 7 days ────────────────────────────
-    // Build a map: "YYYY-MM-DD" → total sales amount
+    // Daily Sales (last 7 days)
     const dailyMap = new Map<string, number>();
-    s.distributions.forEach((d) => {
-      const date = new Date(d.distributionDate);
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-      const prev = dailyMap.get(key) ?? 0;
-      dailyMap.set(key, prev + Number(d.totalAmount));
+    salesmanDists.forEach((d) => {
+      const dateKey = new Date(d.distributionDate).toISOString().split("T")[0];
+      dailyMap.set(
+        dateKey,
+        (dailyMap.get(dateKey) || 0) + Number(d.totalAmount),
+      );
     });
 
-    // Generate ordered array of 7 values (oldest → newest)
     const dailySales: number[] = [];
     for (let i = 6; i >= 0; i--) {
       const d = new Date(todayStart);
       d.setDate(todayStart.getDate() - i);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      dailySales.push(dailyMap.get(key) ?? 0);
+      const key = d.toISOString().split("T")[0];
+      dailySales.push(dailyMap.get(key) || 0);
     }
 
     return {
@@ -137,7 +141,7 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
       name: s.name,
       email: s.email,
       isActive: s.isActive,
-      totalSales: totalSalesMap.get(s.id) ?? 0,
+      totalSales: totalSalesMap.get(s.id) || 0,
       regions: Array.from(regionSet),
       dailySales,
     };
@@ -205,32 +209,32 @@ export async function getShopDetails(shopId: string) {
 
 // get-shop-ledgre data
 export async function getShopLedgerData(shopId: string) {
-  const shop = await prisma.shop.findUnique({
-    where: { id: shopId },
-    include: {
-      region: true,
-      ledgers: {
-        orderBy: { createdAt: "desc" },
-        include: {
-          payment: true,
-          distribution: true,
+  const [shop, aggregates] = await Promise.all([
+    prisma.shop.findUnique({
+      where: { id: shopId },
+      include: {
+        region: true,
+        ledgers: {
+          orderBy: { createdAt: "desc" },
+          include: { payment: true, distribution: true },
         },
       },
-    },
-  });
+    }),
+    prisma.ledger.groupBy({
+      where: { shopId },
+      by: ["transactionType"],
+      _sum: { amount: true },
+    }),
+  ]);
 
   if (!shop) return null;
 
-  const totalPayments = shop.ledgers
-    .filter((l) => l.transactionType === "CREDIT")
-    .reduce((sum, entry) => sum + Number(entry.amount), 0);
-
-  const totalBilling = shop.ledgers
-    .filter((l) => l.transactionType === "DEBIT")
-    .reduce((sum, entry) => sum + Number(entry.amount), 0);
-
-  const balanceOwed = totalBilling - totalPayments;
-
+  const totalPayments = Number(
+    aggregates.find((a) => a.transactionType === "CREDIT")?._sum.amount || 0,
+  );
+  const totalBilling = Number(
+    aggregates.find((a) => a.transactionType === "DEBIT")?._sum.amount || 0,
+  );
   const lastPayment = shop.ledgers.find((l) => l.transactionType === "CREDIT");
 
   return {
@@ -239,7 +243,7 @@ export async function getShopLedgerData(shopId: string) {
       currentBalance: Number(shop.currentBalance),
       totalPayments,
       totalBilling,
-      balanceOwed,
+      balanceOwed: Number(shop.currentBalance),
       lastPaymentDate: lastPayment ? lastPayment.createdAt : null,
     },
   };

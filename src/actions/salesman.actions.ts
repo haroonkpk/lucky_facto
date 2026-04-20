@@ -201,18 +201,18 @@ export async function createDistributionAction(
           },
         });
 
-        // 2. Create Ledger entry (DEBIT for the shop)
+        // 2. Create financial Ledger entry (DEBIT for the shop)
         await tx.ledger.create({
           data: {
             shopId,
             transactionType: TransactionType.DEBIT,
             amount: totalAmount,
-            description: `Distribution of brand (${brandId}) - Qty: ${quantity}`,
+            description: `Distribution: ${brandId} - Qty: ${quantity}`,
             distributionId: distribution.id,
           },
         });
 
-        // 3. Update Inventory Balance
+        // 3. Update Inventory Balance (Atomic decrement)
         await tx.inventoryBalance.update({
           where: { brandId },
           data: {
@@ -221,15 +221,13 @@ export async function createDistributionAction(
           },
         });
 
-        // 4. Update Shop Balance
+        // 4. Update Shop Balance (Atomic increment of balance owed)
         await tx.shop.update({
           where: { id: shopId },
-          data: {
-            currentBalance: { increment: totalAmount },
-          },
+          data: { currentBalance: { increment: totalAmount } },
         });
 
-        // 5. Record in Inventory Ledger
+        // 5. Create InventoryLedger entry (STOCK_OUT)
         await tx.inventoryLedger.create({
           data: {
             brandId,
@@ -338,55 +336,60 @@ export async function getSalesmanSales(userId: string) {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-  const [monthlyDistributions, todayDistributions] = await Promise.all([
-    prisma.distribution.findMany({
+  const [monthlyAgg, todayAgg] = await Promise.all([
+    prisma.distribution.aggregate({
       where: {
         recordedById: userId,
         distributionDate: { gte: startOfMonth },
       },
-      select: { totalAmount: true },
+      _sum: { totalAmount: true },
     }),
-    prisma.distribution.findMany({
+    prisma.distribution.aggregate({
       where: {
         recordedById: userId,
         distributionDate: { gte: startOfDay },
       },
-      select: { totalAmount: true },
+      _sum: { totalAmount: true },
     }),
   ]);
 
-  const monthlySales = monthlyDistributions.reduce(
-    (sum, d) => sum + Number(d.totalAmount),
-    0,
-  );
-  const todaySales = todayDistributions.reduce(
-    (sum, d) => sum + Number(d.totalAmount),
-    0,
-  );
-
-  return { monthlySales, todaySales };
+  return {
+    monthlySales: Number(monthlyAgg._sum.totalAmount || 0),
+    todaySales: Number(todayAgg._sum.totalAmount || 0),
+  };
 }
 
 export async function getSalesmanPendingPayments(userId: string) {
+  // 1. Fetch shops with positive balance
   const shopsWithBalance = await prisma.shop.findMany({
     where: { currentBalance: { gt: 0 } },
     select: { id: true, currentBalance: true },
   });
 
-  if (shopsWithBalance.length === 0) {
-    return { totalPending: 0, shopCount: 0 };
-  }
+  if (shopsWithBalance.length === 0) return { totalPending: 0, shopCount: 0 };
+
+  const shopIds = shopsWithBalance.map((s) => s.id);
+
+  const allDistributions = await prisma.distribution.findMany({
+    where: { shopId: { in: shopIds } },
+    orderBy: { createdAt: "desc" },
+    select: { shopId: true, totalAmount: true, recordedById: true },
+  });
+
+  // Group distributions by shopId in memory for efficient processing
+  const shopDistributionsMap = new Map<string, typeof allDistributions>();
+  allDistributions.forEach((d) => {
+    const list = shopDistributionsMap.get(d.shopId) || [];
+    list.push(d);
+    shopDistributionsMap.set(d.shopId, list);
+  });
 
   let totalPending = 0;
   let shopCount = 0;
 
+  // 3. Process each shop's pending balance
   for (const shop of shopsWithBalance) {
-    const distributions = await prisma.distribution.findMany({
-      where: { shopId: shop.id },
-      orderBy: { createdAt: "desc" },
-      select: { totalAmount: true, recordedById: true },
-    });
-
+    const distributions = shopDistributionsMap.get(shop.id) || [];
     let remainingBalance = Number(shop.currentBalance);
     let shopPendingForUser = 0;
 
@@ -394,7 +397,6 @@ export async function getSalesmanPendingPayments(userId: string) {
       if (remainingBalance <= 0) break;
 
       const distAmount = Number(dist.totalAmount);
-
       const unpaidAmountOfThisDist = Math.min(distAmount, remainingBalance);
 
       if (dist.recordedById === userId) {
@@ -459,29 +461,52 @@ export async function getSalesmanLatestActivity(
       recordedBy: d.recordedBy?.name || "System",
       role: d.recordedBy?.role || "SALESMAN",
       details: [
+        {
+          label: "Date & Time",
+          value: new Date(d.createdAt).toLocaleString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        },
         { label: "Quantity", value: `${d.quantity} bags` },
         { label: "Unit Price", value: Number(d.unitPrice) },
         { label: "Shop", value: d.shop.name },
-        { label: "Recorded By", value: d.recordedBy?.name || "System" }
-      ]
+        { label: "Recorded By", value: d.recordedBy?.name || "System" },
+      ],
     })),
     // 2. Payments
     ...payments.map((p) => ({
       id: p.id,
       type: "payment" as const,
-      title: p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",
+      title:
+        p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",
       subtitle: `${p.shop?.name || "Factory"} via ${p.paymentMethod.replace("_", " ")}`,
       amount: Number(p.amount),
       date: p.createdAt.toISOString(),
       recordedBy: p.recordedBy?.name || "System",
       role: p.recordedBy?.role || "SALESMAN",
       details: [
+        {
+          label: "Date & Time",
+          value: new Date(p.createdAt).toLocaleString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        },
         { label: "Payment Type", value: p.type.replace("_", " ") },
         { label: "Method", value: p.paymentMethod.replace("_", " ") },
         { label: "Amount", value: Number(p.amount) },
         { label: "Shop", value: p.shop?.name || "Factory" },
-        { label: "Recorded By", value: p.recordedBy?.name || "System" }
-      ]
+        { label: "Recorded By", value: p.recordedBy?.name || "System" },
+      ],
     })),
     // 3. Inventory Intakes
     ...intakes.map((i) => ({
@@ -494,11 +519,22 @@ export async function getSalesmanLatestActivity(
       recordedBy: i.recordedBy?.name || "System",
       role: i.recordedBy?.role || "SALESMAN",
       details: [
+        {
+          label: "Date & Time",
+          value: new Date(i.createdAt).toLocaleString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        },
         { label: "Brand", value: i.brand.name },
         { label: "Quantity", value: `${i.quantity} bags` },
         { label: "Recorded By", value: i.recordedBy?.name || "System" },
-        { label: "Notes", value: i.notes || "None" }
-      ]
+        { label: "Notes", value: i.notes || "None" },
+      ],
     })),
   ];
 
