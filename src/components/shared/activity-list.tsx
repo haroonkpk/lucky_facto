@@ -81,7 +81,7 @@ function ActivityItem({ activity }: { activity: Activity }) {
         return {
           icon: Truck,
           bgColor: "bg-blue-50",
-          iconColor: "text-blue-600",
+          iconColor: "text-(--color-primary)",
         };
       case "payment":
         return {
@@ -112,7 +112,7 @@ function ActivityItem({ activity }: { activity: Activity }) {
         "rounded-[clamp(8px,1vw,12px)] transition-all duration-300",
         isExpanded
           ? "bg-(--color-page-bg) p-[clamp(10px,1.2vw,14px)]"
-          : "bg-white p-[clamp(6px,0.8vw,10px)] hover:bg-[#F8FAFC]",
+          : "bg-white p-[clamp(6px,0.8vw,10px)] hover:bg-(--color-page-bg)",
       )}
     >
       {/* Row */}
@@ -214,8 +214,7 @@ function ActivityItem({ activity }: { activity: Activity }) {
               </span>
             </div>
           ))}
-          <div className="flex flex-col gap-1">
-          </div>
+          <div className="flex flex-col gap-1"></div>
         </div>
       </div>
     </div>

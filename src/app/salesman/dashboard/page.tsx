@@ -8,13 +8,14 @@ import {
 import DashboardHeader from "@/components/salesman/dashboard/dashboard-header";
 import SalesCard from "@/components/salesman/dashboard/sales-card";
 import PendingPaymentsCard from "@/components/salesman/dashboard/pending-payments-card";
+import DetailedPendingPayments from "@/components/salesman/dashboard/detailed-pending-payments";
 import StockOverviewCard from "@/components/salesman/dashboard/stock-overview-card";
 import { ActivityList } from "@/components/shared/activity-list";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function SalesmanDashboardPage() {
- const supabase = await createClient();
+  const supabase = await createClient();
   const { data: { user }, error } = await supabase.auth.getUser();
 
   if (error || !user) {
@@ -30,6 +31,7 @@ export default async function SalesmanDashboardPage() {
       getSalesmanLatestActivity(user.id),
       getInventoryBalances(),
     ]);
+
   return (
     <div className="min-h-screen bg-(--color-page-bg) p-3 lg:p-10 md:pl-20!">
       <div
@@ -39,7 +41,7 @@ export default async function SalesmanDashboardPage() {
         {/* Header */}
         <DashboardHeader salesmanName={salesmanName} />
 
-        {/* Sales + Pending Payments*/}
+        {/* Sales + Pending Payments Summary */}
         <div
           className="grid grid-cols-1 md:grid-cols-2"
           style={{ gap: "clamp(12px, 2vw, 20px)" }}
@@ -56,6 +58,11 @@ export default async function SalesmanDashboardPage() {
 
         {/* Stock Overview */}
         <StockOverviewCard inventoryBalances={inventoryBalances} />
+
+        {/* Detailed Pending Payments */}
+        {pendingPayments.shops?.length > 0 && (
+          <DetailedPendingPayments shops={pendingPayments.shops} />
+        )}
 
         {/* Latest Activity */}
         <ActivityList activities={activities} />

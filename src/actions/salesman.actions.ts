@@ -360,13 +360,25 @@ export async function getSalesmanSales(userId: string) {
 }
 
 export async function getSalesmanPendingPayments(userId: string) {
-  // 1. Fetch shops with positive balance
+  const now = new Date();
+  
+  // 1. Fetch shops with positive balance and their latest activity
   const shopsWithBalance = await prisma.shop.findMany({
     where: { currentBalance: { gt: 0 } },
-    select: { id: true, currentBalance: true },
+    select: { 
+      id: true, 
+      name: true, 
+      currentBalance: true, 
+      createdAt: true,
+      ledgers: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { createdAt: true },
+      },
+    },
   });
 
-  if (shopsWithBalance.length === 0) return { totalPending: 0, shopCount: 0 };
+  if (shopsWithBalance.length === 0) return { totalPending: 0, shopCount: 0, shops: [] };
 
   const shopIds = shopsWithBalance.map((s) => s.id);
 
@@ -386,6 +398,7 @@ export async function getSalesmanPendingPayments(userId: string) {
 
   let totalPending = 0;
   let shopCount = 0;
+  const pendingShops = [];
 
   // 3. Process each shop's pending balance
   for (const shop of shopsWithBalance) {
@@ -409,10 +422,26 @@ export async function getSalesmanPendingPayments(userId: string) {
     if (shopPendingForUser > 0) {
       totalPending += shopPendingForUser;
       shopCount++;
+      pendingShops.push({
+        id: shop.id,
+        name: shop.name,
+        amount: shopPendingForUser,
+        daysOverdue: Math.max(
+          0,
+          Math.floor(
+            (now.getTime() -
+              new Date(shop.ledgers[0]?.createdAt || shop.createdAt).getTime()) /
+              (1000 * 3600 * 24),
+          ),
+        ),
+      });
     }
   }
 
-  return { totalPending, shopCount };
+  // Sort by amount descending
+  pendingShops.sort((a, b) => b.amount - a.amount);
+
+  return { totalPending, shopCount, shops: pendingShops };
 }
 
 export async function getSalesmanLatestActivity(
