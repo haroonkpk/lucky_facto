@@ -1,5 +1,4 @@
 "use server";
-
 import { prisma } from "@/lib/prisma";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
@@ -14,7 +13,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
   // Default filter range: 1st of month to Today
   const filterStart =
     startDate || new Date(now.getFullYear(), now.getMonth(), 1);
-  
+
   let filterEnd = endDate || tomorrowStart;
 
   // Restriction: End date cannot go beyond today's data
@@ -22,11 +21,13 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
     filterEnd = tomorrowStart;
   }
 
-  // Date range for collection efficiency (last 30 days)
+  // Date range for collection efficiency 
   const thirtyDaysAgo = new Date(todayStart);
   thirtyDaysAgo.setDate(todayStart.getDate() - 30);
   // Chart range: If filter is provided, use it, otherwise 90 days
-  const chartStart = startDate || new Date(now.getFullYear(), now.getMonth(), now.getDate() - 90);
+  const chartStart =
+    startDate ||
+    new Date(now.getFullYear(), now.getMonth(), now.getDate() - 90);
   chartStart.setHours(0, 0, 0, 0);
   const chartEnd = endDate || tomorrowStart;
 
@@ -37,17 +38,18 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
     filteredDeliveriesCount,
     inventoryBalances,
     regionPerformanceRaw,
+    regionPendingRaw,
     overdueShopsRaw,
     totalPendingReceivableRaw,
     dailyDistributionTotals,
     dailyPaymentTotals,
   ] = await Promise.all([
-    // Filtered Distributions 
+    // Filtered Distributions
     prisma.distribution.aggregate({
       _sum: { totalAmount: true },
       where: { createdAt: { gte: filterStart, lt: filterEnd } },
     }),
-    // Filtered Payments 
+    // Filtered Payments
     prisma.payment.aggregate({
       _sum: { amount: true },
       where: {
@@ -55,7 +57,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
         createdAt: { gte: filterStart, lt: filterEnd },
       },
     }),
-    // Filtered Deliveries Count 
+    // Filtered Deliveries Count
     prisma.distribution.count({
       where: { createdAt: { gte: filterStart, lt: filterEnd } },
     }),
@@ -65,12 +67,19 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
       select: { currentStock: true, brand: { select: { name: true } } },
       orderBy: { currentStock: "desc" },
     }),
-    // Region Performance 
+    // Region Performance
     prisma.distribution.findMany({
       where: { createdAt: { gte: filterStart, lt: filterEnd } },
       select: {
         totalAmount: true,
         shop: { select: { region: { select: { name: true } } } },
+      },
+    }),
+    prisma.shop.findMany({
+      where: { isActive: true, currentBalance: { gt: 0 } },
+      select: {
+        currentBalance: true,
+        region: { select: { name: true } },
       },
     }),
 
@@ -158,15 +167,29 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
       ? (totalPayments30 / totalDistributions30) * 100
       : 0;
 
-  const regionMap = new Map<string, number>();
+  const regionMap = new Map<string, { distributed: number; pending: number }>();
+
   regionPerformanceRaw.forEach((d) => {
     const rName = d.shop?.region?.name || "Unknown";
-    regionMap.set(rName, (regionMap.get(rName) || 0) + Number(d.totalAmount));
+    const existing = regionMap.get(rName) || { distributed: 0, pending: 0 };
+    regionMap.set(rName, {
+      ...existing,
+      distributed: existing.distributed + Number(d.totalAmount),
+    });
+  });
+
+  regionPendingRaw.forEach((s) => {
+    const rName = s.region?.name || "Unknown";
+    const existing = regionMap.get(rName) || { distributed: 0, pending: 0 };
+    regionMap.set(rName, {
+      ...existing,
+      pending: existing.pending + Number(s.currentBalance),
+    });
   });
 
   const regionPerformance = Array.from(regionMap.entries())
-    .map(([name, amount]) => ({ name, amount }))
-    .sort((a, b) => b.amount - a.amount);
+    .map(([name, data]) => ({ name, ...data }))
+    .sort((a, b) => b.distributed - a.distributed);
 
   const overdueShopsList = overdueShopsRaw
     .map((shop) => ({
@@ -419,7 +442,9 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
       deliveries: filteredDeliveriesCount,
     },
     kpis: {
-      totalPendingReceivable: Number(totalPendingReceivableRaw._sum.currentBalance || 0),
+      totalPendingReceivable: Number(
+        totalPendingReceivableRaw._sum.currentBalance || 0,
+      ),
       collectionEfficiency,
       totalStockCount,
     },

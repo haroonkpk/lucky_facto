@@ -29,9 +29,9 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const data = await getOwnerDashboardData(startDate, endDate);
 
   return (
-    <div className="min-h-screen bg-[var(--color-page-bg)] p-[clamp(1rem,3vw,2.5rem)] pb-24">
+    <div className="min-h-screen bg-[var(--color-page-bg)] sm:p-[clamp(1rem,3vw,2.5rem)] pb-24">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-[clamp(1.5rem,3vw,2.5rem)]">
+      <div className="flex items-start justify-between p-2 sm:p-0 gap-4 mb-[clamp(1.5rem,3vw,2.5rem)]">
         <div className="min-w-0">
           <p
             className="text-[#64748B] font-bold uppercase tracking-widest mb-1"
@@ -53,7 +53,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
       <div className="flex flex-col gap-[clamp(1.5rem,3vw,2.5rem)]">
         {/* SECTION 1: TOP (Static Metrics & Global Status) */}
-        <section className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-stretch">
+        <section className="grid p-2 sm:p-2 grid-cols-1 lg:grid-cols-[1fr_2fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-stretch">
           <StaticSummarySection
             pending={data.staticMetrics.pendingPayments}
             pendingShopsCount={data.staticMetrics.pendingShopsCount}
@@ -114,10 +114,15 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </div>
 
         {/* SECTION 3: BOTTOM (Activity & Overdue Shops) */}
-        <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
-          <ActivityList activities={data.activities} title="Latest Activity" />
-          <OverdueShopsTable shops={data.overdueShopsList} />
-        </section>
+       <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
+  <ActivityList
+    activities={data.activities}
+    title="Latest 10 Activity"
+  />
+  <OverdueShopsTable
+    shops={data.overdueShopsList}
+  />
+</section>
       </div>
     </div>
   );

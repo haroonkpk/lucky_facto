@@ -27,7 +27,7 @@ export function ActivityList({
   const displayActivities = limit ? activities.slice(0, limit) : activities;
 
   return (
-    <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(16px,2.5vw,28px)]">
+    <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(16px,2.5vw,28px)] order-2 xl:order-1">
       {/* Header */}
       <div className="flex items-center justify-between mb-[clamp(14px,2vw,24px)] px-0.5">
         <div className="flex items-center gap-[clamp(8px,1.2vw,12px)]">
@@ -38,16 +38,6 @@ export function ActivityList({
             {title}
           </h3>
         </div>
-        <span
-          className="font-bold uppercase tracking-widest rounded-md px-2 py-1"
-          style={{
-            fontSize: "clamp(8px, 0.85vw, 10px)",
-            background: "var(--color-secondary-bg, #D9E6F2)",
-            color: "var(--color-primary, #0D3E8D)",
-          }}
-        >
-          Recent Logs
-        </span>
       </div>
 
       {/* List */}

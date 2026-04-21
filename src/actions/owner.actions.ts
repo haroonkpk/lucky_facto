@@ -188,23 +188,6 @@ export async function registerShopAction(
   }
 }
 
-export async function getShopDetails(shopId: string) {
-  const shop = await prisma.shop.findUnique({
-    where: { id: shopId },
-    include: {
-      region: true,
-      ledgers: {
-        orderBy: { createdAt: "asc" },
-        include: {
-          payment: true,
-          distribution: true,
-        },
-      },
-    },
-  });
-
-  return shop;
-}
 
 // get-shop-ledgre data
 export async function getShopLedgerData(shopId: string) {
