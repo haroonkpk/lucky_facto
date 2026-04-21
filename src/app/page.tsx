@@ -1,5 +1,7 @@
 export default function Home() {
   return (
-  <div>home page</div>
+    <div className="max-w-[1600px] mx-auto w-full p-8">
+      home page
+    </div>
   );
 }

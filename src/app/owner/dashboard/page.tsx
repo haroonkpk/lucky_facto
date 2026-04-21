@@ -114,15 +114,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </div>
 
         {/* SECTION 3: BOTTOM (Activity & Overdue Shops) */}
-       <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
-  <ActivityList
-    activities={data.activities}
-    title="Latest 10 Activity"
-  />
-  <OverdueShopsTable
-    shops={data.overdueShopsList}
-  />
-</section>
+        <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
+          <ActivityList
+            activities={data.activities}
+            title="Latest 10 Activity"
+          />
+          <OverdueShopsTable shops={data.overdueShopsList} />
+        </section>
       </div>
     </div>
   );

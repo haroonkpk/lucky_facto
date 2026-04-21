@@ -71,34 +71,6 @@ export default function LedgerSection({
             Transaction history for the current financial year
           </p>
         </div>
-
-        <div
-          className="flex items-center"
-          style={{ gap: "clamp(8px, 1.5vw, 12px)" }}
-        >
-          <button
-            className="flex items-center bg-white text-[#0F172A] font-bold rounded-lg hover:bg-gray-50 transition"
-            style={{
-              gap: "clamp(4px, 1vw, 8px)",
-              fontSize: "clamp(10px, 1.2vw, 12px)",
-              padding: "clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 20px)",
-            }}
-          >
-            <FileText size={16} className="text-[#64748B]" />
-            Export PDF
-          </button>
-          <button
-            className="flex items-center bg-white text-[#0F172A] font-bold rounded-lg hover:bg-gray-50 transition"
-            style={{
-              gap: "clamp(4px, 1vw, 8px)",
-              fontSize: "clamp(10px, 1.2vw, 12px)",
-              padding: "clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 20px)",
-            }}
-          >
-            <Printer size={16} className="text-[#64748B]" />
-            Print
-          </button>
-        </div>
       </div>
 
       {/* Ledger Table */}

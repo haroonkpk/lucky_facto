@@ -39,7 +39,11 @@ export default function OwnerDashboardLayout({
         items={ownerNavItems}
       />
 
-      <main className="flex-1 overflow-y-auto pb-10 md:pb-0 md:pl-14">{children}</main>
+      <main className="flex-1 overflow-y-auto pb-10 bg-(--color-page-bg) md:pb-0 md:pl-14">
+        <div className="max-w-400 mx-auto w-full">
+          {children}
+        </div>
+      </main>
     </div>
   );
 }

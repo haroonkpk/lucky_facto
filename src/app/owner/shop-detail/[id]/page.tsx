@@ -84,19 +84,6 @@ export default async function ShopDetailsPage({
               </div>
             </div>
           </div>
-
-          {/* Edit Button */}
-          <button
-            className="flex items-center bg-white/10 text-white font-bold rounded-sm hover:bg-gray-50/30 transition"
-            style={{
-              gap: "clamp(4px, 1vw, 8px)",
-              fontSize: "clamp(10px, 1.2vw, 12px)",
-              padding: "clamp(8px, 1.5vw, 10px) clamp(12px, 2vw, 20px)",
-            }}
-          >
-            <Edit2 size={14} className="text-white" />
-            Edit
-          </button>
         </div>
 
         {/* Right: Balance Card  */}

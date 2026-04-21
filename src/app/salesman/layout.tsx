@@ -34,10 +34,12 @@ export default function SalesmanDashboardLayout({
   children,
 }: SalesmanDashboardLayoutProps) {
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-(--color-page-bg)">
       <Sidebar items={salesmanNavItems} />
 
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-400 mx-auto w-full">{children}</div>
+      </main>
     </div>
   );
 }
