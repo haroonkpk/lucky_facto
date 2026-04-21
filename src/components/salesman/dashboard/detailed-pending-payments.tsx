@@ -1,4 +1,4 @@
-import { formatPKR } from "@/lib/helper";
+import { formatPKR } from "@/lib/dashboard-utils";
 
 interface DetailedPendingPaymentsProps {
   shops: {

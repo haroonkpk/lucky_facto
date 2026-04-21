@@ -4,7 +4,8 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Store, Search, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ShopWithStats } from "@/actions/owner.actions";
-import { formatPKR, getInitials } from "@/lib/helper";
+import { getInitials } from "@/lib/helper";
+import { formatPKR } from "@/lib/dashboard-utils";
 import Link from "next/link";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────

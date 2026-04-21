@@ -1,5 +1,5 @@
 import { AlertCircle } from "lucide-react";
-import { formatPKR } from "@/lib/helper";
+import { formatPKR } from "@/lib/dashboard-utils";
 
 interface PendingPaymentsCardProps {
   totalPending: number;

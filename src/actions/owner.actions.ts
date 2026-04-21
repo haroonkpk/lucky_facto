@@ -2,7 +2,6 @@
 
 import { Role } from "@/lib/generated/prisma/enums";
 import { prisma } from "@/lib/prisma";
-import { BrandRevenueData, BrandRevenueEntry } from "@/types/chart";
 import { revalidatePath } from "next/cache";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -246,56 +245,5 @@ export async function getShopLedgerData(shopId: string) {
       balanceOwed: Number(shop.currentBalance),
       lastPaymentDate: lastPayment ? lastPayment.createdAt : null,
     },
-  };
-}
-
-export async function getDailyBrandRevenue(): Promise<BrandRevenueData> {
-  const now = new Date();
-  const startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-
-  const [activeBrands, distributions] = await Promise.all([
-    prisma.brand.findMany({
-      select: { name: true },
-      where: { isActive: true },
-    }),
-    prisma.distribution.findMany({
-      where: { distributionDate: { gte: startDate } },
-      include: { brand: { select: { name: true } } },
-    }),
-  ]);
-
-  const brandNames = new Set(activeBrands.map((b) => b.name));
-  const revenueMap = new Map<string, BrandRevenueEntry>();
-
-  const cursor = new Date(startDate);
-  while (cursor <= now) {
-    const dayKey = cursor.toISOString().split("T")[0];
-    const entry: BrandRevenueEntry = { date: dayKey };
-    for (const b of brandNames) entry[b] = 0;
-    revenueMap.set(dayKey, entry);
-    cursor.setDate(cursor.getDate() + 1);
-  }
-
-  for (const d of distributions) {
-    const dayKey = new Date(d.distributionDate).toISOString().split("T")[0];
-    const brandName = d.brand.name;
-    const amount = Number(d.totalAmount);
-
-    if (revenueMap.has(dayKey)) {
-      const entry = revenueMap.get(dayKey)!;
-      if (entry[brandName] === undefined) {
-        entry[brandName] = 0;
-        brandNames.add(brandName);
-        revenueMap.forEach((e) => {
-          if (e[brandName] === undefined) e[brandName] = 0;
-        });
-      }
-      entry[brandName] = (entry[brandName] as number) + amount;
-    }
-  }
-
-  return {
-    data: Array.from(revenueMap.values()),
-    brands: Array.from(brandNames),
   };
 }

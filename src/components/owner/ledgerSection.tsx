@@ -1,4 +1,4 @@
-import { formatPKR } from "@/lib/helper";
+import { formatPKR } from "@/lib/dashboard-utils";
 import { FileText, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Prisma } from "@/lib/generated/prisma/client";

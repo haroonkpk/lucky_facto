@@ -1,22 +1,37 @@
 import { getOwnerDashboardData } from "@/actions/dashboard.actions";
 import { LogoutButton } from "@/components/auth/logout-button";
-import { PulseCards } from "@/components/owner/dashboard/pulse-cards";
-import { KPICards } from "@/components/owner/dashboard/kpi-cards";
+import {
+  StaticSummarySection,
+  FilteredPerformanceSection,
+} from "@/components/owner/dashboard/dashboard-cards";
 import { BrandStockList } from "@/components/owner/dashboard/brand-stock-list";
-import { RegionPerformanceList } from "@/components/owner/dashboard/region-performance-list";
+import { RegionPerformanceChart } from "@/components/owner/dashboard/region-performance-chart";
 import { OverdueShopsTable } from "@/components/owner/dashboard/overdue-shops-table";
 import { ActivityList } from "@/components/shared/activity-list";
 import { DashboardChart } from "@/components/owner/dashboard-chart";
+import { DateRangeFilter } from "@/components/owner/dashboard/filters/date-range-filter";
 
-export const revalidate = 60;
+export const revalidate = 0;
 
-export default async function DashboardPage() {
-  const data = await getOwnerDashboardData();
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function DashboardPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const startDate = params.startDate
+    ? new Date(params.startDate as string)
+    : undefined;
+  const endDate = params.endDate
+    ? new Date(params.endDate as string)
+    : undefined;
+
+  const data = await getOwnerDashboardData(startDate, endDate);
 
   return (
     <div className="min-h-screen bg-[var(--color-page-bg)] p-[clamp(1rem,3vw,2.5rem)] pb-24">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 mb-[clamp(2rem,4vw,3rem)]">
+      <div className="flex items-start justify-between gap-4 mb-[clamp(1.5rem,3vw,2.5rem)]">
         <div className="min-w-0">
           <p
             className="text-[#64748B] font-bold uppercase tracking-widest mb-1"
@@ -30,12 +45,6 @@ export default async function DashboardPage() {
           >
             Owner Dashboard
           </h1>
-          <p
-            className="text-[#94A3B8] mt-1.5"
-            style={{ fontSize: "clamp(13px, 1.6vw, 15px)" }}
-          >
-            Real-time overview of your distribution network&lsquo;s pulse.
-          </p>
         </div>
         <div className="shrink-0 pt-2">
           <LogoutButton />
@@ -43,32 +52,42 @@ export default async function DashboardPage() {
       </div>
 
       <div className="flex flex-col gap-[clamp(1.5rem,3vw,2.5rem)]">
-        {/* ROW 1: Pulse Cards */}
-        <section>
-          <PulseCards pulse={data.pulse} />
+        {/* SECTION 1: TOP (Static Metrics & Global Status) */}
+        <section className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-stretch">
+          <StaticSummarySection
+            pending={data.staticMetrics.pendingPayments}
+            pendingShopsCount={data.staticMetrics.pendingShopsCount}
+          />
+          <BrandStockList stock={data.brandWiseStock} />
         </section>
 
-        {/* ROW 2: KPIs & Chart Block*/}
+        {/* SECTION 2: MIDDLE (Filterable Performance) */}
         <div className="bg-[#E5F0F6] rounded-[clamp(12px,2vw,20px)] p-[clamp(12px,2vw,24px)] flex flex-col gap-[clamp(1.25rem,2.5vw,1.75rem)]">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center px-1">
-            <h2
-              className="text-[#053B70] font-bold"
-              style={{ fontSize: "clamp(16px, 2.2vw, 20px)" }}
-            >
-              Core Performance Metrics
-            </h2>
-            <span
-              className="text-[#64748B] font-medium"
-              style={{ fontSize: "clamp(11px, 1.2vw, 13px)" }}
-            >
-              Last 30 Days Activity
-            </span>
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 px-1">
+            <div>
+              <h2
+                className="text-[#053B70] font-bold"
+                style={{ fontSize: "clamp(16px, 2.2vw, 20px)" }}
+              >
+                Performance Metrics
+              </h2>
+              <p className="text-[#64748B] text-sm font-medium mt-0.5">
+                Filtered analysis of distributions and collections
+              </p>
+            </div>
+            <DateRangeFilter />
           </div>
 
-          <section className="grid grid-cols-1 lg:grid-cols-[1fr_minmax(0,1.5fr)] gap-[clamp(1.25rem,2vw,1.75rem)] items-stretch">
-            <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
-              <KPICards kpis={data.kpis} />
-            </div>
+          {/* Filtered KPIs - Redesigned as Pulse Cards */}
+          <FilteredPerformanceSection
+            distributed={data.filteredMetrics.distributed}
+            payments={data.filteredMetrics.payments}
+            deliveries={data.filteredMetrics.deliveries}
+          />
+
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-[clamp(1.25rem,2vw,1.75rem)] items-stretch">
+            {/* Sales vs Payments Trend */}
             <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,2rem)] flex flex-col">
               <div>
                 <h3
@@ -81,25 +100,22 @@ export default async function DashboardPage() {
                   className="text-[#94A3B8] mt-1"
                   style={{ fontSize: "clamp(0.8rem, 1.2vw, 0.9rem)" }}
                 >
-                  Comparative analysis of distributions and collections
+                  Comparative analysis for selected period
                 </p>
               </div>
-              <div className="flex-1 min-h-[300px]">
+              <div className="flex-1 min-h-[300px] mt-6">
                 <DashboardChart data={data.chartData} />
               </div>
             </div>
-          </section>
+
+            {/* Region Performance */}
+            <RegionPerformanceChart performance={data.regionPerformance} />
+          </div>
         </div>
 
-        {/* ROW 3: Domain Metrics (Stock & Region) */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-[clamp(1.5rem,3vw,2.5rem)]">
-          <BrandStockList stock={data.brandWiseStock} />
-          <RegionPerformanceList performance={data.regionPerformance} />
-        </section>
-
-        {/* ROW 4: Table & Feed */}
+        {/* SECTION 3: BOTTOM (Activity & Overdue Shops) */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
-          <ActivityList activities={data.activities} title="Network Activity" />
+          <ActivityList activities={data.activities} title="Latest Activity" />
           <OverdueShopsTable shops={data.overdueShopsList} />
         </section>
       </div>

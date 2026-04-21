@@ -10,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { formatPKR } from "@/lib/dashboard-utils";
+import { formatPKR, formatNumber } from "@/lib/dashboard-utils";
 
 export interface ChartData {
   label: string;
@@ -38,9 +38,7 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
   };
 
   const formatYAxis = (value: number) => {
-    if (value >= 100000) return `${(value / 100000).toFixed(1)}L`;
-    if (value >= 1000) return `${(value / 1000).toFixed(0)}K`;
-    return value.toString();
+    return formatNumber(value);
   };
 
   return (
@@ -48,7 +46,7 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+          margin={{ top: 10, right: 10, left: 20, bottom: 0 }}
         >
           <defs>
             <linearGradient id="colorDistribution" x1="0" y1="0" x2="0" y2="1">
@@ -90,7 +88,7 @@ export function DashboardChart({ data }: { data: ChartData[] }) {
             tickMargin={10}
             tick={{ fontSize: 12, fill: "#64748B" }}
             tickFormatter={formatYAxis}
-            width={60}
+            width={85}
           />
 
           <Tooltip

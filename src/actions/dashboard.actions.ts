@@ -2,50 +2,39 @@
 
 import { prisma } from "@/lib/prisma";
 import { Activity } from "@/types/activity";
+import { formatPKR } from "@/lib/dashboard-utils";
 
-export async function getOwnerDashboardData() {
+export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
   const now = new Date();
 
-  // Date ranges
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrowStart = new Date(todayStart);
   tomorrowStart.setDate(todayStart.getDate() + 1);
-  const yesterdayStart = new Date(todayStart);
-  yesterdayStart.setDate(todayStart.getDate() - 1);
 
-  // Other Dates
+  // Default filter range: 1st of month to Today
+  const filterStart =
+    startDate || new Date(now.getFullYear(), now.getMonth(), 1);
+  
+  let filterEnd = endDate || tomorrowStart;
+
+  // Restriction: End date cannot go beyond today's data
+  if (filterEnd > tomorrowStart) {
+    filterEnd = tomorrowStart;
+  }
+
+  // Date range for collection efficiency (last 30 days)
   const thirtyDaysAgo = new Date(todayStart);
   thirtyDaysAgo.setDate(todayStart.getDate() - 30);
-
-  // 90 Days ago for 7-day interval chart
-  const ninetyDaysAgo = new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate() - 90,
-  );
-  ninetyDaysAgo.setHours(0, 0, 0, 0);
-
-  // Monthly Dates
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  // Chart range: If filter is provided, use it, otherwise 90 days
+  const chartStart = startDate || new Date(now.getFullYear(), now.getMonth(), now.getDate() - 90);
+  chartStart.setHours(0, 0, 0, 0);
+  const chartEnd = endDate || tomorrowStart;
 
   // Consolidated parallel queries for dashboard metrics
   const [
-    todayDistributions,
-    yesterdayDistributions,
-    todayPayments,
-    yesterdayPayments,
-    todayDeliveriesCount,
-    yesterdayDeliveriesCount,
-    monthDistributions,
-    lastMonthDistributions,
-    monthPayments,
-    lastMonthPayments,
-    thisMonthDeliveriesCount,
-    lastMonthDeliveriesCount,
-    thirtyDaysDistributions,
-    thirtyDaysPayments,
+    filteredDistributions,
+    filteredPayments,
+    filteredDeliveriesCount,
     inventoryBalances,
     regionPerformanceRaw,
     overdueShopsRaw,
@@ -53,100 +42,45 @@ export async function getOwnerDashboardData() {
     dailyDistributionTotals,
     dailyPaymentTotals,
   ] = await Promise.all([
-    // Today Distributions
+    // Filtered Distributions 
     prisma.distribution.aggregate({
       _sum: { totalAmount: true },
-      where: { createdAt: { gte: todayStart, lt: tomorrowStart } },
+      where: { createdAt: { gte: filterStart, lt: filterEnd } },
     }),
-    // Yesterday Distributions
-    prisma.distribution.aggregate({
-      _sum: { totalAmount: true },
-      where: { createdAt: { gte: yesterdayStart, lt: todayStart } },
-    }),
-    // Today Payments
+    // Filtered Payments 
     prisma.payment.aggregate({
       _sum: { amount: true },
       where: {
         type: "SHOP_COLLECTION",
-        createdAt: { gte: todayStart, lt: tomorrowStart },
+        createdAt: { gte: filterStart, lt: filterEnd },
       },
     }),
-    // Yesterday Payments
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: {
-        type: "SHOP_COLLECTION",
-        createdAt: { gte: yesterdayStart, lt: todayStart },
-      },
-    }),
-    // Today Deliveries Count
+    // Filtered Deliveries Count 
     prisma.distribution.count({
-      where: { createdAt: { gte: todayStart, lt: tomorrowStart } },
-    }),
-    prisma.distribution.count({
-      where: { createdAt: { gte: yesterdayStart, lt: todayStart } },
+      where: { createdAt: { gte: filterStart, lt: filterEnd } },
     }),
 
-    // Monthly Metrics
-    prisma.distribution.aggregate({
-      _sum: { totalAmount: true },
-      where: { createdAt: { gte: startOfMonth, lt: startOfNextMonth } },
-    }),
-    prisma.distribution.aggregate({
-      _sum: { totalAmount: true },
-      where: { createdAt: { gte: startOfLastMonth, lt: startOfMonth } },
-    }),
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: {
-        type: "SHOP_COLLECTION",
-        createdAt: { gte: startOfMonth, lt: startOfNextMonth },
-      },
-    }),
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: {
-        type: "SHOP_COLLECTION",
-        createdAt: { gte: startOfLastMonth, lt: startOfMonth },
-      },
-    }),
-    prisma.distribution.count({
-      where: { createdAt: { gte: startOfMonth, lt: startOfNextMonth } },
-    }),
-    prisma.distribution.count({
-      where: { createdAt: { gte: startOfLastMonth, lt: startOfMonth } },
-    }),
-
-    // Collection Efficiency (last 30 days)
-    prisma.distribution.aggregate({
-      _sum: { totalAmount: true },
-      where: { createdAt: { gte: thirtyDaysAgo } },
-    }),
-    prisma.payment.aggregate({
-      _sum: { amount: true },
-      where: { type: "SHOP_COLLECTION", createdAt: { gte: thirtyDaysAgo } },
-    }),
     // Brand Wise Stock
     prisma.inventoryBalance.findMany({
       select: { currentStock: true, brand: { select: { name: true } } },
       orderBy: { currentStock: "desc" },
     }),
-    // Region Performance (This month)
+    // Region Performance 
     prisma.distribution.findMany({
-      where: { createdAt: { gte: startOfMonth } },
+      where: { createdAt: { gte: filterStart, lt: filterEnd } },
       select: {
         totalAmount: true,
         shop: { select: { region: { select: { name: true } } } },
       },
     }),
 
-    // Overdue Shop Analysis (Using currentBalance and latest ledger)
+    // Overdue Shop Analysis
     prisma.shop.findMany({
       where: { isActive: true, currentBalance: { gt: 0 } },
       select: {
         id: true,
         name: true,
-        createdAt: true, 
+        createdAt: true,
         currentBalance: true,
         region: { select: { name: true } },
         ledgers: {
@@ -159,26 +93,39 @@ export async function getOwnerDashboardData() {
       take: 20,
     }),
 
-    // Financial Health 
+    // Financial Health
     prisma.shop.aggregate({
       _sum: { currentBalance: true },
+      _count: { id: true },
       where: { currentBalance: { gt: 0 } },
     }),
 
     prisma.$queryRaw<{ date: Date; total: number }[]>`
       SELECT date_trunc('day', "createdAt") as date, SUM("totalAmount")::float as total
       FROM distributions
-      WHERE "createdAt" >= ${ninetyDaysAgo}
+      WHERE "createdAt" >= ${chartStart} AND "createdAt" < ${chartEnd}
       GROUP BY date
       ORDER BY date ASC
     `,
     prisma.$queryRaw<{ date: Date; total: number }[]>`
       SELECT date_trunc('day', "createdAt") as date, SUM("amount")::float as total
       FROM payments
-      WHERE "type" = 'SHOP_COLLECTION' AND "createdAt" >= ${ninetyDaysAgo}
+      WHERE "type" = 'SHOP_COLLECTION' AND "createdAt" >= ${chartStart} AND "createdAt" < ${chartEnd}
       GROUP BY date
       ORDER BY date ASC
     `,
+  ]);
+
+  // Collection efficiency still based on last 30 days for health check
+  const [thirtyDaysDistributions, thirtyDaysPayments] = await Promise.all([
+    prisma.distribution.aggregate({
+      _sum: { totalAmount: true },
+      where: { createdAt: { gte: thirtyDaysAgo } },
+    }),
+    prisma.payment.aggregate({
+      _sum: { amount: true },
+      where: { type: "SHOP_COLLECTION", createdAt: { gte: thirtyDaysAgo } },
+    }),
   ]);
 
   // Recent Activity Feed
@@ -265,7 +212,7 @@ export async function getOwnerDashboardData() {
         { label: "Quantity", value: `${d.quantity} bags` },
         {
           label: "Unit Price",
-          value: `PKR ${Number(d.unitPrice).toLocaleString()}`,
+          value: formatPKR(Number(d.unitPrice)),
         },
         { label: "Shop", value: d.shop?.name || "N/A" },
         { label: "Recorded By", value: d.recordedBy?.name || "System" },
@@ -296,7 +243,7 @@ export async function getOwnerDashboardData() {
         },
         { label: "Payment Type", value: p.type.replace("_", " ") },
         { label: "Method", value: p.paymentMethod },
-        { label: "Amount", value: `PKR ${Number(p.amount).toLocaleString()}` },
+        { label: "Amount", value: formatPKR(Number(p.amount)) },
         { label: "Shop/Source", value: p.shop?.name || "Factory" },
         { label: "Recorded By", value: p.recordedBy?.name || "System" },
         { label: "Remarks", value: p.cashNote || "None" },
@@ -332,7 +279,25 @@ export async function getOwnerDashboardData() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 10);
 
-  // ---7-DAY INTERVAL CHART DATA PREPARATION ---
+  // --- INTERVAL CHART DATA PREPARATION ---
+  const diffDays = Math.ceil(
+    (chartEnd.getTime() - chartStart.getTime()) / (1000 * 3600 * 24),
+  );
+
+  const granularities = [
+    { type: "day" as const, approxDays: 1 },
+    { type: "week" as const, approxDays: 7 },
+    { type: "month" as const, approxDays: 30 },
+    { type: "quarter" as const, approxDays: 91 },
+    { type: "year" as const, approxDays: 365 },
+  ];
+
+  const targetBins = 14;
+  const bestFit =
+    granularities.find((g) => diffDays / g.approxDays <= targetBins) ||
+    granularities[granularities.length - 1];
+  const intervalType = bestFit.type;
+
   const chartIntervals: {
     start: Date;
     end: Date;
@@ -340,22 +305,76 @@ export async function getOwnerDashboardData() {
     distribution: number;
     payment: number;
   }[] = [];
-  const chartCursor = new Date(ninetyDaysAgo);
-  while (chartCursor <= now) {
-    const end = new Date(chartCursor);
-    end.setDate(end.getDate() + 6);
-    end.setHours(23, 59, 59, 999);
+
+  const chartCursor = new Date(chartStart);
+  while (chartCursor < chartEnd) {
+    const start = new Date(chartCursor);
+    let end: Date;
+    let label: string;
+
+    switch (intervalType) {
+      case "year":
+        end = new Date(start.getFullYear(), 11, 31, 23, 59, 59, 999);
+        label = start.getFullYear().toString();
+        chartCursor.setFullYear(start.getFullYear() + 1, 0, 1);
+        break;
+      case "quarter":
+        const quarter = Math.floor(start.getMonth() / 3);
+        end = new Date(
+          start.getFullYear(),
+          (quarter + 1) * 3,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
+        label = `Q${quarter + 1} ${start.getFullYear().toString().slice(-2)}`;
+        chartCursor.setMonth((quarter + 1) * 3, 1);
+        break;
+      case "month":
+        end = new Date(
+          start.getFullYear(),
+          start.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999,
+        );
+        label = start.toLocaleDateString("en-GB", {
+          month: "short",
+          year: "2-digit",
+        });
+        chartCursor.setMonth(start.getMonth() + 1, 1);
+        break;
+      case "week":
+        end = new Date(start.getTime() + 6 * 24 * 3600 * 1000);
+        end.setHours(23, 59, 59, 999);
+        label = start.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+        });
+        chartCursor.setDate(start.getDate() + 7);
+        break;
+      default: // day
+        end = new Date(start);
+        end.setHours(23, 59, 59, 999);
+        label = start.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+        });
+        chartCursor.setDate(start.getDate() + 1);
+    }
+
     chartIntervals.push({
-      start: new Date(chartCursor),
-      end: new Date(end),
-      label: chartCursor.toLocaleDateString("en-GB", {
-        day: "numeric",
-        month: "short",
-      }),
+      start,
+      end: end > chartEnd ? chartEnd : end,
+      label,
       distribution: 0,
       payment: 0,
     });
-    chartCursor.setDate(chartCursor.getDate() + 7);
+
     chartCursor.setHours(0, 0, 0, 0);
   }
 
@@ -381,48 +400,28 @@ export async function getOwnerDashboardData() {
     payment,
   }));
 
+  const totalStockCount = inventoryBalances.reduce(
+    (acc, curr) => acc + curr.currentStock,
+    0,
+  );
+
   return {
-    pulse: {
-      distributed: {
-        daily: {
-          current: Number(todayDistributions._sum.totalAmount || 0),
-          previous: Number(yesterdayDistributions._sum.totalAmount || 0),
-        },
-        monthly: {
-          current: Number(monthDistributions._sum.totalAmount || 0),
-          previous: Number(lastMonthDistributions._sum.totalAmount || 0),
-        },
-      },
-      payments: {
-        daily: {
-          current: Number(todayPayments._sum.amount || 0),
-          previous: Number(yesterdayPayments._sum.amount || 0),
-        },
-        monthly: {
-          current: Number(monthPayments._sum.amount || 0),
-          previous: Number(lastMonthPayments._sum.amount || 0),
-        },
-      },
-      deliveries: {
-        daily: {
-          current: todayDeliveriesCount,
-          previous: yesterdayDeliveriesCount,
-        },
-        monthly: {
-          current: thisMonthDeliveriesCount,
-          previous: lastMonthDeliveriesCount,
-        },
-      },
-    },
-    kpis: {
-      totalPendingReceivable: Number(
+    staticMetrics: {
+      pendingPayments: Number(
         totalPendingReceivableRaw._sum.currentBalance || 0,
       ),
+      pendingShopsCount: totalPendingReceivableRaw._count.id || 0,
+      totalStock: totalStockCount,
+    },
+    filteredMetrics: {
+      distributed: Number(filteredDistributions._sum.totalAmount || 0),
+      payments: Number(filteredPayments._sum.amount || 0),
+      deliveries: filteredDeliveriesCount,
+    },
+    kpis: {
+      totalPendingReceivable: Number(totalPendingReceivableRaw._sum.currentBalance || 0),
       collectionEfficiency,
-      totalStockCount: inventoryBalances.reduce(
-        (acc, curr) => acc + curr.currentStock,
-        0,
-      ),
+      totalStockCount,
     },
     chartData,
     brandWiseStock: inventoryBalances.map((b) => ({

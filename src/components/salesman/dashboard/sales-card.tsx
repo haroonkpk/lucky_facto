@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CalendarDays } from "lucide-react";
-import { formatPKR } from "@/lib/helper";
+import { formatPKR } from "@/lib/dashboard-utils";
 
 interface SalesCardProps {
   monthlySales: number;

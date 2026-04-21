@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { formatPKR } from "@/lib/helper";
+import { formatPKR } from "@/lib/dashboard-utils";
 import { Edit2, MapPin, Phone, Building2, AlertTriangle } from "lucide-react";
 import { getShopLedgerData } from "@/actions/owner.actions";
 import LedgerSection from "@/components/owner/ledgerSection";

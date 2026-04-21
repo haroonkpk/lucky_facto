@@ -9,7 +9,7 @@ import {
   Activity as ActivityIcon,
   Layers,
 } from "lucide-react";
-import { formatPKR, timeAgo } from "@/lib/helper";
+import { formatPKR, timeAgo } from "@/lib/dashboard-utils";
 import { Activity } from "@/types/activity";
 import { cn } from "@/lib/utils";
 
