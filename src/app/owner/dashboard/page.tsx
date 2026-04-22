@@ -1,15 +1,15 @@
 import { getOwnerDashboardData } from "@/actions/ownerDashboard.actions";
-import { LogoutButton } from "@/components/auth/logout-button";
+import { LogoutButton } from "@/components/auth";
 import {
   StaticSummarySection,
   FilteredPerformanceSection,
-} from "@/components/owner/dashboard/dashboard-cards";
-import { BrandStockList } from "@/components/owner/dashboard/brand-stock-list";
-import { RegionPerformanceChart } from "@/components/owner/dashboard/region-performance-chart";
-import { OverdueShopsTable } from "@/components/owner/dashboard/overdue-shops-table";
-import { ActivityList } from "@/components/shared/activity-list";
-import { DashboardChart } from "@/components/owner/dashboard-chart";
-import { DateRangeFilter } from "@/components/owner/dashboard/filters/date-range-filter";
+  BrandStockList,
+  RegionPerformanceChart,
+  OverdueShopsTable,
+  DateRangeFilter,
+} from "@/components/owner/dashboard";
+import { ActivityList } from "@/components/shared";
+import { DashboardChart } from "@/components/owner";
 
 export const revalidate = 60;
 
@@ -29,7 +29,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
   const data = await getOwnerDashboardData(startDate, endDate);
 
   return (
-    <div className="min-h-screen bg-[var(--color-page-bg)] sm:p-[clamp(1rem,3vw,2.5rem)] pb-24">
+    <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24">
       {/* Header */}
       <div className="flex items-start justify-between p-2 sm:p-0 gap-4 mb-[clamp(1.5rem,3vw,2.5rem)]">
         <div className="min-w-0">
@@ -103,7 +103,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   Comparative analysis for selected period
                 </p>
               </div>
-              <div className="flex-1 min-h-[300px] mt-6">
+              <div className="flex-1 min-h-75 mt-6">
                 <DashboardChart data={data.chartData} />
               </div>
             </div>

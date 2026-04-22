@@ -2,10 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { createPaymentAction, ActionState } from "@/actions/salesman.actions";
-import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
-import Select from "@/components/ui/select";
-import Textarea from "@/components/ui/textarea";
+import { Button, Input, Select, Textarea } from "@/components/ui";
 import { PaymentType, PaymentMethod } from "@/lib/generated/prisma/enums";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,7 +16,7 @@ const initialState: ActionState = {
   error: null,
 };
 
-export default function PaymentForm({ shops }: PaymentFormProps) {
+export const PaymentForm = ({ shops }: PaymentFormProps) => {
   const [state, formAction, isPending] = useActionState(
     createPaymentAction,
     initialState

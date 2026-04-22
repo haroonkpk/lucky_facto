@@ -12,14 +12,14 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   error?: string
 }
 
-export default function Select({
+export const Select = ({
   options,
   label,
   error,
   id,
   className,
   ...props
-}: SelectProps) {
+}: SelectProps) => {
   return (
     <div className="flex flex-col gap-[clamp(0.3rem,1vw,0.5rem)] w-full">
       {label && (

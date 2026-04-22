@@ -1,6 +1,5 @@
 import { getShops, getRegions } from "@/actions/owner.actions";
-import { ShopsList } from "@/components/owner/shops-list";
-import { RegisterShopForm } from "@/components/owner/register-shop-form";
+import { ShopsList, RegisterShopForm } from "@/components/owner";
 
 export default async function ShopsPage() {
   const [shops, regions] = await Promise.all([getShops(), getRegions()]);

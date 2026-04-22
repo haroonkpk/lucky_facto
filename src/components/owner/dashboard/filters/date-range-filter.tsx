@@ -3,8 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
 import { CalendarDays, X } from "lucide-react";
-import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
+import { Button, Input } from "@/components/ui";
 
 export function DateRangeFilter() {
   const router = useRouter();

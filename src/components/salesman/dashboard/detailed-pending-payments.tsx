@@ -9,7 +9,7 @@ interface DetailedPendingPaymentsProps {
   }[];
 }
 
-export default function DetailedPendingPayments({ shops }: DetailedPendingPaymentsProps) {
+export const DetailedPendingPayments = ({ shops }: DetailedPendingPaymentsProps) => {
   const getBadgeStyle = (days: number) => {
     if (days >= 90) return "bg-[#FEF2F2] text-[#991B1B]";
     if (days >= 60) return "bg-[#FFF7ED] text-[#9A3412]";

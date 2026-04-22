@@ -1,5 +1,5 @@
 import { getSalesmen } from "@/actions/owner.actions";
-import { RegisterSalesmanForm } from "@/components/auth/sign-up-form";
+import { RegisterSalesmanForm } from "@/components/auth";
 import { NumberFormat } from "@/lib/helper";
 import { User2 } from "lucide-react";
 import Image from "next/image";

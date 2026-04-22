@@ -2,10 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import Input from "@/components/ui/input";
-import Select from "@/components/ui/select";
-import Textarea from "@/components/ui/textarea";
-import Button from "@/components/ui/button";
+import { Input, Select, Textarea, Button } from "@/components/ui";
 import {
   registerShopAction,
   type RegisterShopState,

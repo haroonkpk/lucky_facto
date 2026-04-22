@@ -6,10 +6,10 @@ interface PendingPaymentsCardProps {
   shopCount: number;
 }
 
-export default function PendingPaymentsCard({
+export const PendingPaymentsCard = ({
   totalPending,
   shopCount,
-}: PendingPaymentsCardProps) {
+}: PendingPaymentsCardProps) => {
   const hasPending = totalPending > 0;
 
   return (

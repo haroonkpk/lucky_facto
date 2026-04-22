@@ -1,12 +1,12 @@
 "use client";
 
-import { LogoutButton } from "@/components/auth/logout-button";
+import { LogoutButton } from "@/components/auth";
 
 interface DashboardHeaderProps {
   salesmanName: string;
 }
 
-export default function DashboardHeader({ salesmanName }: DashboardHeaderProps) {
+export const DashboardHeader = ({ salesmanName }: DashboardHeaderProps) => {
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";

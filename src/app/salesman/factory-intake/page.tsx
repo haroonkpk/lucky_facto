@@ -1,9 +1,8 @@
 import { getBrands } from "@/actions/salesman.actions";
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
-import FactoryIntakeForm from "@/components/salesman/factory-intake-form";
-import { ActivityList } from "@/components/shared/activity-list";
-import { DateRangeFilter } from "@/components/owner/dashboard/filters/date-range-filter";
-import { Pagination } from "@/components/shared/pagination";
+import { FactoryIntakeForm } from "@/components/salesman";
+import { ActivityList, Pagination } from "@/components/shared";
+import { DateRangeFilter } from "@/components/owner/dashboard/filters";
 import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {

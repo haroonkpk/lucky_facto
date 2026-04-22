@@ -5,10 +5,7 @@ import {
   createInventoryIntakeAction,
   ActionState,
 } from "@/actions/salesman.actions";
-import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
-import Select from "@/components/ui/select";
-import Textarea from "@/components/ui/textarea";
+import { Button, Input, Select, Textarea } from "@/components/ui";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +18,7 @@ const initialState: ActionState = {
   error: null,
 };
 
-export default function FactoryIntakeForm({ brands }: FactoryIntakeFormProps) {
+export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
   const [state, formAction, isPending] = useActionState(
     createInventoryIntakeAction,
     initialState,

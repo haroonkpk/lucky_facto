@@ -9,10 +9,10 @@ interface SalesCardProps {
   todaySales: number;
 }
 
-export default function SalesCard({
+export const SalesCard = ({
   monthlySales,
   todaySales,
-}: SalesCardProps) {
+}: SalesCardProps) => {
   const [showToday, setShowToday] = useState(false);
 
   const currentAmount = showToday ? todaySales : monthlySales;

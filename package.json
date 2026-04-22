@@ -1,6 +1,10 @@
 {
   "name": "lucky_facto_distribution_web_software_nextjs",
   "version": "0.1.0",
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
   "private": true,
   "scripts": {
     "dev": "next dev",

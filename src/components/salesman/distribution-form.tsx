@@ -5,10 +5,7 @@ import {
   createDistributionAction,
   ActionState,
 } from "@/actions/salesman.actions";
-import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
-import Select from "@/components/ui/select";
-import Textarea from "@/components/ui/textarea";
+import { Button, Input, Select, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
 
@@ -27,11 +24,11 @@ const initialState: ActionState = {
   error: null,
 };
 
-export default function DistributionForm({
+export const DistributionForm = ({
   brands,
   shops,
   inventoryBalances,
-}: DistributionFormProps) {
+}: DistributionFormProps) => {
   const [state, formAction, isPending] = useActionState(
     createDistributionAction,
     initialState,

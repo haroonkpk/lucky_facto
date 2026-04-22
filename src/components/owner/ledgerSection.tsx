@@ -37,10 +37,10 @@ interface LedgerSectionProps {
   };
 }
 
-export default function LedgerSection({
+export const LedgerSection = ({
   ledgers,
   metrics,
-}: LedgerSectionProps) {
+}: LedgerSectionProps) => {
   return (
     <div
       className="bg-[#E7F1F8] mb-8"

@@ -6,13 +6,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;            
 }
 
-export default function Button({
+export const Button = ({
   variant = 'primary',
   icon,
   children,
   className = '',
   ...props
-}: ButtonProps) {
+}: ButtonProps) => {
   
   const baseClasses = `
     inline-flex items-center justify-center font-medium rounded-md transition-all duration-200 outline-none

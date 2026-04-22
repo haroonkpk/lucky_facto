@@ -2,9 +2,8 @@
 
 import { useActionState } from "react";
 import { cn } from "@/lib/utils";
-import Input from "@/components/ui/input";
+import { Input, Button } from "@/components/ui";
 import Link from "next/link";
-import Button from "../ui/button";
 import { loginAction } from "@/actions/auth";
 
 const initialState = { error: null };

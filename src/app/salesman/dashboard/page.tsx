@@ -7,12 +7,8 @@ import {
   getSalesmanLatestActivity,
 } from "@/actions/salesmanDashboard.actions";
 
-import DashboardHeader from "@/components/salesman/dashboard/dashboard-header";
-import SalesCard from "@/components/salesman/dashboard/sales-card";
-import PendingPaymentsCard from "@/components/salesman/dashboard/pending-payments-card";
-import DetailedPendingPayments from "@/components/salesman/dashboard/detailed-pending-payments";
-import StockOverviewCard from "@/components/salesman/dashboard/stock-overview-card";
-import { ActivityList } from "@/components/shared/activity-list";
+import { DashboardHeader, SalesCard, PendingPaymentsCard, DetailedPendingPayments, StockOverviewCard } from "@/components/salesman/dashboard";
+import { ActivityList } from "@/components/shared";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 

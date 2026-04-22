@@ -4,7 +4,7 @@ import {
   Users,
   Store,
 } from "lucide-react";
-import { Sidebar } from "@/components/layouts/sidebar";
+import { Sidebar } from "@/components/layouts";
 interface OwnerDashboardLayoutProps {
   children: ReactNode;
 }

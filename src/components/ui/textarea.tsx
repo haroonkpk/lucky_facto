@@ -4,7 +4,7 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
 }
 
-export default function Textarea({ label, id, className = '', ...props }: TextareaProps) {
+export const Textarea = ({ label, id, className = '', ...props }: TextareaProps) => {
   return (
     <div className="flex flex-col gap-[clamp(0.3rem,1vw,0.5rem)] w-full">
       

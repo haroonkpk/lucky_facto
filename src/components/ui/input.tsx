@@ -4,7 +4,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
 }
 
-export default function Input({ label, id, className = '', ...props }: InputProps) {
+export const Input = ({ label, id, className = '', ...props }: InputProps) => {
   return (
     <div className="flex flex-col gap-[clamp(0.3rem,1vw,0.5rem)] w-full">
       

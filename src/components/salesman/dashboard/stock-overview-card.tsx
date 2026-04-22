@@ -10,9 +10,9 @@ interface StockOverviewCardProps {
   inventoryBalances: StockItem[];
 }
 
-export default function StockOverviewCard({
+export const StockOverviewCard = ({
   inventoryBalances,
-}: StockOverviewCardProps) {
+}: StockOverviewCardProps) => {
   return (
     <div
       style={{
