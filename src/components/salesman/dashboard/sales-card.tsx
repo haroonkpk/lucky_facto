@@ -16,7 +16,7 @@ export default function SalesCard({
   const [showToday, setShowToday] = useState(false);
 
   const currentAmount = showToday ? todaySales : monthlySales;
-  const label = showToday ? "Today's Sales" : "Monthly Sales";
+  const label = showToday ? "Today's Sales" : "This Month's Sales";
 
   return (
     <div
@@ -52,7 +52,7 @@ export default function SalesCard({
         >
           <CalendarDays size={14} />
           <span className="font-semibold">
-            {showToday ? "Monthly" : "Today"}
+            {showToday ? "This Month" : "Today"}
           </span>
         </button>
       </div>

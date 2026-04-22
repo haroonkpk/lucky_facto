@@ -1,9 +1,11 @@
 import {
+  getInventoryBalances,
+} from "@/actions/salesman.actions";
+import {
   getSalesmanSales,
   getSalesmanPendingPayments,
   getSalesmanLatestActivity,
-  getInventoryBalances,
-} from "@/actions/salesman.actions";
+} from "@/actions/salesmanDashboard.actions";
 
 import DashboardHeader from "@/components/salesman/dashboard/dashboard-header";
 import SalesCard from "@/components/salesman/dashboard/sales-card";
@@ -13,6 +15,8 @@ import StockOverviewCard from "@/components/salesman/dashboard/stock-overview-ca
 import { ActivityList } from "@/components/shared/activity-list";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+export const revalidate = 60;
 
 export default async function SalesmanDashboardPage() {
   const supabase = await createClient();
@@ -65,7 +69,7 @@ export default async function SalesmanDashboardPage() {
         )}
 
         {/* Latest Activity */}
-        <ActivityList activities={activities} />
+        <ActivityList activities={activities} title="Last 10 Activities" />
       </div>
     </div>
   );

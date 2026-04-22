@@ -1,4 +1,4 @@
-import { getOwnerDashboardData } from "@/actions/dashboard.actions";
+import { getOwnerDashboardData } from "@/actions/ownerDashboard.actions";
 import { LogoutButton } from "@/components/auth/logout-button";
 import {
   StaticSummarySection,
@@ -11,7 +11,7 @@ import { ActivityList } from "@/components/shared/activity-list";
 import { DashboardChart } from "@/components/owner/dashboard-chart";
 import { DateRangeFilter } from "@/components/owner/dashboard/filters/date-range-filter";
 
-export const revalidate = 0;
+export const revalidate = 60;
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

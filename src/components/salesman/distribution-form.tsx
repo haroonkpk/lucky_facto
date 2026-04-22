@@ -10,6 +10,7 @@ import Input from "@/components/ui/input";
 import Select from "@/components/ui/select";
 import Textarea from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { Plus, X } from "lucide-react";
 
 interface DistributionFormProps {
   brands: { id: string; name: string }[];
@@ -41,6 +42,7 @@ export default function DistributionForm({
   const [quantity, setQuantity] = useState<number>(0);
   const [unitPrice, setUnitPrice] = useState<number>(0);
   const [total, setTotal] = useState<number>(0);
+  const [isOpen, setIsOpen] = useState(false);
 
   const availableStock = inventoryBalances.find(b => b.brandId === selectedBrandId)?.currentStock ?? 0;
   const isOverStock = selectedBrandId !== "" && quantity > availableStock;
@@ -70,17 +72,55 @@ export default function DistributionForm({
   ];
 
   return (
-    <div className="bg-white p-[clamp(1.5rem,3vw,2.5rem)] rounded-xl shadow-xs w-full mb-20 mx-auto">
+    <div
+      className={cn(
+        "rounded-xl transition-all duration-200 ease-in-out mb-20 mx-auto",
+        "2xl:bg-white 2xl:shadow-xs 2xl:w-full 2xl:p-[clamp(1.5rem,3vw,2.5rem)]",
+        isOpen
+          ? "bg-white shadow-xs w-full p-[clamp(1.5rem,3vw,2.5rem)]"
+          : "bg-transparent shadow-none w-full p-3",
+      )}
+    >
       {/* Header */}
-      <div className="mb-[clamp(1.5rem,3vw,2rem)] border-b border-slate-100 pb-5">
-        <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-          Issue Distribution
-        </h2>
-        <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-          Authorize inventory release and update the retail shop's liability
-          ledger.
-        </p>
+      <div
+        className={cn(
+          "flex items-start justify-between w-full border-slate-100",
+          isOpen ? "mb-[clamp(1.5rem,3vw,2rem)] border-b pb-5" : "border-b-0 pb-0",
+          "2xl:mb-[clamp(1.5rem,3vw,2rem)] 2xl:border-b 2xl:pb-5",
+        )}
+      >
+        <div className={cn("2xl:block", isOpen ? "block" : "hidden")}>
+          <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
+            Issue Distribution
+          </h2>
+          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
+            Authorize inventory release and update the retail shop&rsquo;s liability
+            ledger.
+          </p>
+        </div>
+
+        {/* Toggle button */}
+        <button
+          type="button"
+          onClick={() => setIsOpen((prev) => !prev)}
+          className={cn(
+            "2xl:hidden flex-shrink-0 w-16 h-12 rounded-md flex items-center justify-center ml-auto",
+            "text-white",
+            "transition-colors duration-150 ease-in-out",
+            isOpen ? "text-(--color-primary)" : "bg-(--color-primary)",
+          )}
+          aria-label={isOpen ? "Collapse form" : "Expand form"}
+        >
+          {isOpen ? (
+            <X size={28} strokeWidth={2.5} />
+          ) : (
+            <Plus size={28} strokeWidth={2.5} />
+          )}
+        </button>
       </div>
+
+      {/* Form body */}
+      <div className={cn("2xl:block", isOpen ? "block" : "hidden")}>
 
       {/* Success Banner */}
       {state.success && (
@@ -201,6 +241,7 @@ export default function DistributionForm({
           </Button>
         </div>
       </form>
+      </div>
     </div>
   );
 }

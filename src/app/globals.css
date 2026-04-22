@@ -1,26 +1,26 @@
 @import "tailwindcss";
 
-
 :root {
-    --color-primary: #0D3E8D;     
-    --color-secondary-bg: #D9E6F2; 
-    --color-page-bg: #effcfd;     
-    --color-white: #FFFFFF;        
-    --color-pending: #ebb032;
+  --color-primary: #0d3e8d;
+  --color-secondary-bg: #d9e6f2;
+  --color-page-bg: #effcfd;
+  --color-white: #ffffff;
+  --color-pending: #b45309;
+  --color-pending-bg: #fef3c7;
+  --color-success-bg: #9ae68d;
+  --color-success-text: #14532d;
+}
 
-  --color-success-bg: #9AE68D;     
-  --color-success-text: #14532D;   
-  }
-
- html,body {
+html,
+body {
   background-color: var(--color-page-bg);
 }
 
 /* Utility: hide scrollbar while keeping scroll functionality */
 .scrollbar-hide {
-  -ms-overflow-style: none;  /* IE/Edge */
-  scrollbar-width: none;     /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none; /* Firefox */
 }
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;             /* Chrome/Safari/Opera */
+  display: none; /* Chrome/Safari/Opera */
 }

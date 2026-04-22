@@ -17,7 +17,7 @@ export default function PendingPaymentsCard({
       className="relative overflow-hidden"
       style={{
         background: hasPending
-          ? "linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)"
+          ? "var(--color-pending-bg)"
           : "linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)",
         borderRadius: "clamp(12px, 2vw, 20px)",
         padding: "clamp(20px, 3vw, 32px)",
@@ -51,8 +51,11 @@ export default function PendingPaymentsCard({
 
       {/* Amount */}
       <p
-        className={`font-bold tracking-tight ${hasPending ? "text-amber-900" : "text-emerald-900"}`}
-        style={{ fontSize: "clamp(1.5rem, 4vw, 2rem)" }}
+        className={`font-bold tracking-tight ${!hasPending ? "text-emerald-900" : ""}`}
+        style={{ 
+          fontSize: "clamp(1.5rem, 4vw, 2rem)",
+          color: hasPending ? "var(--color-pending)" : undefined
+        }}
       >
         {formatPKR(totalPending)}
       </p>

@@ -19,7 +19,8 @@ export default function DetailedPendingPayments({ shops }: DetailedPendingPaymen
 
   return (
     <div 
-      className="bg-amber-50 rounded-[clamp(12px,2vw,20px)] p-[clamp(20px,3vw,32px)] overflow-hidden flex flex-col"
+      className="rounded-[clamp(12px,2vw,20px)] p-[clamp(20px,3vw,32px)] overflow-hidden flex flex-col"
+      style={{ backgroundColor: "var(--color-pending-bg)" }}
     >
       <div className="flex justify-between items-center mb-6 px-1">
         <h3 
@@ -73,8 +74,11 @@ export default function DetailedPendingPayments({ shops }: DetailedPendingPaymen
                   {shop.name}
                 </td>
                 <td 
-                  className="py-4 px-2 text-right font-bold text-amber-700" 
-                  style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}
+                  className="py-4 px-2 text-right font-bold" 
+                  style={{ 
+                    fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)",
+                    color: "var(--color-pending)"
+                  }}
                 >
                   {formatPKR(shop.amount)}
                 </td>

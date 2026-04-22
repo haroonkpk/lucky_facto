@@ -17,7 +17,7 @@ interface RegionData {
 }
 
 const DIST_COLOR = "var(--color-primary)";
-const PENDING_COLOR = "var(--color-pending)";
+const PENDING_COLOR = "#f3d769";
 
 const BAR_MIN_WIDTH = 80;
 const FIT_THRESHOLD = 6;

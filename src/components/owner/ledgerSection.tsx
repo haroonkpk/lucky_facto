@@ -135,7 +135,7 @@ export default function LedgerSection({
                     </td>
                     <td className="px-4 py-5 max-w-md">
                       <p
-                        className="font-bold text-[#1E293B]"
+                        className="font-bold text-(--color-primary)"
                         style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
                       >
                         {mainDesc}
@@ -152,7 +152,7 @@ export default function LedgerSection({
                         className={cn(
                           "inline-flex items-center gap-1 font-bold rounded-full",
                           isDebit
-                            ? "bg-[#FBE9E9] text-[#C0392B]"
+                            ? "bg-(--color-pending-bg) text-(--color-pending)"
                             : "bg-[#D4EDDA] text-[#155724]",
                         )}
                         style={{
@@ -170,7 +170,7 @@ export default function LedgerSection({
                     <td
                       className={cn(
                         "px-1 py-5 text-right font-bold whitespace-nowrap",
-                        isDebit ? "text-[#1E293B]" : "text-[#28A745]",
+                        isDebit ? "text-(--color-primary)" : "text-[#28A745]",
                       )}
                       style={{ fontSize: "clamp(14px, 1.8vw, 16px)" }}
                     >
@@ -215,7 +215,7 @@ export default function LedgerSection({
             Total Billing
           </p>
           <p
-            className="font-extrabold text-[#1E293B] tracking-tight"
+            className="font-extrabold text-(--color-primary) tracking-tight"
             style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
           >
             {formatPKR(metrics.totalBilling)}
@@ -229,7 +229,7 @@ export default function LedgerSection({
             Balance Owed
           </p>
           <p
-            className="font-extrabold text-[#C0392B] tracking-tight"
+            className="font-extrabold text-(--color-pending) tracking-tight"
             style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
           >
             {formatPKR(Math.abs(metrics.balanceOwed))}

@@ -17,8 +17,8 @@ export default async function ShopDetailsPage({
   const { shop, metrics } = data;
 
   const isDebt = metrics.totalPayments < metrics.totalBilling;
-  const statusColor = isDebt ? "#C0392B" : "#28A745";
-  const statusBg = isDebt ? "#FBE9E9" : "#D4EDDA";
+  const statusColor = isDebt ? "var(--color-pending)" : "#28A745";
+  const statusBg = isDebt ? "var(--color-pending-bg)" : "#D4EDDA";
   
   const lastPaymentDaysAgo = metrics.lastPaymentDate 
     ? Math.floor((new Date().getTime() - new Date(metrics.lastPaymentDate).getTime()) / (1000 * 60 * 60 * 24))

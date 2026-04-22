@@ -282,7 +282,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                       Total Billing
                     </p>
                     <p
-                      className="font-bold text-[#1E293B] truncate"
+                      className="font-bold text-(--color-primary) truncate"
                       style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
                     >
                       {formatPKR(shop.totalBilling)}
@@ -311,7 +311,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                       className={cn(
                         "font-bold truncate",
                         shop.balanceOwed > 0
-                          ? "text-[#C0392B]"
+                          ? "text-amber-600"
                           : "text-[#94A3B8]",
                       )}
                       style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}

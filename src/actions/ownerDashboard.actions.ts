@@ -21,7 +21,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
     filterEnd = tomorrowStart;
   }
 
-  // Date range for collection efficiency 
+  // Date range for collection efficiency
   const thirtyDaysAgo = new Date(todayStart);
   thirtyDaysAgo.setDate(todayStart.getDate() - 30);
   // Chart range: If filter is provided, use it, otherwise 90 days

@@ -19,20 +19,29 @@ export function OverdueShopsTable({ shops }: { shops: OverdueShop[] }) {
   const filteredShops = shops.filter((shop) => shop.balance >= 300000);
 
   return (
-    <div className="bg-amber-50 rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] overflow-hidden flex flex-col h-[420px] order-1 xl:order-2">
-      <div className="flex justify-between items-center mb-6 px-1">
+    <div
+      className="rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] overflow-hidden flex flex-col h-[420px] order-1 xl:order-2"
+      style={{ backgroundColor: "var(--color-pending-bg)" }}
+    >
+      <div className="flex flex-colflex flex-col mb-6 px-1">
         <h3
           className="font-bold text-[#0A2540]"
           style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}
         >
-          Overdue Shops
+          Critical Overdue Shops
         </h3>
+        <p className="text-xs text-[#94A3B8] mt-0.5">
+          Pending balance ≥ PKR 3,00,000
+        </p>
       </div>
 
       <div className="overflow-y-auto scrollbar-hide flex-1">
         <table className="w-full text-left border-collapse">
-          <thead className="sticky top-0 bg-amber-50 z-10">
-            <tr className="border-b border-[#F1F5F9]">
+          <thead
+            className="sticky top-0 z-10"
+            style={{ backgroundColor: "var(--color-pending-bg)" }}
+          >
+            <tr className="border-b border-[#ffe588]/50">
               <th
                 className="pb-4 font-bold text-[#64748B] uppercase tracking-wider"
                 style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
@@ -57,7 +66,7 @@ export function OverdueShopsTable({ shops }: { shops: OverdueShop[] }) {
             {filteredShops.map((shop, i) => (
               <tr
                 key={i}
-                className="border-b border-[#F8FAFC] last:border-0 hover:bg-amber-600/10 transition-colors"
+                className="border-b border-[#742302] last:border-0 hover:bg-amber-600/10 transition-colors"
               >
                 <td
                   className="py-4 pr-4 font-bold text-amber-600"
@@ -66,8 +75,11 @@ export function OverdueShopsTable({ shops }: { shops: OverdueShop[] }) {
                   {shop.name}
                 </td>
                 <td
-                  className="py-4 px-2 text-right font-bold text-red-600"
-                  style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}
+                  className="py-4 px-2 text-right font-bold"
+                  style={{
+                    fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)",
+                    color: "#C0392B",
+                  }}
                 >
                   {formatPKR(shop.balance)}
                 </td>
