@@ -1,9 +1,10 @@
 import { getShops, getRegions } from "@/actions/owner.actions";
 import { ShopsList, RegisterShopForm } from "@/components/owner";
 
+export const dynamic = "force-dynamic";
+
 export default async function ShopsPage() {
   const [shops, regions] = await Promise.all([getShops(), getRegions()]);
-
   return (
     <div className="min-h-screen bg-(--color-page-bg) mb-20 p-3 lg:p-10">
       {/* Header */}

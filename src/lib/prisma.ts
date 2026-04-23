@@ -10,14 +10,20 @@ declare global {
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
-const pool = globalThis.pool ?? new Pool({ connectionString });
+const pool =
+  globalThis.pool ??
+  new Pool({
+    connectionString,
+    max: 5,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000,
+  });
+
 const adapter = new PrismaPg(pool);
 
 const prisma = globalThis.prisma ?? new PrismaClient({ adapter });
 
-if (process.env.NODE_ENV !== "production") {
-  globalThis.prisma = prisma;
-  globalThis.pool = pool;
-}
+globalThis.prisma = prisma;
+globalThis.pool = pool;
 
 export { prisma };
