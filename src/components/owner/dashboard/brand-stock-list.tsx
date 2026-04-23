@@ -26,9 +26,15 @@ const COLORS = [
   "#2563EB",
 ];
 
-export function BrandStockList({ stock }: { stock: BrandStock[] }) {
+export function BrandStockList({
+  stock,
+  variant = "white",
+}: {
+  stock: BrandStock[];
+  variant?: "white" | "primary" | "pending" | "secondary";
+}) {
   return (
-    <Card variant="white" className="h-full flex flex-col min-h-[370px]">
+    <Card variant={variant} className="h-full flex flex-col min-h-[370px]">
       <div className="flex justify-between items-center mb-6 px-1">
         <h3
           className="font-bold text-[#0A2540]"

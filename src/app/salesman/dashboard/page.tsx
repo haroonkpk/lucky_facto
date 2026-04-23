@@ -34,7 +34,7 @@ export default async function SalesmanDashboardPage({
 
   if (error || !user) {
     redirect("/login");
-  } 
+  }
 
   const salesmanName = user.user_metadata?.full_name || user.email;
 
@@ -45,7 +45,6 @@ export default async function SalesmanDashboardPage({
       getSalesmanLatestActivity(user.id),
       getInventoryBalances(),
     ]);
-
 
   return (
     <div className="min-h-screen bg-(--color-page-bg)">
@@ -60,6 +59,7 @@ export default async function SalesmanDashboardPage({
             todaySales={sales.todaySales}
           />
           <BrandStockList
+            variant="secondary"
             stock={inventoryBalances.map((item) => ({
               brandName: item.brand.name,
               currentStock: item.currentStock,
