@@ -37,7 +37,7 @@ export default function SalesmanDashboardLayout({
     <div className="flex h-screen overflow-hidden bg-(--color-page-bg)">
       <Sidebar items={salesmanNavItems} />
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto pb-10 bg-(--color-page-bg) md:pb-0 md:pl-14">
         <div className="max-w-400 mx-auto w-full">{children}</div>
       </main>
     </div>

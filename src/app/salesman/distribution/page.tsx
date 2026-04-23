@@ -45,7 +45,7 @@ export default async function DistributionPage({ searchParams }: PageProps) {
   ]);
 
   return (
-    <div className="min-h-screen bg-(--color-page-bg) p-3 lg:p-10 relative md:pl-20! pb-24">
+    <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24 relative">
       {/* Page Header */}
       <div className="mb-8">
         <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">

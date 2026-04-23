@@ -9,10 +9,7 @@ interface SalesCardProps {
   todaySales: number;
 }
 
-export const SalesCard = ({
-  monthlySales,
-  todaySales,
-}: SalesCardProps) => {
+export const SalesCard = ({ monthlySales, todaySales }: SalesCardProps) => {
   const [showToday, setShowToday] = useState(false);
 
   const currentAmount = showToday ? todaySales : monthlySales;
@@ -20,7 +17,7 @@ export const SalesCard = ({
 
   return (
     <div
-      className="relative overflow-hidden text-white"
+      className="relative h-full sm:w-full flex flex-col justify-between overflow-hidden text-white"
       style={{
         background: "var(--color-primary) ",
         borderRadius: "clamp(12px, 2vw, 20px)",
@@ -36,7 +33,7 @@ export const SalesCard = ({
       >
         <p
           className="text-white/80 font-bold uppercase tracking-widest"
-          style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
+          style={{ fontSize: "clamp(10px, 1.6vw, 18px)" }}
         >
           {label}
         </p>
@@ -58,7 +55,7 @@ export const SalesCard = ({
       </div>
 
       {/* Amount */}
-      <div className="relative z-10">
+      <div className="relative sm:mb-5 z-10">
         <p
           className="font-bold tracking-tight transition-all duration-300"
           style={{ fontSize: "clamp(1.75rem, 5vw, 2.5rem)" }}
@@ -75,4 +72,4 @@ export const SalesCard = ({
       </div>
     </div>
   );
-}
+};

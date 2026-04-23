@@ -14,7 +14,7 @@ export const PendingPaymentsCard = ({
 
   return (
     <div
-      className="relative overflow-hidden"
+      className="relative h-full overflow-hidden"
       style={{
         background: hasPending
           ? "var(--color-pending-bg)"

@@ -9,7 +9,9 @@ interface DetailedPendingPaymentsProps {
   }[];
 }
 
-export const DetailedPendingPayments = ({ shops }: DetailedPendingPaymentsProps) => {
+export const DetailedPendingPayments = ({
+  shops,
+}: DetailedPendingPaymentsProps) => {
   const getBadgeStyle = (days: number) => {
     if (days >= 90) return "bg-[#FEF2F2] text-[#991B1B]";
     if (days >= 60) return "bg-[#FFF7ED] text-[#9A3412]";
@@ -18,43 +20,43 @@ export const DetailedPendingPayments = ({ shops }: DetailedPendingPaymentsProps)
   };
 
   return (
-    <div 
+    <div
       className="rounded-[clamp(12px,2vw,20px)] p-[clamp(20px,3vw,32px)] overflow-hidden flex flex-col"
       style={{ backgroundColor: "var(--color-pending-bg)" }}
     >
       <div className="flex justify-between items-center mb-6 px-1">
-        <h3 
-          className="font-bold text-[#0A2540]" 
+        <h3
+          className="font-bold text-[#0A2540]"
           style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}
         >
           Pending Payments Detail
         </h3>
-        <span 
-          className="text-[#64748B] font-bold uppercase tracking-widest text-right" 
+        <span
+          className="text-[#64748B] font-bold uppercase tracking-widest text-right"
           style={{ fontSize: "clamp(9px, 1vw, 11px)" }}
         >
           By Shop
         </span>
       </div>
-      
+
       <div className="overflow-x-auto scrollbar-hide">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-amber-200/50">
-              <th 
-                className="pb-4 font-bold text-[#64748B] uppercase tracking-wider" 
+              <th
+                className="pb-4 font-bold text-[#64748B] uppercase tracking-wider"
                 style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
               >
                 Shop Name
               </th>
-              <th 
-                className="pb-4 text-right font-bold text-[#64748B] uppercase tracking-wider" 
+              <th
+                className="pb-4 text-right font-bold text-[#64748B] uppercase tracking-wider"
                 style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
               >
                 Pending Amount
               </th>
-              <th 
-                className="pb-4 text-center font-bold text-[#64748B] uppercase tracking-wider" 
+              <th
+                className="pb-4 text-center font-bold text-[#64748B] uppercase tracking-wider"
                 style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
               >
                 Latency
@@ -63,28 +65,29 @@ export const DetailedPendingPayments = ({ shops }: DetailedPendingPaymentsProps)
           </thead>
           <tbody>
             {shops.map((shop) => (
-              <tr 
-                key={shop.id} 
+              <tr
+                key={shop.id}
                 className="border-b border-amber-100/30 last:border-0 hover:bg-amber-600/5 transition-colors"
               >
-                <td 
-                  className="py-4 pr-4 font-bold text-amber-600" 
-                  style={{ fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)" }}
+                <td
+                  className="py-4 pr-4 font-bold text-amber-600"
+                  style={{ fontSize: "clamp(0.75rem, 1.2vw, 0.95rem)" }}
                 >
                   {shop.name}
                 </td>
-                <td 
-                  className="py-4 px-2 text-right font-bold" 
-                  style={{ 
-                    fontSize: "clamp(0.85rem, 1.2vw, 0.95rem)",
-                    color: "var(--color-pending)"
+                <td
+                  className="py-4 px-2 text-right font-bold"
+                  style={{
+                    fontSize: "clamp(0.75rem, 1.2vw, 0.95rem)",
+                    color: "var(--color-pending)",
                   }}
                 >
                   {formatPKR(shop.amount)}
                 </td>
                 <td className="py-4 pl-4 text-center">
-                  <span 
-                    className={`inline-block px-3 py-1 rounded-lg text-[11px] font-bold uppercase tracking-wider ${getBadgeStyle(shop.daysOverdue)}`}
+                  <span
+                    className={`inline-block px-3 py-1 rounded-lg font-bold uppercase tracking-wider ${getBadgeStyle(shop.daysOverdue)}`}
+                    style={{ fontSize: "clamp(0.45rem, 0.8vw, 0.65rem)" }}
                   >
                     {shop.daysOverdue} Days
                   </span>
@@ -93,8 +96,8 @@ export const DetailedPendingPayments = ({ shops }: DetailedPendingPaymentsProps)
             ))}
             {shops.length === 0 && (
               <tr>
-                <td 
-                  colSpan={3} 
+                <td
+                  colSpan={3}
                   className="py-8 text-center text-[#94A3B8] font-medium text-sm italic"
                 >
                   No pending payments found
@@ -106,4 +109,4 @@ export const DetailedPendingPayments = ({ shops }: DetailedPendingPaymentsProps)
       </div>
     </div>
   );
-}
+};
