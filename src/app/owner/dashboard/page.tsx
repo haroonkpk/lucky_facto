@@ -119,6 +119,13 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             activities={data.activities}
             title="Latest 10 Activity"
             showPagination={false}
+            headers={[
+              { key: "date", label: "Date" },
+              { key: "subtitle", label: "Target/Shop" },
+              { key: "title", label: "Type/Activity" },
+              { key: "details", label: "Details/Qty" },
+              { key: "amount", label: "Amount" },
+            ]}
           />
           <OverdueShopsTable shops={data.overdueShopsList} />
         </section>

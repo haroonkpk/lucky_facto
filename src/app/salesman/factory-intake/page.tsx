@@ -79,6 +79,13 @@ export default async function FactoryIntakePage({ searchParams }: PageProps) {
                 currentPage={activityData.currentPage}
                 totalPages={activityData.totalPages}
                 title="Intake Logs"
+                headers={[
+                  { key: "date", label: "Date" },
+                  { key: "subtitle", label: "Target/Shop" },
+                  { key: "title", label: "Type/Activity" },
+                  { key: "details", label: "Details/Qty" },
+                  { key: "amount", label: "Amount" },
+                ]}
               />
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-interface TableHeader {
+export interface TableHeader {
   key: string;
   label: string;
 }
@@ -77,7 +77,7 @@ export const DataTable = <T extends { id: string }>({
                       key={`${row.id}-${header.key}`}
                       className={`border ${BorderColor} px-4 py-3`}
                     >
-                      {String(row[header.key as keyof T])}
+                      {row[header.key as keyof T] as React.ReactNode}
                     </td>
                   ))}
                   {TableButtons?.length ? (

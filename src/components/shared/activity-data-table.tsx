@@ -8,8 +8,11 @@ import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
 import { Eye } from "lucide-react";
 
+import { TableHeader } from "./data-table";
+
 interface ActivityDataTableProps {
   activities: Activity[];
+  headers: TableHeader[];
   currentPage?: number;
   totalPages?: number;
   title?: string;
@@ -18,6 +21,7 @@ interface ActivityDataTableProps {
 
 export function ActivityDataTable({
   activities,
+  headers,
   currentPage = 1,
   totalPages = 1,
   title = "Recent Activity",
@@ -25,7 +29,9 @@ export function ActivityDataTable({
 }: ActivityDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handlePageChange = (page: number) => {
@@ -43,14 +49,16 @@ export function ActivityDataTable({
   };
 
   const tableData = activities.map((activity) => {
-    const quantityDetail = activity.details.find((d) => 
-        d.label.toLowerCase().includes("quantity") || 
-        d.label.toLowerCase().includes("bags")
+    const quantityDetail = activity.details.find(
+      (d) =>
+        d.label.toLowerCase().includes("quantity") ||
+        d.label.toLowerCase().includes("bags"),
     );
-    const targetDetail = activity.details.find((d) => 
-        d.label.toLowerCase().includes("shop") || 
+    const targetDetail = activity.details.find(
+      (d) =>
+        d.label.toLowerCase().includes("shop") ||
         d.label.toLowerCase().includes("brand") ||
-        d.label.toLowerCase().includes("method")
+        d.label.toLowerCase().includes("method"),
     );
 
     return {
@@ -63,17 +71,12 @@ export function ActivityDataTable({
       title: activity.title,
       subtitle: targetDetail?.value?.toString() || activity.subtitle || "—",
       details: quantityDetail?.value?.toString() || "—",
-      amount: activity.amount && activity.amount > 0 ? formatPKR(activity.amount) : "—",
+      amount:
+        activity.amount && activity.amount > 0
+          ? formatPKR(activity.amount)
+          : "—",
     };
   });
-
-  const headers = [
-    { key: "date", label: "Date" },
-    { key: "subtitle", label: "Target/Shop" },
-    { key: "title", label: "Type/Activity" },
-    { key: "details", label: "Details/Qty" },
-    { key: "amount", label: "Amount" },
-  ];
 
   return (
     <>

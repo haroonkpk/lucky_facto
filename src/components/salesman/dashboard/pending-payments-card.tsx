@@ -14,7 +14,7 @@ export const PendingPaymentsCard = ({
 
   return (
     <div
-      className="relative h-full overflow-hidden"
+      className="relative h-full flex flex-col justify-between overflow-hidden"
       style={{
         background: hasPending
           ? "var(--color-pending-bg)"
@@ -49,6 +49,7 @@ export const PendingPaymentsCard = ({
         </p>
       </div>
 
+      <div>
       {/* Amount */}
       <p
         className={`font-bold tracking-tight ${!hasPending ? "text-emerald-900" : ""}`}
@@ -69,6 +70,7 @@ export const PendingPaymentsCard = ({
           ? `From ${shopCount} shop${shopCount !== 1 ? "s" : ""}`
           : "All payments are cleared"}
       </p>
+      </div>
     </div>
   );
 }

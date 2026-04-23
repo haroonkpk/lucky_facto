@@ -1,4 +1,9 @@
+"use client";
+
+import React from "react";
 import { formatPKR } from "@/lib/dashboard-utils";
+import { DataTable, TableHeader } from "@/components/shared/data-table";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface DetailedPendingPaymentsProps {
   shops: {
@@ -7,11 +12,24 @@ interface DetailedPendingPaymentsProps {
     amount: number;
     daysOverdue: number;
   }[];
+  currentPage: number;
+  totalPages: number;
 }
 
 export const DetailedPendingPayments = ({
   shops,
+  currentPage,
+  totalPages,
 }: DetailedPendingPaymentsProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page.toString());
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   const getBadgeStyle = (days: number) => {
     if (days >= 90) return "bg-[#FEF2F2] text-[#991B1B]";
     if (days >= 60) return "bg-[#FFF7ED] text-[#9A3412]";
@@ -19,94 +37,48 @@ export const DetailedPendingPayments = ({
     return "bg-[#F8FAFC] text-[#475569]";
   };
 
-  return (
-    <div
-      className="rounded-[clamp(12px,2vw,20px)] p-[clamp(20px,3vw,32px)] overflow-hidden flex flex-col"
-      style={{ backgroundColor: "var(--color-pending-bg)" }}
-    >
-      <div className="flex justify-between items-center mb-6 px-1">
-        <h3
-          className="font-bold text-[#0A2540]"
-          style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}
-        >
-          Pending Payments Detail
-        </h3>
+  const headers: TableHeader[] = [
+    { key: "name", label: "Shop Name" },
+    { key: "amount", label: "Pending Amount" },
+    { key: "latency", label: "Latency" },
+  ];
+
+  const tableData = shops.map((shop) => ({
+    id: shop.id,
+    name: (
+      <span className="font-bold text-amber-600">
+        {shop.name}
+      </span>
+    ),
+    amount: (
+      <span className="font-bold" style={{ color: "var(--color-pending)" }}>
+        {formatPKR(shop.amount)}
+      </span>
+    ),
+    latency: (
+      <div className="text-center">
         <span
-          className="text-[#64748B] font-bold uppercase tracking-widest text-right"
-          style={{ fontSize: "clamp(9px, 1vw, 11px)" }}
+          className={`inline-block px-3 py-1 rounded-lg font-bold uppercase tracking-wider ${getBadgeStyle(shop.daysOverdue)}`}
+          style={{ fontSize: "clamp(0.45rem, 0.8vw, 0.65rem)" }}
         >
-          By Shop
+          {shop.daysOverdue} Days
         </span>
       </div>
+    ),
+  }));
 
-      <div className="overflow-x-auto scrollbar-hide">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-amber-200/50">
-              <th
-                className="pb-4 font-bold text-[#64748B] uppercase tracking-wider"
-                style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
-              >
-                Shop Name
-              </th>
-              <th
-                className="pb-4 text-right font-bold text-[#64748B] uppercase tracking-wider"
-                style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
-              >
-                Pending Amount
-              </th>
-              <th
-                className="pb-4 text-center font-bold text-[#64748B] uppercase tracking-wider"
-                style={{ fontSize: "clamp(10px, 1.1vw, 11px)" }}
-              >
-                Latency
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {shops.map((shop) => (
-              <tr
-                key={shop.id}
-                className="border-b border-amber-100/30 last:border-0 hover:bg-amber-600/5 transition-colors"
-              >
-                <td
-                  className="py-4 pr-4 font-bold text-amber-600"
-                  style={{ fontSize: "clamp(0.75rem, 1.2vw, 0.95rem)" }}
-                >
-                  {shop.name}
-                </td>
-                <td
-                  className="py-4 px-2 text-right font-bold"
-                  style={{
-                    fontSize: "clamp(0.75rem, 1.2vw, 0.95rem)",
-                    color: "var(--color-pending)",
-                  }}
-                >
-                  {formatPKR(shop.amount)}
-                </td>
-                <td className="py-4 pl-4 text-center">
-                  <span
-                    className={`inline-block px-3 py-1 rounded-lg font-bold uppercase tracking-wider ${getBadgeStyle(shop.daysOverdue)}`}
-                    style={{ fontSize: "clamp(0.45rem, 0.8vw, 0.65rem)" }}
-                  >
-                    {shop.daysOverdue} Days
-                  </span>
-                </td>
-              </tr>
-            ))}
-            {shops.length === 0 && (
-              <tr>
-                <td
-                  colSpan={3}
-                  className="py-8 text-center text-[#94A3B8] font-medium text-sm italic"
-                >
-                  No pending payments found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+  return (
+    <div className="w-full">
+      <DataTable
+        heading="Pending Payments Detail"
+        TableHeaders={headers}
+        TableData={tableData}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+        HeaderBgColor="bg-[#FEF3C7]" // Matching the amber/pending theme
+        BorderColor="border-amber-100"
+      />
     </div>
   );
 };

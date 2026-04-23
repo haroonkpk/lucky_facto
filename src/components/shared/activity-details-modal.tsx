@@ -141,12 +141,6 @@ export function ActivityDetailsModal({
               </p>
             </div>
           </div>
-          <div className="bg-slate-50 px-4 py-2 rounded-xl flex items-center gap-2 border border-slate-100">
-            <User size={14} className="text-slate-400" />
-            <code className="text-[11px] font-mono text-slate-500">
-              UID: {activity.id.slice(0, 12)}
-            </code>
-          </div>
         </div>
       </div>
     </Modal>

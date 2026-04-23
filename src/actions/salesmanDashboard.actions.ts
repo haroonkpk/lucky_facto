@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { Activity } from "@/types/activity";
+import { unstable_cache } from "next/cache";
 
 export async function getSalesmanSales(userId: string) {
   const now = new Date();
@@ -31,92 +32,104 @@ export async function getSalesmanSales(userId: string) {
   };
 }
 
-export async function getSalesmanPendingPayments(userId: string) {
-  const now = new Date();
 
-  // 1. Fetch shops with positive balance and their latest activity
-  const shopsWithBalance = await prisma.shop.findMany({
-    where: { currentBalance: { gt: 0 } },
-    select: {
-      id: true,
-      name: true,
-      currentBalance: true,
-      createdAt: true,
-      ledgers: {
-        orderBy: { createdAt: "desc" },
-        take: 1,
-        select: { createdAt: true },
+const getProcessedPendingShops = unstable_cache(
+  async (userId: string) => {
+    const now = new Date();
+
+    const shopsWithBalance = await prisma.shop.findMany({
+      where: { currentBalance: { gt: 0 } },
+      select: {
+        id: true,
+        name: true,
+        currentBalance: true,
+        createdAt: true,
+        ledgers: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+          select: { createdAt: true },
+        },
       },
-    },
-  });
+    });
 
-  if (shopsWithBalance.length === 0)
-    return { totalPending: 0, shopCount: 0, shops: [] };
+    if (shopsWithBalance.length === 0) return [];
 
-  const shopIds = shopsWithBalance.map((s) => s.id);
+    const shopIds = shopsWithBalance.map((s) => s.id);
 
-  const allDistributions = await prisma.distribution.findMany({
-    where: { shopId: { in: shopIds } },
-    orderBy: { createdAt: "desc" },
-    select: { shopId: true, totalAmount: true, recordedById: true },
-  });
+    const allDistributions = await prisma.distribution.findMany({
+      where: { shopId: { in: shopIds } },
+      orderBy: { createdAt: "desc" },
+      select: { shopId: true, totalAmount: true, recordedById: true },
+    });
 
-  // Group distributions by shopId in memory for efficient processing
-  const shopDistributionsMap = new Map<string, typeof allDistributions>();
-  allDistributions.forEach((d) => {
-    const list = shopDistributionsMap.get(d.shopId) || [];
-    list.push(d);
-    shopDistributionsMap.set(d.shopId, list);
-  });
+    const shopDistributionsMap = new Map();
+    allDistributions.forEach((d) => {
+      const list = shopDistributionsMap.get(d.shopId) || [];
+      list.push(d);
+      shopDistributionsMap.set(d.shopId, list);
+    });
 
-  let totalPending = 0;
-  let shopCount = 0;
-  const pendingShops = [];
+    const pendingShops = [];
 
-  // 3. Process each shop's pending balance
-  for (const shop of shopsWithBalance) {
-    const distributions = shopDistributionsMap.get(shop.id) || [];
-    let remainingBalance = Number(shop.currentBalance);
-    let shopPendingForUser = 0;
+    for (const shop of shopsWithBalance) {
+      const distributions = shopDistributionsMap.get(shop.id) || [];
+      let remainingBalance = Number(shop.currentBalance);
+      let shopPendingForUser = 0;
 
-    for (const dist of distributions) {
-      if (remainingBalance <= 0) break;
-
-      const distAmount = Number(dist.totalAmount);
-      const unpaidAmountOfThisDist = Math.min(distAmount, remainingBalance);
-
-      if (dist.recordedById === userId) {
-        shopPendingForUser += unpaidAmountOfThisDist;
+      for (const dist of distributions) {
+        if (remainingBalance <= 0) break;
+        const distAmount = Number(dist.totalAmount);
+        const unpaidAmount = Math.min(distAmount, remainingBalance);
+        if (dist.recordedById === userId) shopPendingForUser += unpaidAmount;
+        remainingBalance -= unpaidAmount;
       }
 
-      remainingBalance -= unpaidAmountOfThisDist;
-    }
-
-    if (shopPendingForUser > 0) {
-      totalPending += shopPendingForUser;
-      shopCount++;
-      pendingShops.push({
-        id: shop.id,
-        name: shop.name,
-        amount: shopPendingForUser,
-        daysOverdue: Math.max(
-          0,
-          Math.floor(
-            (now.getTime() -
-              new Date(
-                shop.ledgers[0]?.createdAt || shop.createdAt,
-              ).getTime()) /
-              (1000 * 3600 * 24),
+      if (shopPendingForUser > 0) {
+        pendingShops.push({
+          id: shop.id,
+          name: shop.name,
+          amount: shopPendingForUser,
+          daysOverdue: Math.max(
+            0,
+            Math.floor(
+              (now.getTime() -
+                new Date(shop.ledgers[0]?.createdAt || shop.createdAt).getTime()) /
+                (1000 * 3600 * 24),
+            ),
           ),
-        ),
-      });
+        });
+      }
     }
-  }
 
-  // Sort by amount descending
-  pendingShops.sort((a, b) => b.amount - a.amount);
+    pendingShops.sort((a, b) => b.amount - a.amount);
+    return pendingShops;
+  },
+  ["pending-shops"],
+  {
+    revalidate: 60,
+    tags: ["pending-payments"],
+  },
+);
 
-  return { totalPending, shopCount, shops: pendingShops };
+export async function getSalesmanPendingPayments(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 3,
+) {
+  const allShops = await getProcessedPendingShops(userId);
+
+  const totalShops = allShops.length;
+  const totalPending = allShops.reduce((sum, s) => sum + s.amount, 0);
+  const totalPages = Math.ceil(totalShops / pageSize);
+  const paginatedShops = allShops.slice((page - 1) * pageSize, page * pageSize);
+
+  return {
+    totalPending,
+    shopCount: totalShops,
+    shops: paginatedShops,
+    totalPages,
+    currentPage: page,
+  };
 }
 
 export async function getSalesmanLatestActivity(
