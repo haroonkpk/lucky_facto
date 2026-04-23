@@ -8,7 +8,7 @@ import {
   OverdueShopsTable,
   DateRangeFilter,
 } from "@/components/owner/dashboard";
-import { ActivityDataTable } from "@/components/shared";
+import { ActivityDataTable, Card } from "@/components/shared";
 import { DashboardChart } from "@/components/owner";
 
 export const revalidate = 60;
@@ -62,7 +62,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
         </section>
 
         {/* SECTION 2: MIDDLE (Filterable Performance) */}
-        <div className="bg-[#E5F0F6] rounded-[clamp(12px,2vw,20px)] p-[clamp(12px,2vw,24px)] flex flex-col gap-[clamp(1.25rem,2.5vw,1.75rem)]">
+        <Card
+          variant="secondary"
+          className="flex flex-col gap-[clamp(1.25rem,2.5vw,1.75rem)]"
+        >
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 px-1">
             <div>
               <h2
@@ -88,7 +91,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
           {/* Charts Row */}
           <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-[clamp(1.25rem,2vw,1.75rem)] items-stretch">
             {/* Sales vs Payments Trend */}
-            <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,2rem)] flex flex-col">
+            <Card variant="white" className="flex flex-col">
               <div>
                 <h3
                   className="font-bold text-[#0A2540]"
@@ -106,12 +109,12 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               <div className="flex-1 min-h-75 mt-6">
                 <DashboardChart data={data.chartData} />
               </div>
-            </div>
+            </Card>
 
             {/* Region Performance */}
             <RegionPerformanceChart performance={data.regionPerformance} />
           </div>
-        </div>
+        </Card>
 
         {/* SECTION 3: BOTTOM (Activity & Overdue Shops) */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">

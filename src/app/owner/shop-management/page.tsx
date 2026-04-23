@@ -5,7 +5,7 @@ export default async function ShopsPage() {
   const [shops, regions] = await Promise.all([getShops(), getRegions()]);
 
   return (
-    <div className="min-h-screen bg-(--color-page-bg) p-3 lg:p-10">
+    <div className="min-h-screen bg-(--color-page-bg) mb-20 p-3 lg:p-10">
       {/* Header */}
       <div className="mb-8">
         <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">

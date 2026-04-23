@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { Card } from "./card";
+import { cn } from "@/lib/utils";
 
 export interface TableHeader {
   key: string;
@@ -38,7 +40,7 @@ export const DataTable = <T extends { id: string }>({
   BorderColor = "border-gray-200",
 }: DataTableProps<T>) => {
   return (
-    <div className={`rounded-lg border ${BorderColor} bg-white p-4`}>
+    <Card variant="white" className={cn("p-4", BorderColor)}>
       {/* Heading */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="truncate text-xl font-bold text-gray-800">{heading}</h2>
@@ -155,6 +157,6 @@ export const DataTable = <T extends { id: string }>({
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 };

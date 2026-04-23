@@ -9,7 +9,6 @@ import {
   PackagePlus, 
   Layers, 
   Calendar, 
-  User, 
   Tag
 } from "lucide-react";
 import { cn } from "@/lib/utils";

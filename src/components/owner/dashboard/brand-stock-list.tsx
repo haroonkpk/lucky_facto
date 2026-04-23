@@ -8,6 +8,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { Card } from "@/components/shared";
 
 interface BrandStock {
   brandName: string;
@@ -27,7 +28,7 @@ const COLORS = [
 
 export function BrandStockList({ stock }: { stock: BrandStock[] }) {
   return (
-    <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] h-full flex flex-col min-h-[370px]">
+    <Card variant="white" className="h-full flex flex-col min-h-[370px]">
       <div className="flex justify-between items-center mb-6 px-1">
         <h3
           className="font-bold text-[#0A2540]"
@@ -113,6 +114,6 @@ export function BrandStockList({ stock }: { stock: BrandStock[] }) {
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }

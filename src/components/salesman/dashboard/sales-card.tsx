@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { formatPKR } from "@/lib/dashboard-utils";
+import { Card } from "@/components/shared";
 
 interface SalesCardProps {
   monthlySales: number;
@@ -16,13 +17,9 @@ export const SalesCard = ({ monthlySales, todaySales }: SalesCardProps) => {
   const label = showToday ? "Today's Sales" : "This Month's Sales";
 
   return (
-    <div
-      className="relative h-full sm:w-full flex flex-col justify-between overflow-hidden text-white"
-      style={{
-        background: "var(--color-primary) ",
-        borderRadius: "clamp(12px, 2vw, 20px)",
-        padding: "clamp(20px, 3vw, 32px)",
-      }}
+    <Card
+      variant="primary"
+      className="h-full sm:w-full flex flex-col justify-between"
     >
       {/* Top row */}
       <div
@@ -70,6 +67,6 @@ export const SalesCard = ({ monthlySales, todaySales }: SalesCardProps) => {
           Total distribution value
         </p>
       </div>
-    </div>
+    </Card>
   );
 };

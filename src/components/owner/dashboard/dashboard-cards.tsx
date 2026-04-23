@@ -4,6 +4,7 @@ import { formatPKR } from "@/lib/dashboard-utils";
 import { CircleDollarSign, TrendingUp, Truck, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
+import { Card } from "@/components/shared";
 
 interface PulseCardProps {
   title: string;
@@ -19,7 +20,7 @@ export function PulseCard({
   value,
   Icon,
   iconColor,
-  bgColor = "bg-[var(--color-primary)]",
+  bgColor,
   isCurrency = true,
 }: PulseCardProps) {
   const displayValue = isCurrency
@@ -27,9 +28,10 @@ export function PulseCard({
     : value.toLocaleString();
 
   return (
-    <div
+    <Card
+      variant="primary"
       className={cn(
-        "relative overflow-hidden rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between min-h-32 md:min-h-36",
+        "flex flex-col justify-between min-h-32 md:min-h-36",
         bgColor,
       )}
     >
@@ -57,7 +59,7 @@ export function PulseCard({
           {displayValue}
         </h3>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -69,9 +71,9 @@ export function PendingReceivableCard({
   shopCount: number;
 }) {
   return (
-    <div 
-      className="relative overflow-hidden rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between h-full min-h-32 md:min-h-36"
-      style={{ backgroundColor: "var(--color-pending-bg)" }}
+    <Card
+      variant="pending"
+      className="flex flex-col justify-between h-full min-h-32 md:min-h-36"
     >
       {/* BG Icon */}
       <CircleDollarSign className="absolute -top-4 -right-4 w-28 h-28 -rotate-12 pointer-events-none z-0 opacity-10 text-amber-900" />
@@ -86,7 +88,7 @@ export function PendingReceivableCard({
       </div>
 
       <div className="relative z-10 flex flex-col mt-4">
-        <h3 
+        <h3
           className="font-bold text-[clamp(1.8rem,3.5vw,2.4rem)] leading-none tracking-tight"
           style={{ color: "var(--color-pending)" }}
         >
@@ -96,7 +98,7 @@ export function PendingReceivableCard({
           From {shopCount} {shopCount === 1 ? "Shop" : "Shops"}
         </p>
       </div>
-    </div>
+    </Card>
   );
 }
 

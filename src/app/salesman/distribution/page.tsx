@@ -5,7 +5,7 @@ import {
 } from "@/actions/salesman.actions";
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { DistributionForm } from "@/components/salesman";
-import { ActivityDataTable } from "@/components/shared";
+import { ActivityDataTable, Card } from "@/components/shared";
 import { DateRangeFilter } from "@/components/owner/dashboard/filters";
 import { createClient } from "@/lib/supabase/server";
 
@@ -64,7 +64,7 @@ export default async function DistributionPage({ searchParams }: PageProps) {
       <div className="flex flex-col-reverse xl:flex-row gap-8 items-start">
         {/* ── RIGHT: History Section ── */}
         <div className="flex-1 w-full lg:min-w-2xl">
-          <div className="bg-[#E5F0F6] rounded-[clamp(12px,2vw,20px)] p-[clamp(12px,2vw,24px)] flex flex-col gap-6">
+          <Card variant="secondary" className="flex flex-col gap-6">
             <div className="flex flex-col justify-between items-start gap-4 px-1">
               <div>
                 <h2 className="text-[#053B70] font-bold text-xl">
@@ -93,7 +93,7 @@ export default async function DistributionPage({ searchParams }: PageProps) {
                 ]}
               />
             </div>
-          </div>
+          </Card>
         </div>
 
         {/* ── LEFT: Distribution Form ── */}

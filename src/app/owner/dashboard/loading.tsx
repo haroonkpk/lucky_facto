@@ -1,3 +1,5 @@
+import { Card } from "@/components/shared";
+
 export default function DashboardLoading() {
   return (
     <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24 animate-pulse">
@@ -14,9 +16,9 @@ export default function DashboardLoading() {
         {/* SECTION 1: TOP (Static Metrics & Global Status) */}
         <section className="grid p-2 sm:p-2 grid-cols-1 lg:grid-cols-[1fr_2fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-stretch">
           {/* StaticSummarySection Skeleton (PendingReceivableCard) */}
-          <div
-            className="rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between min-h-32 md:min-h-36 bg-white/50"
-            style={{ backgroundColor: "var(--color-pending-bg)" }}
+          <Card
+            variant="pending"
+            className="flex flex-col justify-between min-h-32 md:min-h-36 opacity-50"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-slate-200/50 rounded-lg"></div>
@@ -26,10 +28,10 @@ export default function DashboardLoading() {
               <div className="h-8 bg-slate-200 rounded w-1/2"></div>
               <div className="h-3 bg-slate-200/50 rounded w-1/3"></div>
             </div>
-          </div>
+          </Card>
 
           {/* BrandStockList Skeleton */}
-          <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] h-full flex flex-col min-h-[370px]">
+          <Card variant="white" className="h-full flex flex-col min-h-[370px]">
             <div className="flex justify-between items-center mb-6">
               <div className="h-5 bg-slate-200 rounded w-32"></div>
               <div className="h-3 bg-slate-100 rounded w-20"></div>
@@ -39,7 +41,7 @@ export default function DashboardLoading() {
                 <div className="w-32 h-32 rounded-full border-8 border-slate-50"></div>
               </div>
             </div>
-          </div>
+          </Card>
         </section>
 
         {/* SECTION 2: MIDDLE (Filterable Performance) */}
@@ -55,29 +57,30 @@ export default function DashboardLoading() {
           {/* FilteredPerformanceSection Skeleton */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-[clamp(1rem,2vw,1.5rem)]">
             {[...Array(3)].map((_, i) => (
-              <div
+              <Card
                 key={i}
-                className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,1.75rem)] flex flex-col justify-between min-h-32 md:min-h-36"
+                variant="white"
+                className="flex flex-col justify-between min-h-32 md:min-h-36"
               >
                 <div className="h-3 bg-slate-100 rounded w-24"></div>
                 <div className="h-8 bg-slate-200 rounded w-1/2"></div>
-              </div>
+              </Card>
             ))}
           </div>
 
           {/* Charts Row Skeleton */}
           <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-[clamp(1.25rem,2vw,1.75rem)] items-stretch">
             {/* DashboardChart Skeleton */}
-            <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,2rem)] flex flex-col min-h-[400px]">
+            <Card variant="white" className="flex flex-col min-h-[400px]">
               <div className="flex flex-col gap-2 mb-8">
                 <div className="h-5 bg-slate-200 rounded w-48"></div>
                 <div className="h-3 bg-slate-100 rounded w-64"></div>
               </div>
               <div className="flex-1 bg-slate-50/50 rounded-lg"></div>
-            </div>
+            </Card>
 
             {/* RegionPerformanceChart Skeleton */}
-            <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2.5vw,2rem)] h-full min-h-[400px]">
+            <Card variant="white" className="h-full min-h-[400px]">
               <div className="h-5 bg-slate-200 rounded w-40 mb-6"></div>
               <div className="flex flex-col gap-6">
                 {[...Array(5)].map((_, i) => (
@@ -92,29 +95,32 @@ export default function DashboardLoading() {
                   </div>
                 ))}
               </div>
-            </div>
+            </Card>
           </div>
         </div>
 
         {/* SECTION 3: BOTTOM (Activity & Overdue Shops) */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
           {/* ActivityDataTable Skeleton */}
-          <div className="bg-white rounded-lg border border-slate-100 p-4 min-h-[500px]">
+          <Card variant="white" className="min-h-[500px]">
             <div className="h-6 bg-slate-200 rounded w-48 mb-6"></div>
             <div className="flex flex-col gap-4">
               <div className="h-10 bg-slate-50 rounded w-full"></div>
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-12 border-b border-slate-50 flex items-center px-2">
-                   <div className="h-4 bg-slate-100 rounded w-full"></div>
+                <div
+                  key={i}
+                  className="h-12 border-b border-slate-50 flex items-center px-2"
+                >
+                  <div className="h-4 bg-slate-100 rounded w-full"></div>
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
 
           {/* OverdueShopsTable Skeleton */}
-          <div
-            className="rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] flex flex-col h-[420px]"
-            style={{ backgroundColor: "var(--color-pending-bg)" }}
+          <Card
+            variant="pending"
+            className="flex flex-col h-[420px] opacity-70"
           >
             <div className="flex flex-col gap-2 mb-6">
               <div className="h-5 bg-slate-200 rounded w-48"></div>
@@ -122,10 +128,13 @@ export default function DashboardLoading() {
             </div>
             <div className="flex flex-col gap-4">
               <div className="h-8 border-b border-amber-200/50 flex items-center">
-                 <div className="h-3 bg-slate-200/30 rounded w-full"></div>
+                <div className="h-3 bg-slate-200/30 rounded w-full"></div>
               </div>
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="flex justify-between items-center py-3 border-b border-amber-100/30">
+                <div
+                  key={i}
+                  className="flex justify-between items-center py-3 border-b border-amber-100/30"
+                >
                   <div className="flex flex-col gap-1.5">
                     <div className="h-4 bg-slate-200 rounded w-24"></div>
                     <div className="h-3 bg-slate-100 rounded w-16"></div>
@@ -134,10 +143,9 @@ export default function DashboardLoading() {
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </section>
       </div>
     </div>
   );
 }
-

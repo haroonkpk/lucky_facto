@@ -8,6 +8,8 @@ import { getInitials } from "@/lib/helper";
 import { formatPKR } from "@/lib/dashboard-utils";
 import Link from "next/link";
 
+import { Card } from "@/components/shared";
+
 // ─── Props ─────────────────────────────────────────────────────────────────────
 interface ShopsListProps {
   shops: ShopWithStats[];
@@ -152,13 +154,9 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
       </div>
 
       {/* ── List Panel ────────────────────────────────── */}
-      <div
-        className="bg-[#E5F0F6] flex flex-col"
-        style={{
-          borderRadius: "clamp(10px, 1.5vw, 16px)",
-          padding: "clamp(12px, 2vw, 24px)",
-          gap: "clamp(12px, 2vw, 20px)",
-        }}
+      <Card
+        variant="secondary"
+        className="flex flex-col gap-[clamp(12px, 2vw, 20px)]"
       >
         {/* Panel Header */}
         <div className="flex justify-between items-center px-1">
@@ -220,111 +218,116 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
               <Link
                 href={`/owner/shop-detail/${shop.id}`}
                 key={shop.id}
-                className="w-full bg-white flex flex-col md:flex-row md:items-center cursor-pointer"
-                style={{
-                  borderRadius: "clamp(8px, 1vw, 12px)",
-                  padding: "clamp(12px, 1.5vw, 16px)",
-                }}
+                className="w-full flex"
               >
-                
-                <div className="flex items-center justify-between w-full md:w-[50%] shrink-0">
-                  {/* Shop Details */}
-                  <div
-                    className="w-[70%] md:w-[70%] flex items-center shrink-0 pr-2 min-w-0"
-                    style={{ gap: "clamp(8px, 1vw, 12px)" }}
-                  >
+                <Card
+                  variant="white"
+                  className="w-full flex flex-col md:flex-row md:items-center cursor-pointer"
+                  style={{
+                    padding: "clamp(12px, 1.5vw, 16px)",
+                    borderRadius: "clamp(8px, 1vw, 12px)",
+                  }}
+                >
+                  <div className="flex items-center justify-between w-full md:w-[50%] shrink-0">
+                    {/* Shop Details */}
                     <div
-                      className="bg-[#F1F5F9] text-[#053B70] font-bold flex items-center justify-center shrink-0"
-                      style={{
-                        width: "clamp(32px, 4vw, 44px)",
-                        height: "clamp(32px, 4vw, 44px)",
-                        borderRadius: "clamp(6px, 1vw, 10px)",
-                        fontSize: "clamp(12px, 1.5vw, 16px)",
-                      }}
+                      className="w-[70%] md:w-[70%] flex items-center shrink-0 pr-2 min-w-0"
+                      style={{ gap: "clamp(8px, 1vw, 12px)" }}
                     >
-                      {getInitials(shop.name)}
+                      <div
+                        className="bg-[#F1F5F9] text-[#053B70] font-bold flex items-center justify-center shrink-0"
+                        style={{
+                          width: "clamp(32px, 4vw, 44px)",
+                          height: "clamp(32px, 4vw, 44px)",
+                          borderRadius: "clamp(6px, 1vw, 10px)",
+                          fontSize: "clamp(12px, 1.5vw, 16px)",
+                        }}
+                      >
+                        {getInitials(shop.name)}
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <h3
+                          className="font-bold text-[#0F172A] truncate"
+                          style={{ fontSize: "clamp(12px, 1.5vw, 15px)" }}
+                        >
+                          {shop.name}
+                        </h3>
+                        <p
+                          className="text-[#64748B] mt-0.5 truncate"
+                          style={{ fontSize: "clamp(10px, 1vw, 12px)" }}
+                        >
+                          {shop.address || "No address"}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex flex-col min-w-0">
-                      <h3
-                        className="font-bold text-[#0F172A] truncate"
-                        style={{ fontSize: "clamp(12px, 1.5vw, 15px)" }}
+
+                    {/* Region */}
+                    <div className="w-[30%] md:w-[30%] shrink-0 px-1 text-right md:text-left min-w-0">
+                      <span
+                        className="bg-[#E0F2FE] text-[#0A2540] font-bold tracking-wide truncate inline-block max-w-full"
+                        style={{
+                          fontSize: "clamp(9px, 1vw, 11px)",
+                          padding:
+                            "clamp(2px, 0.4vw, 4px) clamp(4px, 1vw, 8px)",
+                          borderRadius: "clamp(4px, 1vw, 6px)",
+                        }}
                       >
-                        {shop.name}
-                      </h3>
+                        {shop.region}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between w-full md:w-[50%] shrink-0 pt-3 md:pt-0 mt-3 md:mt-0 border-t border-[#F1F5F9] md:border-none">
+                    {/* Total Billing */}
+                    <div className="w-1/3 shrink-0 md:px-1 text-left md:text-right min-w-0">
+                      <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
+                        Total Billing
+                      </p>
                       <p
-                        className="text-[#64748B] mt-0.5 truncate"
-                        style={{ fontSize: "clamp(10px, 1vw, 12px)" }}
+                        className="font-bold text-(--color-primary) truncate"
+                        style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
                       >
-                        {shop.address || "No address"}
+                        {formatPKR(shop.totalBilling)}
+                      </p>
+                    </div>
+
+                    {/* Total Payments */}
+                    <div className="w-1/3 shrink-0 px-1 text-center md:text-right min-w-0">
+                      <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
+                        Total Payments
+                      </p>
+                      <p
+                        className="font-bold text-[#28A745] truncate"
+                        style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
+                      >
+                        {formatPKR(shop.totalPayments)}
+                      </p>
+                    </div>
+
+                    {/* Balance Owed */}
+                    <div className="w-1/3 shrink-0 pl-1 text-right min-w-0">
+                      <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
+                        Balance Owed
+                      </p>
+                      <p
+                        className={cn(
+                          "font-bold truncate",
+                          shop.balanceOwed > 0
+                            ? "text-amber-600"
+                            : "text-[#94A3B8]",
+                        )}
+                        style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
+                      >
+                        {formatPKR(Math.abs(shop.balanceOwed))}
                       </p>
                     </div>
                   </div>
-
-                  {/* Region */}
-                  <div className="w-[30%] md:w-[30%] shrink-0 px-1 text-right md:text-left min-w-0">
-                    <span
-                      className="bg-[#E0F2FE] text-[#0A2540] font-bold tracking-wide truncate inline-block max-w-full"
-                      style={{
-                        fontSize: "clamp(9px, 1vw, 11px)",
-                        padding: "clamp(2px, 0.4vw, 4px) clamp(4px, 1vw, 8px)",
-                        borderRadius: "clamp(4px, 1vw, 6px)",
-                      }}
-                    >
-                      {shop.region}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between w-full md:w-[50%] shrink-0 pt-3 md:pt-0 mt-3 md:mt-0 border-t border-[#F1F5F9] md:border-none">
-                  {/* Total Billing */}
-                  <div className="w-1/3 shrink-0 md:px-1 text-left md:text-right min-w-0">
-                    <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
-                      Total Billing
-                    </p>
-                    <p
-                      className="font-bold text-(--color-primary) truncate"
-                      style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
-                    >
-                      {formatPKR(shop.totalBilling)}
-                    </p>
-                  </div>
-
-                  {/* Total Payments */}
-                  <div className="w-1/3 shrink-0 px-1 text-center md:text-right min-w-0">
-                    <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
-                      Total Payments
-                    </p>
-                    <p
-                      className="font-bold text-[#28A745] truncate"
-                      style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
-                    >
-                      {formatPKR(shop.totalPayments)}
-                    </p>
-                  </div>
-
-                  {/* Balance Owed */}
-                  <div className="w-1/3 shrink-0 pl-1 text-right min-w-0">
-                    <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
-                      Balance Owed
-                    </p>
-                    <p
-                      className={cn(
-                        "font-bold truncate",
-                        shop.balanceOwed > 0
-                          ? "text-amber-600"
-                          : "text-[#94A3B8]",
-                      )}
-                      style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
-                    >
-                      {formatPKR(Math.abs(shop.balanceOwed))}
-                    </p>
-                  </div>
-                </div>
+                </Card>
               </Link>
             ))
           )}
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { Card } from "@/components/shared";
 
 interface RegionData {
   name: string;
@@ -33,7 +34,7 @@ export function RegionPerformanceChart({
     : undefined;
 
   return (
-    <div className="bg-white rounded-2xl p-6 h-full flex flex-col min-h-[350px]">
+    <Card variant="white" className="h-full flex flex-col min-h-[350px]">
       {/* Header */}
       <div className="flex justify-between items-center mb-5 px-1">
         <h3 className="font-bold text-[#0A2540] text-lg">Region Performance</h3>
@@ -165,6 +166,6 @@ export function RegionPerformanceChart({
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

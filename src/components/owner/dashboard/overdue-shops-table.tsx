@@ -1,4 +1,5 @@
 import { formatPKR } from "@/lib/dashboard-utils";
+import { Card } from "@/components/shared";
 
 interface OverdueShop {
   id: string;
@@ -19,11 +20,11 @@ export function OverdueShopsTable({ shops }: { shops: OverdueShop[] }) {
   const filteredShops = shops.filter((shop) => shop.balance >= 300000);
 
   return (
-    <div
-      className="rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] overflow-hidden flex flex-col h-[420px] order-1 xl:order-2"
-      style={{ backgroundColor: "var(--color-pending-bg)" }}
+    <Card
+      variant="pending"
+      className="flex flex-col h-[420px] order-1 xl:order-2"
     >
-      <div className="flex flex-colflex flex-col mb-6 px-1">
+      <div className="flex flex-col mb-6 px-1">
         <h3
           className="font-bold text-[#0A2540]"
           style={{ fontSize: "clamp(1rem, 1.5vw, 1.25rem)" }}
@@ -105,6 +106,6 @@ export function OverdueShopsTable({ shops }: { shops: OverdueShop[] }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }
