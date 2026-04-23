@@ -8,7 +8,7 @@ import {
 } from "@/actions/salesmanDashboard.actions";
 
 import { DashboardHeader, SalesCard, PendingPaymentsCard, DetailedPendingPayments, StockOverviewCard } from "@/components/salesman/dashboard";
-import { ActivityList } from "@/components/shared";
+import { ActivityDataTable } from "@/components/shared";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -65,7 +65,11 @@ export default async function SalesmanDashboardPage() {
         )}
 
         {/* Latest Activity */}
-        <ActivityList activities={activities} title="Last 10 Activities" />
+        <ActivityDataTable 
+          activities={activities} 
+          title="Last 10 Activities" 
+          showPagination={false}
+        />
       </div>
     </div>
   );

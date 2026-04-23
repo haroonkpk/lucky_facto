@@ -1,2 +1,4 @@
-export * from './activity-list';
-export * from './pagination';
+export * from './data-table';
+export * from './modal';
+export * from './activity-data-table';
+export * from './activity-details-modal';

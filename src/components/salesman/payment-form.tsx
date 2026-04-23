@@ -51,7 +51,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
     <div
       className={cn(
         "rounded-xl transition-all duration-200 ease-in-out mb-20 mx-auto",
-        "2xl:bg-white 2xl:shadow-xs 2xl:w-full 2xl:p-[clamp(1.5rem,3vw,2.5rem)]",
+        "bg-white shadow-xs w-full 2xl:p-[clamp(1.5rem,3vw,2.5rem)]",
         isOpen
           ? "bg-white shadow-xs w-full p-[clamp(1.5rem,3vw,2.5rem)]"
           : "bg-transparent shadow-none w-full p-3",
@@ -65,7 +65,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
           "2xl:mb-[clamp(1.5rem,3vw,2rem)] 2xl:border-b 2xl:pb-5",
         )}
       >
-        <div className={cn("2xl:block", isOpen ? "block" : "hidden")}>
+        <div className={cn( isOpen ? "block" : "hidden")}>
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
             Record Payment
           </h2>
@@ -79,7 +79,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           className={cn(
-            "2xl:hidden flex-shrink-0 w-16 h-12 rounded-md flex items-center justify-center ml-auto",
+            "flex-shrink-0 w-16 h-12 rounded-md flex items-center justify-center ml-auto",
             "text-white",
             "transition-colors duration-150 ease-in-out",
             isOpen ? "text-(--color-primary)" : "bg-(--color-primary)",
@@ -95,7 +95,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
       </div>
 
       {/* Form body */}
-      <div className={cn("2xl:block", isOpen ? "block" : "hidden")}>
+      <div className={cn( isOpen ? "block" : "hidden")}>
 
       {/* Success Banner */}
       {state.success && (

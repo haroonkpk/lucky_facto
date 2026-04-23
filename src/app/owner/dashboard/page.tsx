@@ -8,7 +8,7 @@ import {
   OverdueShopsTable,
   DateRangeFilter,
 } from "@/components/owner/dashboard";
-import { ActivityList } from "@/components/shared";
+import { ActivityDataTable } from "@/components/shared";
 import { DashboardChart } from "@/components/owner";
 
 export const revalidate = 60;
@@ -115,9 +115,10 @@ export default async function DashboardPage({ searchParams }: PageProps) {
 
         {/* SECTION 3: BOTTOM (Activity & Overdue Shops) */}
         <section className="grid grid-cols-1 xl:grid-cols-[2fr_1fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-start">
-          <ActivityList
+          <ActivityDataTable
             activities={data.activities}
             title="Latest 10 Activity"
+            showPagination={false}
           />
           <OverdueShopsTable shops={data.overdueShopsList} />
         </section>

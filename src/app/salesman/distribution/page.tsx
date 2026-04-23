@@ -5,7 +5,7 @@ import {
 } from "@/actions/salesman.actions";
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { DistributionForm } from "@/components/salesman";
-import { ActivityList, Pagination } from "@/components/shared";
+import { ActivityDataTable } from "@/components/shared";
 import { DateRangeFilter } from "@/components/owner/dashboard/filters";
 import { createClient } from "@/lib/supabase/server";
 
@@ -79,12 +79,9 @@ export default async function DistributionPage({ searchParams }: PageProps) {
               </div>
             </div>
 
-            <div className="flex flex-col-reverse gap-4">
-              <ActivityList
+            <div className="flex flex-col gap-4">
+              <ActivityDataTable
                 activities={activityData.activities}
-                title="Distribution Logs"
-              />
-              <Pagination
                 currentPage={activityData.currentPage}
                 totalPages={activityData.totalPages}
               />
