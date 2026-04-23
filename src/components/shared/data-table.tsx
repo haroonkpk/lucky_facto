@@ -18,6 +18,7 @@ interface TableButton<T> {
 
 interface DataTableProps<T extends { id: string }> {
   heading: string;
+  variant?: "white" | "primary" | "pending" | "secondary";
   TableHeaders: TableHeader[];
   TableData: T[];
   TableButtons?: TableButton<T>[];
@@ -30,6 +31,7 @@ interface DataTableProps<T extends { id: string }> {
 
 export const DataTable = <T extends { id: string }>({
   heading,
+  variant = "white",
   TableHeaders,
   TableData,
   TableButtons,
@@ -40,7 +42,7 @@ export const DataTable = <T extends { id: string }>({
   BorderColor = "border-gray-200",
 }: DataTableProps<T>) => {
   return (
-    <Card variant="white" className={cn("p-4", BorderColor)}>
+    <Card variant={variant} className={cn("p-4", BorderColor)}>
       {/* Heading */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="truncate text-xl font-bold text-gray-800">{heading}</h2>

@@ -117,6 +117,7 @@ model InventoryIntake {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([recordedById, createdAt(sort: Desc)])
   @@map("inventory_intakes")
 }
 
@@ -189,6 +190,8 @@ model Ledger {
 
   createdAt       DateTime        @default(now())
 
+  @@index([createdAt(sort: Desc)])           
+  @@index([shopId, createdAt(sort: Desc)])   
   @@map("ledgers")
 }
 
@@ -200,11 +203,12 @@ model InventoryLedger {
   type            InventoryTransactionType
   date            DateTime                 @default(now())
   
-  referenceId     String?                  // ID of the Intake or Distribution record
+  referenceId     String?
   description     String?
 
   createdAt       DateTime                 @default(now())
 
+  @@index([brandId, createdAt(sort: Desc)])
   @@map("inventory_ledgers")
 }
 

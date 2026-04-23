@@ -135,24 +135,30 @@ export async function getSalesmanPendingPayments(
 export async function getSalesmanLatestActivity(
   userId: string,
 ): Promise<Activity[]> {
-  const [distributions, payments, intakes] = await Promise.all([
-    prisma.distribution.findMany({
-      where: { recordedById: userId },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-      include: {
-        brand: { select: { name: true } },
-        shop: { select: { name: true } },
-        recordedBy: { select: { name: true, role: true } },
+  // 2 queries instead of 3 — Ledger already unifies distributions + payments
+  const [ledgerEntries, intakes] = await Promise.all([
+    prisma.ledger.findMany({
+      where: {
+        OR: [
+          { distribution: { recordedById: userId } },
+          { payment: { recordedById: userId } },
+        ],
       },
-    }),
-    prisma.payment.findMany({
-      where: { recordedById: userId },
       orderBy: { createdAt: "desc" },
       take: 10,
       include: {
         shop: { select: { name: true } },
-        recordedBy: { select: { name: true, role: true } },
+        distribution: {
+          include: {
+            brand: { select: { name: true } },
+            recordedBy: { select: { name: true, role: true } },
+          },
+        },
+        payment: {
+          include: {
+            recordedBy: { select: { name: true, role: true } },
+          },
+        },
       },
     }),
     prisma.inventoryIntake.findMany({
@@ -167,65 +173,79 @@ export async function getSalesmanLatestActivity(
   ]);
 
   const activities: Activity[] = [
-    // 1. Distributions
-    ...distributions.map((d) => ({
-      id: d.id,
-      type: "distribution" as const,
-      title: `${d.brand.name} Distribution`,
-      subtitle: d.shop.name,
-      amount: Number(d.totalAmount),
-      date: d.createdAt.toISOString(),
-      recordedBy: d.recordedBy?.name || "System",
-      role: d.recordedBy?.role || "SALESMAN",
-      details: [
-        {
-          label: "Date & Time",
-          value: new Date(d.createdAt).toLocaleString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-        { label: "Quantity", value: `${d.quantity} bags` },
-        { label: "Unit Price", value: Number(d.unitPrice) },
-        { label: "Shop", value: d.shop.name },
-        { label: "Recorded By", value: d.recordedBy?.name || "System" },
-      ],
-    })),
-    // 2. Payments
-    ...payments.map((p) => ({
-      id: p.id,
-      type: "payment" as const,
-      title:
-        p.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",
-      subtitle: `${p.shop?.name || "Factory"} via ${p.paymentMethod.replace("_", " ")}`,
-      amount: Number(p.amount),
-      date: p.createdAt.toISOString(),
-      recordedBy: p.recordedBy?.name || "System",
-      role: p.recordedBy?.role || "SALESMAN",
-      details: [
-        {
-          label: "Date & Time",
-          value: new Date(p.createdAt).toLocaleString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-        { label: "Payment Type", value: p.type.replace("_", " ") },
-        { label: "Method", value: p.paymentMethod.replace("_", " ") },
-        { label: "Amount", value: Number(p.amount) },
-        { label: "Shop", value: p.shop?.name || "Factory" },
-        { label: "Recorded By", value: p.recordedBy?.name || "System" },
-      ],
-    })),
-    // 3. Inventory Intakes
+    // 1. Ledger entries → distributions + payments
+    ...ledgerEntries.map((entry) => {
+      const isDistribution = !!entry.distributionId;
+      const d = entry.distribution;
+      const p = entry.payment;
+      const recordedBy = d?.recordedBy ?? p?.recordedBy;
+
+      if (isDistribution && d) {
+        return {
+          id: entry.id,
+          type: "distribution" as const,
+          title: `${d.brand.name} Distribution`,
+          subtitle: entry.shop.name,
+          amount: Number(entry.amount),
+          date: entry.createdAt.toISOString(),
+          recordedBy: recordedBy?.name ?? "System",
+          role: recordedBy?.role ?? "SALESMAN",
+          details: [
+            {
+              label: "Date & Time",
+              value: new Date(entry.createdAt).toLocaleString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              }),
+            },
+            { label: "Quantity", value: `${d.quantity} bags` },
+            { label: "Unit Price", value: Number(d.unitPrice) },
+            { label: "Shop", value: entry.shop.name },
+            { label: "Recorded By", value: recordedBy?.name ?? "System" },
+          ],
+        };
+      }
+
+      // Payment entry
+      return {
+        id: entry.id,
+        type: "payment" as const,
+        title:
+          p?.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",
+        subtitle: `${entry.shop.name} via ${p?.paymentMethod.replace("_", " ") ?? ""}`,
+        amount: Number(entry.amount),
+        date: entry.createdAt.toISOString(),
+        recordedBy: recordedBy?.name ?? "System",
+        role: recordedBy?.role ?? "SALESMAN",
+        details: [
+          {
+            label: "Date & Time",
+            value: new Date(entry.createdAt).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            }),
+          },
+          { label: "Payment Type", value: p?.type.replace("_", " ") ?? "" },
+          {
+            label: "Method",
+            value: p?.paymentMethod.replace("_", " ") ?? "",
+          },
+          { label: "Amount", value: Number(entry.amount) },
+          { label: "Shop", value: entry.shop.name },
+          { label: "Recorded By", value: recordedBy?.name ?? "System" },
+        ],
+      };
+    }),
+
+    // 2. Inventory Intakes 
     ...intakes.map((i) => ({
       id: i.id,
       type: "intake" as const,
@@ -233,8 +253,8 @@ export async function getSalesmanLatestActivity(
       subtitle: `${i.brand.name} stock increase`,
       amount: 0,
       date: i.createdAt.toISOString(),
-      recordedBy: i.recordedBy?.name || "System",
-      role: i.recordedBy?.role || "SALESMAN",
+      recordedBy: i.recordedBy?.name ?? "System",
+      role: i.recordedBy?.role ?? "SALESMAN",
       details: [
         {
           label: "Date & Time",
@@ -249,8 +269,8 @@ export async function getSalesmanLatestActivity(
         },
         { label: "Brand", value: i.brand.name },
         { label: "Quantity", value: `${i.quantity} bags` },
-        { label: "Recorded By", value: i.recordedBy?.name || "System" },
-        { label: "Notes", value: i.notes || "None" },
+        { label: "Recorded By", value: i.recordedBy?.name ?? "System" },
+        { label: "Notes", value: i.notes ?? "None" },
       ],
     })),
   ];
@@ -258,6 +278,7 @@ export async function getSalesmanLatestActivity(
   activities.sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
+
   return activities.slice(0, 10);
 }
 

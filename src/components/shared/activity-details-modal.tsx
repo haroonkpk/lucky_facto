@@ -3,13 +3,12 @@
 import { Modal } from "./modal";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
-import { 
-  Truck, 
-  Banknote, 
-  PackagePlus, 
-  Layers, 
-  Calendar, 
-  Tag
+import {
+  Truck,
+  Banknote,
+  PackagePlus,
+  X,
+  Activity as ActivityIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +18,13 @@ interface ActivityDetailsModalProps {
   onClose: () => void;
 }
 
+const TABLE_DETAIL_LABELS = new Set([
+  "date & time",
+  "shop",
+  "quantity",
+  "amount",
+]);
+
 export function ActivityDetailsModal({
   activity,
   isOpen,
@@ -26,121 +32,155 @@ export function ActivityDetailsModal({
 }: ActivityDetailsModalProps) {
   if (!activity) return null;
 
-  const getIconProps = () => {
+  const getThemeProps = () => {
     switch (activity.type) {
       case "distribution":
-        return { icon: Truck, color: "text-blue-600", bg: "bg-blue-50" };
+        return {
+          icon: Truck,
+          accent: "text-[var(--color-primary)]",
+          badgeBg: "bg-[var(--color-primary)]/8",
+          headerBg: "bg-[var(--color-primary)]",
+        };
       case "payment":
-        return { icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50" };
+        return {
+          icon: Banknote,
+          accent: "text-emerald-600",
+          badgeBg: "bg-emerald-50",
+          headerBg: "bg-emerald-600",
+        };
       case "intake":
-        return { icon: PackagePlus, color: "text-amber-600", bg: "bg-amber-50" };
+        return {
+          icon: PackagePlus,
+          accent: "text-amber-600",
+          badgeBg: "bg-amber-50",
+          headerBg: "bg-amber-500",
+        };
       default:
-        return { icon: Layers, color: "text-slate-600", bg: "bg-slate-50" };
+        return {
+          icon: ActivityIcon,
+          accent: "text-slate-600",
+          badgeBg: "bg-slate-50",
+          headerBg: "bg-slate-600",
+        };
     }
   };
 
-  const { icon: Icon, color, bg } = getIconProps();
+  const { icon: Icon, accent, badgeBg, headerBg } = getThemeProps();
+
+  const modalDetails = activity.details.filter(
+    (d) => !TABLE_DETAIL_LABELS.has(d.label.toLowerCase()),
+  );
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={activity.title}
-      className="max-w-2xl px-0 py-0 overflow-hidden"
+      showHeader={false}
+      className="max-w-lg w-full overflow-hidden bg-(--color-page-bg)"
     >
-      {/* Premium Header Accent */}
-      <div className={cn("h-2 w-full", bg.replace("bg-", "bg-opacity-100 bg-"))} 
-           style={{ backgroundColor: activity.type === 'distribution' ? '#053B70' : undefined }} />
-      
-      <div className="p-6 sm:p-8">
-        {/* Header Info */}
-        <div className="flex items-start gap-5 mb-8">
-          <div className={cn("p-4 rounded-2xl shrink-0", bg)}>
-            <Icon size={28} className={color} />
+      {/* Header */}
+      <div
+        className={cn(
+          "px-5 py-3.5 flex items-center justify-between",
+          headerBg,
+        )}
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-md bg-white/15 flex items-center justify-center shrink-0">
+            <Icon size={15} className="text-white" />
           </div>
-          <div className="min-w-0 flex-1">
-            <h4 className="text-[#0A2540] font-bold text-xl leading-tight mb-1 truncate">
+          <span className="text-white font-semibold text-sm tracking-wide">
+            Activity Details
+          </span>
+        </div>
+        <button
+          onClick={onClose}
+          className="text-white/60 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10"
+        >
+          <X size={18} />
+        </button>
+      </div>
+
+      <div className="p-5 space-y-5">
+        {/* Title + badge row */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest mb-1">
+              {activity.title}
+            </p>
+            <h2
+              className="text-lg font-bold text-[#0A2540] leading-snug truncate"
+              title={activity.subtitle || activity.title}
+            >
               {activity.subtitle || activity.title}
-            </h4>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[#64748B]">
-              <div className="flex items-center gap-1.5 ">
-                <Calendar size={14} className="text-slate-400" />
-                <span className="text-xs font-medium">
-                  {new Date(activity.date).toLocaleString("en-GB", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Tag size={14} className="text-slate-400" />
-                <span className="text-xs font-bold uppercase tracking-wider bg-slate-100 px-2 py-0.5 rounded text-slate-500">
-                  {activity.type}
-                </span>
-              </div>
-            </div>
+            </h2>
           </div>
-          {activity.amount && activity.amount > 0 && (
-            <div className="text-right shrink-0">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">
-                Total Value
-              </p>
-              <p className={cn(
-                "text-2xl font-black",
-                activity.type === 'payment' ? "text-emerald-600" : "text-[#0A2540]"
-              )}>
-                {activity.type === 'payment' ? "+" : ""}{formatPKR(activity.amount)}
-              </p>
-            </div>
-          )}
+          <span
+            className={cn(
+              "shrink-0 text-[10px] font-semibold uppercase px-2.5 py-1 rounded-full tracking-wider mt-0.5",
+              badgeBg,
+              accent,
+            )}
+          >
+            {activity.type}
+          </span>
         </div>
 
-        {/* Details Grid */}
-        <div className="bg-[#F8FAFC] rounded-2xl p-6 border border-slate-100">
-          <div className="flex items-center gap-2 mb-6 border-b border-slate-200/60 pb-3">
-             <Layers size={16} className="text-slate-400" />
-             <h5 className="font-bold text-[#053B70] uppercase tracking-widest text-[11px]">
-               Technical Specifications
-             </h5>
+        {/* Amount pill */}
+        {activity.amount !== undefined && activity.amount > 0 && (
+          <div
+            className={cn(
+              "flex items-center justify-between rounded-xl px-4 py-3",
+              badgeBg,
+            )}
+          >
+            <span className="text-xs font-medium text-slate-500">
+              Total Amount
+            </span>
+            <span className={cn("text-base font-bold tabular-nums", accent)}>
+              {activity.type === "payment" ? "+" : ""}
+              {formatPKR(activity.amount)}
+            </span>
           </div>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
-            {activity.details.map((detail, idx) => (
-              <div key={idx} className="flex flex-col gap-1 group transition-all">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 group-hover:text-slate-500">
-                  {detail.label}
-                </span>
-                <span className="text-[clamp(13px,1.2vw,14.5px)] font-bold text-[#0A2540] transition-colors">
-                  {typeof detail.value === "number" &&
-                  (detail.label.toLowerCase().includes("price") ||
-                    detail.label.toLowerCase().includes("amount"))
-                    ? formatPKR(detail.value)
-                    : detail.value}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
+        )}
 
-        {/* Footer Meta */}
-        <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-sm">
-              {activity.recordedBy.charAt(0)}
+        {/* Detail cards  */}
+        {modalDetails.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="h-3.5 w-0.5 bg-[var(--color-primary)] rounded-full" />
+              <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
+                Additional Info
+              </h4>
             </div>
-            <div>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                Recorded By
-              </p>
-              <p className="text-sm font-bold text-[#0A2540]">
-                {activity.recordedBy} <span className="text-slate-400 font-medium ml-1">({activity.role || 'SALESMAN'})</span>
-              </p>
+
+            <div className="grid grid-cols-2 gap-2">
+              {modalDetails.map((detail, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "bg-white rounded-xl px-3.5 py-3",
+                    detail.label.length > 10 ? "col-span-2" : "",
+                  )}
+                >
+                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1 truncate">
+                    {detail.label}
+                  </p>
+                  <p
+                    className="text-sm font-semibold text-[#0A2540] line-clamp-2 leading-snug"
+                    title={String(detail.value)}
+                  >
+                    {typeof detail.value === "number" &&
+                    (detail.label.toLowerCase().includes("price") ||
+                      detail.label.toLowerCase().includes("amount"))
+                      ? formatPKR(detail.value)
+                      : detail.value}
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </Modal>
   );

@@ -76,7 +76,7 @@ export const DetailedPendingPayments = ({
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        HeaderBgColor="bg-[#FEF3C7]" // Matching the amber/pending theme
+        HeaderBgColor="bg-[#FEF3C7]"
         BorderColor="border-amber-100"
       />
     </div>
