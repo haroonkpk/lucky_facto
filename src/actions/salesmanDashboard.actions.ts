@@ -206,6 +206,7 @@ export async function getSalesmanLatestActivity(
             { label: "Unit Price", value: Number(d.unitPrice) },
             { label: "Shop", value: entry.shop.name },
             { label: "Recorded By", value: recordedBy?.name ?? "System" },
+            { label: "Notes", value: d.notes || "None" },
           ],
         };
       }
@@ -221,6 +222,7 @@ export async function getSalesmanLatestActivity(
         date: entry.createdAt.toISOString(),
         recordedBy: recordedBy?.name ?? "System",
         role: recordedBy?.role ?? "SALESMAN",
+        imageUrl: p?.receiptUrl || undefined,
         details: [
           {
             label: "Date & Time",
@@ -241,6 +243,7 @@ export async function getSalesmanLatestActivity(
           { label: "Amount", value: Number(entry.amount) },
           { label: "Shop", value: entry.shop.name },
           { label: "Recorded By", value: recordedBy?.name ?? "System" },
+          { label: "Remarks", value: p?.cashNote || "None" },
         ],
       };
     }),
@@ -391,6 +394,7 @@ export async function getFilteredActivities({
         { label: "Unit Price", value: Number(d.unitPrice) },
         { label: "Shop", value: d.shop.name },
         { label: "Recorded By", value: d.recordedBy?.name || "System" },
+        { label: "Notes", value: d.notes || "None" },
       ],
     })),
     // 2. Payments
@@ -404,6 +408,7 @@ export async function getFilteredActivities({
       date: p.createdAt.toISOString(),
       recordedBy: p.recordedBy?.name || "System",
       role: p.recordedBy?.role || "SALESMAN",
+      imageUrl: p.receiptUrl || undefined,
       details: [
         {
           label: "Date & Time",
@@ -421,6 +426,7 @@ export async function getFilteredActivities({
         { label: "Amount", value: Number(p.amount) },
         { label: "Shop", value: p.shop?.name || "Factory" },
         { label: "Recorded By", value: p.recordedBy?.name || "System" },
+        { label: "Remarks", value: p.cashNote || "None" },
       ],
     })),
     // 3. Inventory Intakes

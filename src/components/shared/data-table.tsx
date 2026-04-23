@@ -45,7 +45,9 @@ export const DataTable = <T extends { id: string }>({
     <Card variant={variant} className={cn("p-4", BorderColor)}>
       {/* Heading */}
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="truncate text-xl font-bold text-gray-800">{heading}</h2>
+        <h2 className="truncate text-[clamp(17px,2vw,20px)] font-bold text-gray-800">
+          {heading}
+        </h2>
       </div>
 
       {/* Table */}
@@ -56,13 +58,15 @@ export const DataTable = <T extends { id: string }>({
               {TableHeaders.map((header) => (
                 <th
                   key={header.key}
-                  className={`border ${BorderColor} px-4 py-3 text-start font-bold whitespace-nowrap`}
+                  className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-start text-[clamp(13px,1.2vw,14px)] font-bold whitespace-nowrap`}
                 >
                   {header.label}
                 </th>
               ))}
               {TableButtons?.length ? (
-                <th className={`border ${BorderColor} px-4 py-3 text-left`}>
+                <th
+                  className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-left text-[clamp(13px,1.2vw,14px)]`}
+                >
                   Actions
                 </th>
               ) : null}
@@ -79,19 +83,21 @@ export const DataTable = <T extends { id: string }>({
                   {TableHeaders.map((header) => (
                     <td
                       key={`${row.id}-${header.key}`}
-                      className={`border ${BorderColor} px-4 py-3`}
+                      className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-[clamp(13px,1.2vw,14px)]`}
                     >
                       {row[header.key as keyof T] as React.ReactNode}
                     </td>
                   ))}
                   {TableButtons?.length ? (
-                    <td className={`border ${BorderColor} px-4 py-3`}>
+                    <td
+                      className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)]`}
+                    >
                       <div className="flex justify-center gap-2">
                         {TableButtons.map((button) => (
                           <button
                             key={button.text}
                             onClick={() => button.onClick(row)}
-                            className={`${button.className} group relative rounded-md p-2 hover:opacity-80`}
+                            className={`${button.className} group relative rounded-md p-[clamp(6px,0.6vw,8px)] hover:opacity-80`}
                             title={button.text}
                           >
                             {button.icon}
@@ -106,7 +112,7 @@ export const DataTable = <T extends { id: string }>({
               <tr>
                 <td
                   colSpan={TableHeaders.length + (TableButtons?.length ? 1 : 0)}
-                  className="py-6 text-center text-gray-500"
+                  className="py-6 text-center text-[clamp(13px,1.2vw,14px)] text-gray-500"
                 >
                   No data available
                 </td>
@@ -121,38 +127,38 @@ export const DataTable = <T extends { id: string }>({
         <div
           className={`flex flex-col items-center justify-between gap-2 border-t ${BorderColor} bg-white p-3 sm:flex-row`}
         >
-          <div className="text-sm text-gray-600">
+          <div className="text-[clamp(12px,1.1vw,13px)] text-gray-600">
             Page {currentPage} of {totalPages}
           </div>
           <div className="flex gap-1">
             <button
               onClick={() => onPageChange(1)}
               disabled={currentPage === 1}
-              className="mx-1 rounded-md bg-gray-100 px-3 py-1 font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
             >
               «
             </button>
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="mx-1 rounded-md bg-gray-100 px-3 py-1 font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
             >
               ‹
             </button>
-            <span className="mx-1 rounded-md bg-[#FF6A00] px-3 py-1 font-medium text-white">
+            <span className="mx-1 rounded-md bg-[#FF6A00] px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-white">
               {currentPage}
             </span>
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage >= totalPages}
-              className="mx-1 rounded-md bg-gray-100 px-3 py-1 font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
             >
               ›
             </button>
             <button
               onClick={() => onPageChange(totalPages)}
               disabled={currentPage >= totalPages}
-              className="mx-1 rounded-md bg-gray-100 px-3 py-1 font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
             >
               »
             </button>

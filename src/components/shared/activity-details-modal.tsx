@@ -3,14 +3,15 @@
 import { Modal } from "./modal";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
+import { cn } from "@/lib/utils";
 import {
   Truck,
   Banknote,
   PackagePlus,
   X,
   Activity as ActivityIcon,
+  MapPin,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface ActivityDetailsModalProps {
   activity: Activity | null;
@@ -38,149 +39,250 @@ export function ActivityDetailsModal({
         return {
           icon: Truck,
           accent: "text-[var(--color-primary)]",
-          badgeBg: "bg-[var(--color-primary)]/8",
           headerBg: "bg-[var(--color-primary)]",
         };
       case "payment":
         return {
           icon: Banknote,
           accent: "text-emerald-600",
-          badgeBg: "bg-emerald-50",
           headerBg: "bg-emerald-600",
         };
       case "intake":
         return {
           icon: PackagePlus,
           accent: "text-amber-600",
-          badgeBg: "bg-amber-50",
           headerBg: "bg-amber-500",
         };
       default:
         return {
           icon: ActivityIcon,
           accent: "text-slate-600",
-          badgeBg: "bg-slate-50",
           headerBg: "bg-slate-600",
         };
     }
   };
 
-  const { icon: Icon, accent, badgeBg, headerBg } = getThemeProps();
+  const { icon: Icon, accent, headerBg } = getThemeProps();
 
-  const modalDetails = activity.details.filter(
-    (d) => !TABLE_DETAIL_LABELS.has(d.label.toLowerCase()),
-  );
+  const modalDetails = activity.details.filter((d) => {
+    const labelLower = d.label.toLowerCase();
+    const isExcludedLabel = TABLE_DETAIL_LABELS.has(labelLower);
+    if (isExcludedLabel) return false;
+
+    const optionalFields = ["notes", "remarks", "description", "note"];
+    if (optionalFields.includes(labelLower)) {
+      return (
+        d.value !== null &&
+        d.value !== undefined &&
+        d.value !== "" &&
+        d.value !== "None"
+      );
+    }
+
+    return true;
+  });
+
+  const isPayment = activity.type === "payment";
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       showHeader={false}
-      className="max-w-lg w-full overflow-hidden bg-(--color-page-bg)"
+      className={cn(
+        "w-full overflow-hidden bg-white",
+        isPayment ? "max-w-4xl" : "max-w-lg",
+      )}
     >
       {/* Header */}
       <div
-        className={cn(
-          "px-5 py-3.5 flex items-center justify-between",
-          headerBg,
-        )}
+        className={cn("flex items-center justify-between", headerBg)}
+        style={{
+          padding: "clamp(10px, 2vw, 16px) clamp(14px, 3vw, 24px)",
+        }}
       >
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-md bg-white/15 flex items-center justify-center shrink-0">
-            <Icon size={15} className="text-white" />
-          </div>
-          <span className="text-white font-semibold text-sm tracking-wide">
+        <div
+          className="flex items-center"
+          style={{ gap: "clamp(6px, 1vw, 10px)" }}
+        >
+          <Icon
+            className="text-white"
+            style={{
+              width: "clamp(14px, 2vw, 20px)",
+              height: "clamp(14px, 2vw, 20px)",
+            }}
+          />
+          <span
+            className="text-white font-medium capitalize"
+            style={{ fontSize: "clamp(11px, 1.5vw, 14px)" }}
+          >
             Activity Details
           </span>
         </div>
-        <button
-          onClick={onClose}
-          className="text-white/60 hover:text-white transition-colors p-1 rounded-md hover:bg-white/10"
-        >
-          <X size={18} />
+        <button onClick={onClose} className="text-white/80 hover:text-white">
+          <X
+            style={{
+              width: "clamp(16px, 2vw, 22px)",
+              height: "clamp(16px, 2vw, 22px)",
+            }}
+          />
         </button>
       </div>
 
-      <div className="p-5 space-y-5">
-        {/* Title + badge row */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-widest mb-1">
-              {activity.title}
-            </p>
-            <h2
-              className="text-lg font-bold text-[#0A2540] leading-snug truncate"
-              title={activity.subtitle || activity.title}
-            >
-              {activity.subtitle || activity.title}
-            </h2>
-          </div>
-          <span
-            className={cn(
-              "shrink-0 text-[10px] font-semibold uppercase px-2.5 py-1 rounded-full tracking-wider mt-0.5",
-              badgeBg,
-              accent,
-            )}
-          >
-            {activity.type}
-          </span>
-        </div>
-
-        {/* Amount pill */}
-        {activity.amount !== undefined && activity.amount > 0 && (
+      {/* Scrollable Body */}
+      <div
+        className="overflow-y-auto"
+        style={{ maxHeight: "calc(85vh - 70px)" }}
+      >
+        <div className="flex flex-col md:flex-row h-full">
+          {/* Left Side */}
           <div
-            className={cn(
-              "flex items-center justify-between rounded-xl px-4 py-3",
-              badgeBg,
-            )}
+            className="flex-1"
+            style={{
+              padding: "clamp(16px, 3vw, 28px)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "clamp(16px, 2.5vw, 28px)",
+            }}
           >
-            <span className="text-xs font-medium text-slate-500">
-              Total Amount
-            </span>
-            <span className={cn("text-base font-bold tabular-nums", accent)}>
-              {activity.type === "payment" ? "+" : ""}
-              {formatPKR(activity.amount)}
-            </span>
-          </div>
-        )}
+            {/* Title & Meta */}
+            <div>
+              <div
+                className="text-slate-500 capitalize"
+                style={{
+                  fontSize: "clamp(10px, 1.2vw, 13px)",
+                  marginBottom: "clamp(2px, 0.4vw, 6px)",
+                }}
+              >
+                {activity.type} •{" "}
+                {new Date(activity.date).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </div>
 
-        {/* Detail cards  */}
-        {modalDetails.length > 0 && (
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="h-3.5 w-0.5 bg-[var(--color-primary)] rounded-full" />
-              <h4 className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">
-                Additional Info
-              </h4>
-            </div>
+              <h2
+                className="font-semibold text-slate-900"
+                style={{ fontSize: "clamp(16px, 2.5vw, 26px)" }}
+              >
+                {activity.title}
+              </h2>
 
-            <div className="grid grid-cols-2 gap-2">
-              {modalDetails.map((detail, idx) => (
+              {activity.subtitle && (
                 <div
-                  key={idx}
-                  className={cn(
-                    "bg-white rounded-xl px-3.5 py-3",
-                    detail.label.length > 10 ? "col-span-2" : "",
-                  )}
+                  className="flex items-center text-slate-600"
+                  style={{
+                    gap: "clamp(4px, 0.5vw, 8px)",
+                    marginTop: "clamp(4px, 0.6vw, 10px)",
+                  }}
                 >
-                  <p className="text-[10px] font-medium text-slate-400 uppercase tracking-wide mb-1 truncate">
-                    {detail.label}
-                  </p>
-                  <p
-                    className="text-sm font-semibold text-[#0A2540] line-clamp-2 leading-snug"
-                    title={String(detail.value)}
-                  >
-                    {typeof detail.value === "number" &&
-                    (detail.label.toLowerCase().includes("price") ||
-                      detail.label.toLowerCase().includes("amount"))
-                      ? formatPKR(detail.value)
-                      : detail.value}
-                  </p>
+                  <MapPin
+                    className="shrink-0"
+                    style={{
+                      width: "clamp(12px, 1.5vw, 18px)",
+                      height: "clamp(12px, 1.5vw, 18px)",
+                    }}
+                  />
+                  <span style={{ fontSize: "clamp(11px, 1.3vw, 14px)" }}>
+                    {activity.subtitle}
+                  </span>
                 </div>
-              ))}
+              )}
+            </div>
+
+            {/* Amount */}
+            {activity.amount !== undefined && activity.amount > 0 && (
+              <div>
+                <p
+                  className="text-slate-500"
+                  style={{
+                    fontSize: "clamp(10px, 1.2vw, 13px)",
+                    marginBottom: "clamp(2px, 0.4vw, 6px)",
+                  }}
+                >
+                  Net Amount
+                </p>
+                <p
+                  className={cn("font-bold tabular-nums", accent)}
+                  style={{ fontSize: "clamp(18px, 3vw, 28px)" }}
+                >
+                  {activity.type === "payment" ? "+" : ""}
+                  {formatPKR(activity.amount)}
+                </p>
+              </div>
+            )}
+
+            {/* Details Grid */}
+            <div
+              className="grid grid-cols-2 bg-(--color-secondary-bg) rounded"
+              style={{
+                gap: "clamp(10px, 1.5vw, 18px)",
+                padding: "clamp(12px, 2vw, 20px)",
+              }}
+            >
+              {modalDetails.map((detail, idx) => {
+                const isFullWidth =
+                  detail.label.length > 12 ||
+                  String(detail.value).length > 25 ||
+                  ["notes", "remarks", "description"].includes(
+                    detail.label.toLowerCase(),
+                  );
+
+                return (
+                  <div
+                    key={idx}
+                    className={isFullWidth ? "col-span-2" : "col-span-1"}
+                  >
+                    <p
+                      className="text-slate-500 capitalize"
+                      style={{
+                        fontSize: "clamp(9px, 1vw, 12px)",
+                        marginBottom: "clamp(2px, 0.3vw, 5px)",
+                      }}
+                    >
+                      {detail.label}
+                    </p>
+                    <p
+                      className="text-slate-900 font-medium"
+                      style={{ fontSize: "clamp(11px, 1.3vw, 14px)" }}
+                    >
+                      {typeof detail.value === "number" &&
+                      (detail.label.toLowerCase().includes("price") ||
+                        detail.label.toLowerCase().includes("amount"))
+                        ? formatPKR(detail.value)
+                        : detail.value}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        )}
+
+          {/* Right Side: Attachment (Payment only) */}
+          {isPayment && (
+            <div
+              className="w-full md:w-[320px] bg-slate-50 shrink-0"
+              style={{ padding: "clamp(14px, 2.5vw, 24px)" }}
+            >
+              <h3
+                className="font-medium text-slate-700"
+                style={{
+                  fontSize: "clamp(11px, 1.3vw, 14px)",
+                  marginBottom: "clamp(10px, 1.5vw, 18px)",
+                }}
+              >
+                Attachment
+              </h3>
+             
+                <img
+                  src={activity.imageUrl || "/receptPlaceholder.png"}
+                  alt="Receipt"
+                  className="max-w-full h-auto object-contain border border-slate-200 rounded"
+                />
+            </div>
+          )}
+        </div>
       </div>
     </Modal>
   );

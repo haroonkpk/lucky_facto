@@ -14,5 +14,6 @@ export interface Activity {
   date: string | Date;
   recordedBy: string;
   role?: string;
+  imageUrl?: string;
   details: ActivityDetail[];
 }

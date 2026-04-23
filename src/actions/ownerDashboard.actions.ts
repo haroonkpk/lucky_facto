@@ -252,6 +252,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
       date: p.createdAt,
       recordedBy: p.recordedBy?.name || "System",
       role: p.recordedBy?.role || "UNKNOWN",
+      imageUrl: p.receiptUrl || undefined,
       details: [
         {
           label: "Date & Time",

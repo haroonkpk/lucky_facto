@@ -22,7 +22,7 @@ export const Card = ({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-[clamp(12px,2vw,20px)] p-[clamp(1.25rem,2.5vw,2rem)]",
+        "relative overflow-hidden rounded-[clamp(8px,1vw,10px)] p-[clamp(1.25rem,2.5vw,2rem)]",
         variantStyles[variant],
         className,
       )}
