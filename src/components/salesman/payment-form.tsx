@@ -23,13 +23,33 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
   );
 
   const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
+      Promise.resolve().then(() => setImagePreview(null));
     }
   }, [state.success]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImagePreview(url);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const shopOptions = [
     { value: "", label: "Select Shop (Optional)" },
@@ -160,14 +180,52 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
-              <Input
-                id="receipt"
-                name="receipt"
-                label="Receipt Image (Optional)"
-                type="file"
-                accept="image/*"
-                className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-[var(--color-primary)] hover:file:bg-violet-100"
-              />
+              <div className="flex flex-col gap-2">
+                {imagePreview ? (
+                  // ── Preview State
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-[#374151]">
+                      Receipt Image (Optional)
+                    </label>
+                    <div className="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200">
+                      <img
+                        src={imagePreview}
+                        alt="Receipt preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={removeImage}
+                        className="absolute top-2 right-2 text-red-500 p-1.5 "
+                        aria-label="Remove image"
+                      >
+                        <X size={18} strokeWidth={3} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  // ── Upload State
+                  <Input
+                    ref={fileInputRef}
+                    id="receipt"
+                    name="receipt"
+                    label="Receipt Image (Optional)"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className={cn(
+                      "bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]",
+                      "file:mr-3 file:py-1.5 file:px-4",
+                      "file:rounded-sm file:border-0",
+                      "file:text-sm file:font-medium",
+                      "file:bg-[var(--color-primary)] file:text-white",
+                      "file:cursor-pointer hover:file:opacity-90",
+                      "file:transition-opacity",
+                      "text-slate-400 text-sm",
+                    )}
+                  />
+                )}
+              </div>
             </div>
 
             <Textarea
