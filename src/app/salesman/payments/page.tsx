@@ -1,4 +1,10 @@
 import { getShops } from "@/actions/salesman.actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Payments",
+};
+
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { PaymentForm } from "@/components/salesman";
 import { ActivityDataTable, Card } from "@/components/shared";

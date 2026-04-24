@@ -1,5 +1,11 @@
 import { getOwnerDashboardData } from "@/actions/ownerDashboard.actions";
 import { LogoutButton } from "@/components/auth";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Owner Dashboard",
+};
+
 import {
   StaticSummarySection,
   FilteredPerformanceSection,

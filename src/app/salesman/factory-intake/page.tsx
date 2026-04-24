@@ -1,4 +1,10 @@
 import { getBrands } from "@/actions/salesman.actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Factory Intake",
+};
+
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { FactoryIntakeForm } from "@/components/salesman";
 import { ActivityDataTable, Card } from "@/components/shared";

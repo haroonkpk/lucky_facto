@@ -1,5 +1,11 @@
 import { getShops, getRegions } from "@/actions/owner.actions";
 import { ShopsList, RegisterShopForm } from "@/components/owner";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Shop Management",
+};
+
 
 export const dynamic = "force-dynamic";
 

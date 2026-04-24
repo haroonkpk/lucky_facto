@@ -17,7 +17,6 @@ export default function DashboardLoading() {
         <section className="grid p-2 sm:p-2 grid-cols-1 lg:grid-cols-[1fr_2fr] gap-[clamp(1.5rem,3vw,2.5rem)] items-stretch">
           {/* StaticSummarySection Skeleton (PendingReceivableCard) */}
           <Card
-            variant="pending"
             className="flex flex-col justify-between min-h-32 md:min-h-36 opacity-50"
           >
             <div className="flex items-center gap-3">
@@ -119,7 +118,6 @@ export default function DashboardLoading() {
 
           {/* OverdueShopsTable Skeleton */}
           <Card
-            variant="pending"
             className="flex flex-col h-[420px] opacity-70"
           >
             <div className="flex flex-col gap-2 mb-6">

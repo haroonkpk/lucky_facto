@@ -1,5 +1,11 @@
 import { getSalesmen } from "@/actions/owner.actions";
 import { RegisterSalesmanForm } from "@/components/auth";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Team Management",
+};
+
 import { NumberFormat } from "@/lib/helper";
 import { User2 } from "lucide-react";
 import Image from "next/image";

@@ -3,6 +3,12 @@ import {
   getShops,
   getInventoryBalances,
 } from "@/actions/salesman.actions";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Distribution",
+};
+
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { DistributionForm } from "@/components/salesman";
 import { ActivityDataTable, Card } from "@/components/shared";

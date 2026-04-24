@@ -3,6 +3,20 @@ import { formatPKR } from "@/lib/dashboard-utils";
 import { Edit2, MapPin, Phone, Building2, AlertTriangle } from "lucide-react";
 import { getShopLedgerData } from "@/actions/owner.actions";
 import { LedgerSection } from "@/components/owner";
+import { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const data = await getShopLedgerData(resolvedParams.id);
+
+  return {
+    title: data ? `Ledger: ${data.shop.name}` : "Shop Not Found",
+  };
+}
 
 export default async function ShopDetailsPage({
   params,
