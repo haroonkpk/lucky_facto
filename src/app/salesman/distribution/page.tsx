@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { DistributionForm } from "@/components/salesman";
-import { ActivityDataTable, Card } from "@/components/shared";
-import { DateRangeFilter } from "@/components/owner/dashboard/filters";
+import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 
 interface PageProps {

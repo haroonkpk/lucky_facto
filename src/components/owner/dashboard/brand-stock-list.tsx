@@ -8,7 +8,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Card } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 interface BrandStock {
   brandName: string;

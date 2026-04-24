@@ -2,11 +2,10 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { createPaymentAction, ActionState } from "@/actions/salesman.actions";
-import { Button, Input, Select, Textarea } from "@/components/ui";
+import { Button, Input, Select, Textarea, Card } from "@/components/ui";
 import { PaymentType, PaymentMethod } from "@/lib/generated/prisma/enums";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Card } from "@/components/shared";
 
 interface PaymentFormProps {
   shops: { id: string; name: string }[];

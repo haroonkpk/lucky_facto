@@ -1,5 +1,5 @@
 import { formatPKR } from "@/lib/dashboard-utils";
-import { Card } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 interface OverdueShop {
   id: string;

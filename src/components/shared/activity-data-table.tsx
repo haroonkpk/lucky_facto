@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "./data-table";
+import { DataTable, TableHeader } from "@/components/ui";
 import { ActivityDetailsModal } from "./activity-details-modal";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
 import { Eye } from "lucide-react";
-
-import { TableHeader } from "./data-table";
 
 interface ActivityDataTableProps {
   activities: Activity[];

@@ -12,9 +12,9 @@ import {
   BrandStockList,
   RegionPerformanceChart,
   OverdueShopsTable,
-  DateRangeFilter,
 } from "@/components/owner/dashboard";
-import { ActivityDataTable, Card } from "@/components/shared";
+import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { Card } from "@/components/ui";
 import { DashboardChart } from "@/components/owner";
 
 export const revalidate = 60;

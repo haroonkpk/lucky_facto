@@ -4,7 +4,7 @@ import { formatPKR } from "@/lib/dashboard-utils";
 import { CircleDollarSign, TrendingUp, Truck, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
-import { Card } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 interface PulseCardProps {
   title: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import { Modal } from "./modal";
+import { Modal } from "@/components/ui";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
 import { cn } from "@/lib/utils";

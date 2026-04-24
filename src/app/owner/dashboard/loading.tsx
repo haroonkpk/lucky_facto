@@ -1,4 +1,4 @@
-import { Card } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 export default function DashboardLoading() {
   return (

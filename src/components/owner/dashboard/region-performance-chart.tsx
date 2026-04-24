@@ -9,7 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { Card } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 interface RegionData {
   name: string;

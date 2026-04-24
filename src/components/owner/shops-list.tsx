@@ -8,7 +8,7 @@ import { getInitials } from "@/lib/helper";
 import { formatPKR } from "@/lib/dashboard-utils";
 import Link from "next/link";
 
-import { Card } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 // ─── Props ─────────────────────────────────────────────────────────────────────
 interface ShopsListProps {

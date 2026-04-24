@@ -2,7 +2,7 @@
 
 import React from "react";
 import { formatPKR } from "@/lib/dashboard-utils";
-import { DataTable, TableHeader } from "@/components/shared/data-table";
+import { DataTable, TableHeader } from "@/components/ui";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface DetailedPendingPaymentsProps {
