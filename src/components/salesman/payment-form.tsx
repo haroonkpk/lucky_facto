@@ -160,6 +160,14 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
+              <Input
+                id="receipt"
+                name="receipt"
+                label="Receipt Image (Optional)"
+                type="file"
+                accept="image/*"
+                className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-[var(--color-primary)] hover:file:bg-violet-100"
+              />
             </div>
 
             <Textarea

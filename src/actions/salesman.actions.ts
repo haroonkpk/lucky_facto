@@ -1,7 +1,6 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { Activity } from "@/types/activity";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import {
@@ -11,8 +10,9 @@ import {
   PaymentMethod,
   InventoryTransactionType,
 } from "@/lib/generated/prisma/enums";
+import { uploadReceipt } from "@/lib/upload-receipt";
 
-// ─── Fetchers
+// ─── Fetcherss
 
 export async function getBrands() {
   return prisma.brand.findMany({
@@ -266,9 +266,19 @@ export async function createPaymentAction(
   const paymentDate = formData.get("paymentDate") as string;
   const shopId = formData.get("shopId") as string;
   const cashNote = formData.get("cashNote") as string;
+  const receiptFile = formData.get("receipt") as File | null;
 
   if (!type || !paymentMethod || isNaN(amount) || amount <= 0) {
     return { success: false, error: "Type, method, and amount are required." };
+  }
+
+  let receiptUrl = null;
+  if (receiptFile && receiptFile.size > 0) {
+    try {
+      receiptUrl = await uploadReceipt(receiptFile);
+    } catch {
+      return { success: false, error: "Failed to upload receipt image." };
+    }
   }
 
   const supabase = await createClient();
@@ -293,6 +303,7 @@ export async function createPaymentAction(
             paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
             shopId: shopId || null,
             cashNote,
+            receiptUrl,
             recordedById: user.id,
             dealType: DealType.VIA_SALESMAN,
           },

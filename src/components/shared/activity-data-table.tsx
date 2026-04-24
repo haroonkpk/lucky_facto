@@ -91,7 +91,7 @@ export function ActivityDataTable({
           {
             icon: <Eye size={18} />,
             text: "View Details",
-            className: "text-blue-600 hover:bg-blue-50 hover:text-blue-700",
+            className: "text-(--color-primary)",
             onClick: handleViewDetails,
           },
         ]}
