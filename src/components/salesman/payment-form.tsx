@@ -26,13 +26,28 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<string>(PaymentType.SHOP_COLLECTION);
+
+  const [selectedShop, setSelectedShop] = useState<string>("");
 
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
-      Promise.resolve().then(() => setImagePreview(null));
+      Promise.resolve().then(() => {
+        setImagePreview(null);
+        setSelectedType(PaymentType.SHOP_COLLECTION);
+        setSelectedShop("");
+      });
     }
   }, [state.success]);
+
+  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setSelectedType(val);
+    if (val === PaymentType.FACTORY_PAYMENT) {
+      setSelectedShop("");
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -137,6 +152,8 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 name="type"
                 label="Payment Category"
                 options={typeOptions}
+                value={selectedType}
+                onChange={handleTypeChange}
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
@@ -145,6 +162,9 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 name="shopId"
                 label="Assigned Shop"
                 options={shopOptions}
+                value={selectedShop}
+                onChange={(e) => setSelectedShop(e.target.value)}
+                disabled={selectedType === PaymentType.FACTORY_PAYMENT}
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
             </div>

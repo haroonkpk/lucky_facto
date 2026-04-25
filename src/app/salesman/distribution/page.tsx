@@ -53,7 +53,7 @@ export default async function DistributionPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24 relative">
       {/* Page Header */}
-      <div className="mb-8">
+      <div className="mb-8 p-2">
         <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">
           Revenue & Logistics
         </p>
@@ -70,7 +70,7 @@ export default async function DistributionPage({ searchParams }: PageProps) {
       <div className="flex flex-col-reverse xl:flex-row gap-8 items-start">
         {/* ── RIGHT: History Section ── */}
         <div className="flex-1 w-full lg:min-w-2xl">
-          <Card variant="secondary" className="flex flex-col gap-6">
+          <Card variant="secondary" className="flex flex-col gap-6 px-2 sm:px-0 sm:p-[clamp(1.25rem,2.5vw,2rem)]">
             <div className="flex flex-col justify-between items-start gap-4 px-1">
               <div>
                 <h2 className="text-[#053B70] font-bold text-xl">
