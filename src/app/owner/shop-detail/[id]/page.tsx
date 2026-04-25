@@ -28,7 +28,9 @@ export default async function ShopDetailsPage({
 
   if (!data) return notFound();
 
-  const { shop, metrics } = data;
+  // Serialize to plain objects to handle Prisma.Decimal
+  const serializedData = JSON.parse(JSON.stringify(data));
+  const { shop, metrics } = serializedData;
 
   const isDebt = metrics.totalPayments < metrics.totalBilling;
   const statusColor = isDebt ? "var(--color-pending)" : "#28A745";
@@ -156,7 +158,7 @@ export default async function ShopDetailsPage({
       </div>
 
       {/* Ledger Section */}
-      <LedgerSection ledgers={shop.ledgers} metrics={metrics} />
+      <LedgerSection ledgers={shop.ledgers} metrics={metrics} shopName={shop.name} />
       
     </div>
   );

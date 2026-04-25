@@ -198,7 +198,10 @@ export async function getShopLedgerData(shopId: string) {
         region: true,
         ledgers: {
           orderBy: { createdAt: "desc" },
-          include: { payment: true, distribution: true },
+          include: { 
+            payment: { include: { recordedBy: true } }, 
+            distribution: { include: { recordedBy: true, brand: true } } 
+          },
         },
       },
     }),

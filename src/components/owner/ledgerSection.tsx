@@ -1,7 +1,10 @@
+"use client";
+
 import { formatPKR } from "@/lib/dashboard-utils";
-import { FileText, Printer } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Prisma } from "@/lib/generated/prisma/client";
+import { ActivityDataTable } from "@/components/shared";
+import { Activity, ActivityDetail } from "@/types/activity";
+import { useSearchParams } from "next/navigation";
 
 type TransactionType = "DEBIT" | "CREDIT";
 
@@ -16,18 +19,23 @@ interface Ledger {
     id: string;
     paymentMethod: string;
     cashNote?: string | null;
+    receiptUrl?: string | null;
+    recordedBy: { name: string; role: string };
   } | null;
   distributionId: string | null;
   distribution: {
     id: string;
     quantity: number;
     unitPrice: Prisma.Decimal | number | string;
+    brand: { name: string };
+    recordedBy: { name: string; role: string };
   } | null;
   createdAt: Date | string;
 }
 
 interface LedgerSectionProps {
   ledgers: Ledger[];
+  shopName: string;
   metrics: {
     totalPayments: number;
     totalBilling: number;
@@ -40,157 +48,94 @@ interface LedgerSectionProps {
 export const LedgerSection = ({
   ledgers,
   metrics,
+  shopName,
 }: LedgerSectionProps) => {
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get("page")) || 1;
+  const pageSize = 5;
+
+  const tableHeaders = [
+    { key: "date", label: "Date" },
+    { key: "subtitle", label: "Target/Shop" },
+    { key: "title", label: "Type/Activity" },
+    { key: "details", label: "Details/Qty" },
+    { key: "amount", label: "Amount" },
+  ];
+
+  const allActivities: Activity[] = ledgers.map((entry) => {
+    const isDebit = entry.transactionType === "DEBIT";
+    const recordedBy = entry.distribution?.recordedBy?.name || entry.payment?.recordedBy?.name || "System";
+    const role = entry.distribution?.recordedBy?.role || entry.payment?.recordedBy?.role || "UNKNOWN";
+    
+    const details: ActivityDetail[] = [
+      {
+        label: "Date & Time",
+        value: new Date(entry.createdAt).toLocaleString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+      },
+      { label: "Type", value: isDebit ? "Distribution" : "Collection" },
+      { label: "Shop", value: shopName },
+      { label: "Recorded By", value: recordedBy },
+    ];
+
+    if (entry.distribution) {
+      details.push({ label: "Quantity", value: `${entry.distribution.quantity} bags` });
+      details.push({
+        label: "Unit Price",
+        value: formatPKR(Number(entry.distribution.unitPrice)),
+      });
+      details.push({ label: "Brand", value: entry.distribution.brand.name });
+    } else if (entry.payment) {
+      details.push({ label: "Method", value: entry.payment.paymentMethod });
+      details.push({ label: "Remarks", value: entry.payment.cashNote || "None" });
+    }
+
+    return {
+      id: entry.id,
+      type: isDebit ? "distribution" : "payment",
+      title: isDebit 
+        ? `${entry.distribution?.brand?.name || "Unknown"} Distribution` 
+        : "Shop Collection",
+      subtitle: shopName,
+      amount: Number(entry.amount),
+      date: entry.createdAt,
+      recordedBy: recordedBy,
+      role: role,
+      imageUrl: entry.payment?.receiptUrl || undefined,
+      details,
+    };
+  });
+
+  const totalPages = Math.ceil(allActivities.length / pageSize);
+  const pagedActivities = allActivities.slice(
+    (currentPage - 1) * pageSize,
+    (currentPage - 1) * pageSize + pageSize
+  );
+
   return (
-    <div
-      className="bg-[#E7F1F8] mb-8"
-      style={{
-        borderRadius: "clamp(12px, 2vw, 16px)",
-      }}
-    >
-      {/* Ledger Header */}
-      <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between bg-(--color-secondary-bg) mb-8"
-        style={{
-          gap: "clamp(12px, 2vw, 16px)",
-          padding: "clamp(16px, 3vw, 32px)",
-          borderRadius: "clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px) 0 0",
-        }}
-      >
-        <div>
-          <h3
-            className="font-extrabold text-[#053B70]"
-            style={{ fontSize: "clamp(16px, 2.5vw, 20px)" }}
-          >
-            Statement of Account (Ledger)
-          </h3>
-          <p
-            className="text-[#64748B] font-medium mt-1"
-            style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
-          >
-            Transaction history for the current financial year
-          </p>
-        </div>
-      </div>
-
-      {/* Ledger Table */}
-      <div
-        className="overflow-x-auto"
-        style={{ padding: "0 clamp(16px, 3vw, 32px)" }}
-      >
-        <table className="w-full text-left font-medium">
-          <thead
-            className="text-[#94A3B8] font-bold uppercase tracking-widest border-b border-[#D9E9F3]"
-            style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
-          >
-            <tr>
-              <th className="px-1 py-4">Date</th>
-              <th className="px-4 py-4">Description</th>
-              <th className="px-4 py-4 text-center">Type</th>
-              <th className="px-1 py-4 text-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#D9E9F3] text-[#0F172A]">
-            {ledgers.length === 0 ? (
-              <tr>
-                <td colSpan={4} className="text-center py-10 text-gray-500">
-                  No transactions found.
-                </td>
-              </tr>
-            ) : (
-              ledgers.map((entry, index) => {
-                const isDebit = entry.transactionType === "DEBIT";
-                const date = new Date(entry.createdAt).toLocaleDateString(
-                  "en-US",
-                  {
-                    month: "short",
-                    day: "2-digit",
-                    year: "numeric",
-                  },
-                );
-
-                let mainDesc = isDebit ? "Goods Delivered" : "Payment Received";
-                let subDesc = entry.description || "";
-
-                if (entry.distribution) {
-                  mainDesc = "Goods Restock";
-                  subDesc = `${entry.distribution.quantity} Bags x Cement @ ${formatPKR(Number(entry.distribution.unitPrice))}`;
-                } else if (entry.payment) {
-                  mainDesc =
-                    entry.payment.paymentMethod === "BANK_TRANSFER"
-                      ? "Bank Transfer - HBL"
-                      : "Cash Deposit";
-                  subDesc =
-                    entry.payment.cashNote ||
-                    `Ref #${entry.id.substring(0, 8).toUpperCase()}`;
-                }
-
-                return (
-                  <tr key={entry.id}>
-                    <td
-                      className="px-1 py-5 whitespace-nowrap text-[#64748B]"
-                      style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
-                    >
-                      {date}
-                    </td>
-                    <td className="px-4 py-5 max-w-md">
-                      <p
-                        className="font-bold text-(--color-primary)"
-                        style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
-                      >
-                        {mainDesc}
-                      </p>
-                      <p
-                        className="text-[#64748B] mt-1"
-                        style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
-                      >
-                        {subDesc}
-                      </p>
-                    </td>
-                    <td className="px-4 py-5 text-center whitespace-nowrap">
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1 font-bold rounded-full",
-                          isDebit
-                            ? "bg-(--color-pending-bg) text-(--color-pending)"
-                            : "bg-[#D4EDDA] text-[#155724]",
-                        )}
-                        style={{
-                          fontSize: "clamp(8px, 1vw, 10px)",
-                          padding:
-                            "clamp(2px, 0.4vw, 4px) clamp(8px, 1vw, 12px)",
-                        }}
-                      >
-                        <span className="text-lg leading-none">
-                          {isDebit ? "−" : "+"}
-                        </span>
-                        {isDebit ? "GOODS OUT (-)" : "PAYMENT IN (+)"}
-                      </span>
-                    </td>
-                    <td
-                      className={cn(
-                        "px-1 py-5 text-right font-bold whitespace-nowrap",
-                        isDebit ? "text-(--color-primary)" : "text-[#28A745]",
-                      )}
-                      style={{ fontSize: "clamp(14px, 1.8vw, 16px)" }}
-                    >
-                      {formatPKR(Number(entry.amount))}
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
+    <div className="space-y-6">
+      <ActivityDataTable
+        title="Statement of Account (Ledger)"
+        activities={pagedActivities}
+        headers={tableHeaders}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        showPagination={true}
+      />
 
       {/* Ledger Footer (Totals) */}
       <div
-        className="flex items-center md:justify-end pt-10 mt-5 border-t border-(--color-secondary-bg)"
+        className="bg-[#E7F1F8] flex items-center md:justify-end border-t border-(--color-secondary-bg)"
         style={{
           gap: "clamp(16px, 3vw, 48px)",
           padding: "clamp(16px, 3vw, 32px)",
-          borderRadius: "0 0 clamp(12px, 2vw, 16px) clamp(12px, 2vw, 16px)",
+          borderRadius: "clamp(12px, 2vw, 16px)",
         }}
       >
         <div>
@@ -238,4 +183,4 @@ export const LedgerSection = ({
       </div>
     </div>
   );
-}
+};
