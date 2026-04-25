@@ -11,6 +11,7 @@ import {
   InventoryTransactionType,
 } from "@/lib/generated/prisma/enums";
 import { uploadReceipt } from "@/lib/upload-receipt";
+import { ActivityType } from "@/types/activity";
 
 // ─── Fetcherss
 
@@ -337,6 +338,132 @@ export async function createPaymentAction(
   } catch (err) {
     console.error("Payment Error:", err);
     return { success: false, error: "Failed to record payment." };
+  }
+}
+
+// ─── Delete Activity Action
+
+export async function deleteActivityAction(
+  activityId: string,
+  type: ActivityType,
+): Promise<ActionState> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: "Unauthorized: session not found." };
+  }
+
+  try {
+    await prisma.$transaction(
+      async (tx) => {
+        if (type === "intake") {
+          const intake = await tx.inventoryIntake.findUnique({
+            where: { id: activityId },
+          });
+
+          if (!intake) throw new Error("Intake record not found.");
+          if (intake.recordedById !== user.id)
+            throw new Error("Unauthorized to delete this record.");
+
+          // Update inventory balance
+          await tx.inventoryBalance.update({
+            where: { brandId: intake.brandId },
+            data: {
+              totalIntake: { decrement: intake.quantity },
+              currentStock: { decrement: intake.quantity },
+            },
+          });
+
+          // Delete related inventory ledger entries
+          await tx.inventoryLedger.deleteMany({
+            where: {
+              referenceId: intake.id,
+              type: InventoryTransactionType.STOCK_IN,
+            },
+          });
+
+          // Delete the intake record
+          await tx.inventoryIntake.delete({ where: { id: activityId } });
+        } else if (type === "distribution") {
+          const dist = await tx.distribution.findUnique({
+            where: { id: activityId },
+          });
+
+          if (!dist) throw new Error("Distribution record not found.");
+          if (dist.recordedById !== user.id)
+            throw new Error("Unauthorized to delete this record.");
+
+          // Update inventory balance (add back stock)
+          await tx.inventoryBalance.update({
+            where: { brandId: dist.brandId },
+            data: {
+              totalDistributed: { decrement: dist.quantity },
+              currentStock: { increment: dist.quantity },
+            },
+          });
+
+          // Update shop balance (decrement owed amount)
+          await tx.shop.update({
+            where: { id: dist.shopId },
+            data: { currentBalance: { decrement: dist.totalAmount } },
+          });
+
+          // Delete related financial ledger entries
+          await tx.ledger.deleteMany({ where: { distributionId: dist.id } });
+
+          // Delete related inventory ledger entries
+          await tx.inventoryLedger.deleteMany({
+            where: {
+              referenceId: dist.id,
+              type: InventoryTransactionType.STOCK_OUT,
+            },
+          });
+
+          // Delete the distribution record
+          await tx.distribution.delete({ where: { id: activityId } });
+        } else if (type === "payment") {
+          const payment = await tx.payment.findUnique({
+            where: { id: activityId },
+          });
+
+          if (!payment) throw new Error("Payment record not found.");
+          if (payment.recordedById !== user.id)
+            throw new Error("Unauthorized to delete this record.");
+
+          if (payment.type === PaymentType.SHOP_COLLECTION && payment.shopId) {
+            // Revert shop balance (add back amount to balance)
+            await tx.shop.update({
+              where: { id: payment.shopId },
+              data: { currentBalance: { increment: payment.amount } },
+            });
+
+            // Delete related financial ledger entries
+            await tx.ledger.deleteMany({ where: { paymentId: payment.id } });
+          }
+
+          // Delete the payment record
+          await tx.payment.delete({ where: { id: activityId } });
+        }
+      },
+      { maxWait: 15000, timeout: 30000 },
+    );
+
+    revalidatePath("/salesman/factory-intake");
+    revalidatePath("/salesman/distribution");
+    revalidatePath("/salesman/payments");
+    revalidatePath("/salesman/dashboard");
+
+    return { success: true, error: null };
+  } catch (err) {
+    console.error("Delete Activity Error:", err);
+    return {
+      success: false,
+      error:
+        err instanceof Error ? err.message : "Failed to delete the activity.",
+    };
   }
 }
 

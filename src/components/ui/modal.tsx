@@ -39,7 +39,7 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-[clamp(1rem,3vw,2rem)]">
       {/* Overlay */}
       <div
         className="fixed inset-0 bg-slate-900/50 transition-opacity"
@@ -49,25 +49,25 @@ export function Modal({
       <Card
         variant="white"
         className={cn(
-          "relative w-full max-w-lg transform overflow-hidden transition-all",
+          "relative w-full transform overflow-hidden transition-all",
           className,
         )}
       >
         {/* Header */}
         {showHeader && (
-          <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-            <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+          <div className="flex items-center justify-between border-b border-slate-100 py-[clamp(1rem,2vw,1.5rem)]">
+            <h3 className="text-[clamp(1.1rem,1.5vw,1.25rem)] font-bold text-slate-900">{title}</h3>
             <button
               onClick={onClose}
-              className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+              className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
             >
-              <X size={20} />
+              <X className="w-[clamp(18px,2vw,22px)] h-[clamp(18px,2vw,22px)]" />
             </button>
           </div>
         )}
 
         {/* Body */}
-        <div className=" overflow-y-auto">{children}</div>
+        <div className="overflow-y-auto">{children}</div>
       </Card>
     </div>
   );

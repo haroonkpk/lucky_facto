@@ -182,7 +182,7 @@ export async function getSalesmanLatestActivity(
 
       if (isDistribution && d) {
         return {
-          id: entry.id,
+          id: d.id,
           type: "distribution" as const,
           title: `${d.brand.name} Distribution`,
           subtitle: entry.shop.name,
@@ -213,7 +213,7 @@ export async function getSalesmanLatestActivity(
 
       // Payment entry
       return {
-        id: entry.id,
+        id: p?.id || entry.id,
         type: "payment" as const,
         title:
           p?.type === "SHOP_COLLECTION" ? "Shop Collection" : "Factory Payment",

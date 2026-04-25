@@ -85,6 +85,7 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
                 currentPage={activityData.currentPage}
                 totalPages={activityData.totalPages}
                 title="Payment Logs"
+                showDelete={true}
                 headers={[
                   { key: "date", label: "Date" },
                   { key: "subtitle", label: "Target/Shop" },
