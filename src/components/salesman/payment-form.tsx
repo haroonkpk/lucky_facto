@@ -181,7 +181,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
               <div className="flex flex-col gap-2">
-                {imagePreview ? (
+                {imagePreview && (
                   // ── Preview State
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-[#374151]">
@@ -203,8 +203,9 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                       </button>
                     </div>
                   </div>
-                ) : (
-                  // ── Upload State
+                )}
+                <div className={imagePreview ? "hidden" : "block"}>
+                  {/* ── Upload State */}
                   <Input
                     ref={fileInputRef}
                     id="receipt"
@@ -224,7 +225,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                       "text-slate-400 text-sm",
                     )}
                   />
-                )}
+                </div>
               </div>
             </div>
 

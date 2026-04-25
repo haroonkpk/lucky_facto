@@ -117,7 +117,7 @@ export async function createInventoryIntakeAction(
           },
         });
       },
-      { timeout: 15000 },
+      { maxWait: 15000, timeout: 30000 },
     );
 
     revalidatePath("/salesman/factory-intake");
@@ -239,7 +239,7 @@ export async function createDistributionAction(
           },
         });
       },
-      { timeout: 15000 },
+      { maxWait: 15000, timeout: 30000 },
     );
 
     revalidatePath("/salesman/distribution");
@@ -329,7 +329,7 @@ export async function createPaymentAction(
           });
         }
       },
-      { timeout: 15000 },
+      { maxWait: 15000, timeout: 30000 },
     );
 
     revalidatePath("/salesman/payments");
