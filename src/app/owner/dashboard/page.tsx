@@ -32,7 +32,14 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     ? new Date(params.endDate as string)
     : undefined;
 
-  const data = await getOwnerDashboardData(startDate, endDate);
+  const overduePage = Number(params.overduePage) || 1;
+
+  const data = await getOwnerDashboardData(
+    startDate,
+    endDate,
+    overduePage,
+    4, // pageSize for overdue shops
+  );
 
   return (
     <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24">
@@ -136,7 +143,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
               { key: "amount", label: "Amount" },
             ]}
           />
-          <OverdueShopsTable shops={data.overdueShopsList} />
+          <OverdueShopsTable
+            shops={data.overdueShopsList}
+            currentPage={data.overduePagination.currentPage}
+            totalPages={data.overduePagination.totalPages}
+          />
         </section>
       </div>
     </div>

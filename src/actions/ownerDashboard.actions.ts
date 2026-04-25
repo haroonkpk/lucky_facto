@@ -3,7 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
 
-export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
+export async function getOwnerDashboardData(
+  startDate?: Date,
+  endDate?: Date,
+  overduePage: number = 1,
+  overduePageSize: number = 4,
+) {
   const now = new Date();
 
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -41,6 +46,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
     regionPendingRaw,
     overdueShopsRaw,
     totalPendingReceivableRaw,
+    totalOverdueShops,
     dailyDistributionTotals,
     dailyPaymentTotals,
   ] = await Promise.all([
@@ -85,7 +91,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
 
     // Overdue Shop Analysis
     prisma.shop.findMany({
-      where: { isActive: true, currentBalance: { gt: 0 } },
+      where: { isActive: true, currentBalance: { gte: 300000 } },
       select: {
         id: true,
         name: true,
@@ -99,7 +105,6 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
         },
       },
       orderBy: { currentBalance: "desc" },
-      take: 20,
     }),
 
     // Financial Health
@@ -107,6 +112,11 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
       _sum: { currentBalance: true },
       _count: { id: true },
       where: { currentBalance: { gt: 0 } },
+    }),
+
+    // Total Overdue Shops Count (for pagination)
+    prisma.shop.count({
+      where: { isActive: true, currentBalance: { gte: 300000 } },
     }),
 
     prisma.$queryRaw<{ date: Date; total: number }[]>`
@@ -191,6 +201,8 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
     .map(([name, data]) => ({ name, ...data }))
     .sort((a, b) => b.distributed - a.distributed);
 
+  const totalOverduePages = Math.ceil(totalOverdueShops / overduePageSize);
+
   const overdueShopsList = overdueShopsRaw
     .map((shop) => ({
       id: shop.id,
@@ -207,7 +219,7 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
       ),
     }))
     .sort((a, b) => b.daysOverdue - a.daysOverdue)
-    .slice(0, 8);
+    .slice((overduePage - 1) * overduePageSize, overduePage * overduePageSize);
 
   // Recent Activity Feed
   const activities: Activity[] = [
@@ -456,6 +468,10 @@ export async function getOwnerDashboardData(startDate?: Date, endDate?: Date) {
     })),
     regionPerformance,
     overdueShopsList,
+    overduePagination: {
+      currentPage: overduePage,
+      totalPages: totalOverduePages,
+    },
     activities,
   };
 }
