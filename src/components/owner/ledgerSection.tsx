@@ -64,9 +64,15 @@ export const LedgerSection = ({
 
   const allActivities: Activity[] = ledgers.map((entry) => {
     const isDebit = entry.transactionType === "DEBIT";
-    const recordedBy = entry.distribution?.recordedBy?.name || entry.payment?.recordedBy?.name || "System";
-    const role = entry.distribution?.recordedBy?.role || entry.payment?.recordedBy?.role || "UNKNOWN";
-    
+    const recordedBy =
+      entry.distribution?.recordedBy?.name ||
+      entry.payment?.recordedBy?.name ||
+      "System";
+    const role =
+      entry.distribution?.recordedBy?.role ||
+      entry.payment?.recordedBy?.role ||
+      "UNKNOWN";
+
     const details: ActivityDetail[] = [
       {
         label: "Date & Time",
@@ -85,7 +91,10 @@ export const LedgerSection = ({
     ];
 
     if (entry.distribution) {
-      details.push({ label: "Quantity", value: `${entry.distribution.quantity} bags` });
+      details.push({
+        label: "Quantity",
+        value: `${entry.distribution.quantity} bags`,
+      });
       details.push({
         label: "Unit Price",
         value: formatPKR(Number(entry.distribution.unitPrice)),
@@ -93,14 +102,17 @@ export const LedgerSection = ({
       details.push({ label: "Brand", value: entry.distribution.brand.name });
     } else if (entry.payment) {
       details.push({ label: "Method", value: entry.payment.paymentMethod });
-      details.push({ label: "Remarks", value: entry.payment.cashNote || "None" });
+      details.push({
+        label: "Remarks",
+        value: entry.payment.cashNote || "None",
+      });
     }
 
     return {
       id: entry.id,
       type: isDebit ? "distribution" : "payment",
-      title: isDebit 
-        ? `${entry.distribution?.brand?.name || "Unknown"} Distribution` 
+      title: isDebit
+        ? `${entry.distribution?.brand?.name || "Unknown"} Distribution`
         : "Shop Collection",
       subtitle: shopName,
       amount: Number(entry.amount),
@@ -115,20 +127,11 @@ export const LedgerSection = ({
   const totalPages = Math.ceil(allActivities.length / pageSize);
   const pagedActivities = allActivities.slice(
     (currentPage - 1) * pageSize,
-    (currentPage - 1) * pageSize + pageSize
+    (currentPage - 1) * pageSize + pageSize,
   );
 
   return (
     <div className="space-y-6">
-      <ActivityDataTable
-        title="Statement of Account (Ledger)"
-        activities={pagedActivities}
-        headers={tableHeaders}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        showPagination={true}
-      />
-
       {/* Ledger Footer (Totals) */}
       <div
         className="bg-[#E7F1F8] flex items-center md:justify-end border-t border-(--color-secondary-bg)"
@@ -181,6 +184,15 @@ export const LedgerSection = ({
           </p>
         </div>
       </div>
+
+      <ActivityDataTable
+        title="Statement of Account (Ledger)"
+        activities={pagedActivities}
+        headers={tableHeaders}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        showPagination={true}
+      />
     </div>
   );
 };

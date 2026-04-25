@@ -133,41 +133,6 @@ export default async function SalesmenPage() {
                       {NumberFormat(salesman.totalSales)}
                     </p>
                   </div>
-
-                  {(() => {
-                      const vals = salesman.dailySales;
-                      const maxVal = Math.max(...vals, 0);
-                      return (
-                        <div
-                          className="flex items-end"
-                          style={{
-                            gap: "clamp(2px, 0.4vw, 4px)",
-                            height: "clamp(24px, 4vw, 40px)",
-                          }}
-                        >
-                          {vals.map((v, i) => {
-                            // normalise: 4% minimum so zero-days still show a tiny bar
-                            const pct =
-                              maxVal === 0
-                                ? 4
-                                : Math.max(4, (v / maxVal) * 100);
-                            return (
-                              <div
-                                key={i}
-                                className="rounded-[1px]"
-                                style={{
-                                  width: "clamp(6px, 1vw, 11px)",
-                                  height: `${pct}%`,
-                                  backgroundColor: salesman.isActive
-                                    ? "#053B70"
-                                    : "#B8C9D8",
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      );
-                    })()}
                 </div>
               </div>
             ))

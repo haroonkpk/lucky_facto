@@ -218,21 +218,23 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
               <Link
                 href={`/owner/shop-detail/${shop.id}`}
                 key={shop.id}
-                className="w-full flex"
+                className="w-full flex group"
               >
                 <Card
                   variant="white"
-                  className="w-full flex flex-col md:flex-row md:items-center cursor-pointer"
+                  className="w-full flex flex-row items-center cursor-pointer"
                   style={{
                     padding: "clamp(12px, 1.5vw, 16px)",
                     borderRadius: "clamp(8px, 1vw, 12px)",
                   }}
                 >
+                  <div className="flex-1 flex flex-col md:flex-row md:items-center min-w-0">
                   <div className="flex items-center justify-between w-full md:w-[50%] shrink-0">
                     {/* Shop Details */}
                     <div
                       className="w-[70%] md:w-[70%] flex items-center shrink-0 pr-2 min-w-0"
                       style={{ gap: "clamp(8px, 1vw, 12px)" }}
+
                     >
                       <div
                         className="bg-[#F1F5F9] text-[#053B70] font-bold flex items-center justify-center shrink-0"
@@ -247,7 +249,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                       </div>
                       <div className="flex flex-col min-w-0">
                         <h3
-                          className="font-bold text-[#0F172A] truncate"
+                          className="font-bold text-[#0F172A] truncate group-hover:text-[#053B70] transition-colors"
                           style={{ fontSize: "clamp(12px, 1.5vw, 15px)" }}
                         >
                           {shop.name}
@@ -320,6 +322,14 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                       >
                         {formatPKR(Math.abs(shop.balanceOwed))}
                       </p>
+                    </div>
+                  </div>
+                </div>
+
+                  {/* Action Icon */}
+                  <div className="shrink-0 ml-2 md:ml-6 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-[#053B70] group-hover:text-white transition-all duration-300 border border-slate-100 group-hover:border-[#053B70]">
+                      <ChevronRight size={18} className="transition-transform group-hover:translate-x-0.5" />
                     </div>
                   </div>
                 </Card>

@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
-import { CalendarDays, X } from "lucide-react";
+import { CalendarDays, Loader2, X } from "lucide-react";
 import { Button, Input } from "@/components/ui";
 
 export function DateRangeFilter() {
@@ -47,7 +47,7 @@ export function DateRangeFilter() {
     searchParams.has("startDate") || searchParams.has("endDate");
 
   return (
-    <div className=" w-full max-w-xl flex flex-col sm:flex-row items-end justify-end gap-4 bg-white backdrop-blur-sm p-3 rounded-xl border border-white/20">
+    <div className=" w-full max-w-xl flex flex-col sm:flex-row items-end justify-end gap-4 cursor-pointer bg-white backdrop-blur-sm p-3 rounded-xl border border-white/20">
       <Input
         id="startDate"
         label="From"
@@ -74,8 +74,9 @@ export function DateRangeFilter() {
           icon={<CalendarDays size={16} />}
           onClick={handleApply}
           disabled={isPending}
+          className="cursor-pointer"
         >
-          {isPending ? "Filtering..." : "Apply"}
+          {isPending ? <div className="flex items-center gap-2"><Loader2 size={16} className="animate-spin" />{" "}Filtering...</div> : "Apply"}
         </Button>
 
         {hasFilter && (
