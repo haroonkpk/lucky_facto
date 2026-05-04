@@ -197,6 +197,7 @@ export const LedgerSection = ({
         currentPage={currentPage}
         totalPages={totalPages}
         showPagination={true}
+        pageSize={pageSize}
       />
     </div>
   );

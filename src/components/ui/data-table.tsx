@@ -27,6 +27,7 @@ interface DataTableProps<T extends { id: string }> {
   onPageChange: (page: number) => void;
   HeaderBgColor?: string;
   BorderColor?: string;
+  pageSize?: number;
 }
 
 export const DataTable = <T extends { id: string }>({
@@ -40,6 +41,7 @@ export const DataTable = <T extends { id: string }>({
   onPageChange,
   HeaderBgColor = "bg-[#FFE8D7]",
   BorderColor = "border-gray-200",
+  pageSize = 10,
 }: DataTableProps<T>) => {
   return (
     <Card variant={variant} className={cn("p-4", BorderColor)}>
@@ -55,6 +57,12 @@ export const DataTable = <T extends { id: string }>({
         <table className={`w-full border-collapse border ${BorderColor}`}>
           <thead className={`${HeaderBgColor} font-bold text-gray-900`}>
             <tr>
+              {/* Universal Serial Number Column */}
+              <th
+                className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-start text-[clamp(13px,1.2vw,14px)] font-bold whitespace-nowrap`}
+              >
+                #
+              </th>
               {TableHeaders.map((header) => (
                 <th
                   key={header.key}
@@ -75,11 +83,17 @@ export const DataTable = <T extends { id: string }>({
 
           <tbody>
             {TableData.length > 0 ? (
-              TableData.map((row) => (
+              TableData.map((row, index) => (
                 <tr
                   key={row.id}
                   className={`border ${BorderColor} hover:bg-gray-100 even:bg-gray-50`}
                 >
+                  {/* Universal Serial Number Cell */}
+                  <td
+                    className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-[clamp(13px,1.2vw,14px)] font-medium text-gray-500`}
+                  >
+                    {(currentPage - 1) * pageSize + index + 1}
+                  </td>
                   {TableHeaders.map((header) => (
                     <td
                       key={`${row.id}-${header.key}`}
@@ -111,7 +125,9 @@ export const DataTable = <T extends { id: string }>({
             ) : (
               <tr>
                 <td
-                  colSpan={TableHeaders.length + (TableButtons?.length ? 1 : 0)}
+                  colSpan={
+                    TableHeaders.length + 1 + (TableButtons?.length ? 1 : 0)
+                  }
                   className="py-6 text-center text-[clamp(13px,1.2vw,14px)] text-gray-500"
                 >
                   No data available

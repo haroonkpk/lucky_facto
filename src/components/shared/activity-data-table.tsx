@@ -17,6 +17,7 @@ interface ActivityDataTableProps {
   title?: string;
   showPagination?: boolean;
   showDelete?: boolean;
+  pageSize?: number;
 }
 
 export function ActivityDataTable({
@@ -27,6 +28,7 @@ export function ActivityDataTable({
   title = "Recent Activity",
   showPagination = true,
   showDelete = false,
+  pageSize = 10,
 }: ActivityDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -128,6 +130,7 @@ export function ActivityDataTable({
         onPageChange={handlePageChange}
         HeaderBgColor="bg-[#E5F0F6]"
         BorderColor="border-blue-100"
+        pageSize={pageSize}
         TableButtons={[
           {
             icon: <Eye size={18} />,

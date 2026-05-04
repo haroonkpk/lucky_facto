@@ -81,6 +81,7 @@ export function OverdueShopsTable({
         onPageChange={handlePageChange}
         HeaderBgColor="bg-[#FEF3C7]"
         BorderColor="border-amber-100"
+        pageSize={4}
       />
     </div>
   );

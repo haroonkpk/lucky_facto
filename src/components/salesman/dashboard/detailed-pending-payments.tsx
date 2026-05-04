@@ -78,6 +78,7 @@ export const DetailedPendingPayments = ({
         onPageChange={handlePageChange}
         HeaderBgColor="bg-[#FEF3C7]"
         BorderColor="border-amber-100"
+        pageSize={3}
       />
     </div>
   );
