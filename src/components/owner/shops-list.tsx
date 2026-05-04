@@ -279,9 +279,9 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between w-full md:w-[50%] shrink-0 pt-3 md:pt-0 mt-3 md:mt-0 border-t border-[#F1F5F9] md:border-none">
+                  <div className="flex items-centerz justify-between space-x-2 w-full md:w-[50%] shrink-0 pt-3 md:pt-0 mt-3 md:mt-0 border-t border-[#F1F5F9] md:border-none overflow-x-auto scrollbar-hide md:overflow-visible">
                     {/* Total Billing */}
-                    <div className="w-1/3 shrink-0 md:px-1 text-left md:text-right min-w-0">
+                    <div className="w-1/3 shrink-0 md:px-1 text-left md:text-right min-w-fit md:min-w-0">
                       <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
                         Total Billing
                       </p>
@@ -294,7 +294,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                     </div>
 
                     {/* Total Payments */}
-                    <div className="w-1/3 shrink-0 px-1 text-center md:text-right min-w-0">
+                    <div className="w-1/3 shrink-0 px-1 text-center md:text-right min-w-fit md:min-w-0">
                       <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
                         Total Payments
                       </p>
@@ -307,7 +307,7 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
                     </div>
 
                     {/* Balance Owed */}
-                    <div className="w-1/3 shrink-0 pl-1 text-right min-w-0">
+                    <div className="w-1/3 shrink-0 pl-1 text-right min-w-fit md:min-w-0">
                       <p className="text-[#94A3B8] font-bold text-[9px] uppercase tracking-widest md:hidden mb-0.5">
                         Balance Owed
                       </p>

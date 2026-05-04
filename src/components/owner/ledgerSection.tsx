@@ -134,54 +134,59 @@ export const LedgerSection = ({
     <div className="space-y-6">
       {/* Ledger Footer (Totals) */}
       <div
-        className="bg-[#E7F1F8] flex items-center md:justify-end border-t border-(--color-secondary-bg)"
+        className="bg-[#E7F1F8] flex items-center md:justify-end border-t border-(--color-secondary-bg) overflow-x-auto scrollbar-hide md:overflow-visible"
         style={{
           gap: "clamp(16px, 3vw, 48px)",
           padding: "clamp(16px, 3vw, 32px)",
           borderRadius: "clamp(12px, 2vw, 16px)",
         }}
       >
-        <div>
-          <p
-            className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
-          >
-            Total Payments
-          </p>
-          <p
-            className="font-extrabold text-[#28A745] tracking-tight"
-            style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
-          >
-            {formatPKR(metrics.totalPayments)}
-          </p>
-        </div>
-        <div>
-          <p
-            className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
-          >
-            Total Billing
-          </p>
-          <p
-            className="font-extrabold text-(--color-primary) tracking-tight"
-            style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
-          >
-            {formatPKR(metrics.totalBilling)}
-          </p>
-        </div>
-        <div>
-          <p
-            className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
-          >
-            Balance Owed
-          </p>
-          <p
-            className="font-extrabold text-(--color-pending) tracking-tight"
-            style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
-          >
-            {formatPKR(Math.abs(metrics.balanceOwed))}
-          </p>
+        <div
+          className="flex items-center min-w-max md:min-w-0"
+          style={{ gap: "clamp(16px, 3vw, 48px)" }}
+        >
+          <div>
+            <p
+              className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
+              style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
+            >
+              Total Payments
+            </p>
+            <p
+              className="font-extrabold text-[#28A745] tracking-tight"
+              style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
+            >
+              {formatPKR(metrics.totalPayments)}
+            </p>
+          </div>
+          <div>
+            <p
+              className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
+              style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
+            >
+              Total Billing
+            </p>
+            <p
+              className="font-extrabold text-(--color-primary) tracking-tight"
+              style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
+            >
+              {formatPKR(metrics.totalBilling)}
+            </p>
+          </div>
+          <div>
+            <p
+              className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
+              style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
+            >
+              Balance Owed
+            </p>
+            <p
+              className="font-extrabold text-(--color-pending) tracking-tight"
+              style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
+            >
+              {formatPKR(Math.abs(metrics.balanceOwed))}
+            </p>
+          </div>
         </div>
       </div>
 

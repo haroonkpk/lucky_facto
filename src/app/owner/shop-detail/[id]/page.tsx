@@ -35,9 +35,12 @@ export default async function ShopDetailsPage({
   const isDebt = metrics.totalPayments < metrics.totalBilling;
   const statusColor = isDebt ? "var(--color-pending)" : "#28A745";
   const statusBg = isDebt ? "var(--color-pending-bg)" : "#D4EDDA";
-  
-  const lastPaymentDaysAgo = metrics.lastPaymentDate 
-    ? Math.floor((new Date().getTime() - new Date(metrics.lastPaymentDate).getTime()) / (1000 * 60 * 60 * 24))
+
+  const lastPaymentDaysAgo = metrics.lastPaymentDate
+    ? Math.floor(
+        (new Date().getTime() - new Date(metrics.lastPaymentDate).getTime()) /
+          (1000 * 60 * 60 * 24),
+      )
     : null;
 
   return (
@@ -118,21 +121,28 @@ export default async function ShopDetailsPage({
             >
               Current Balance
             </p>
-            <Building2 size={24} style={{ color: statusColor }} className="opacity-40" />
+            <Building2
+              size={24}
+              style={{ color: statusColor }}
+              className="opacity-40"
+            />
           </div>
 
           <h2
             className="font-extrabold tracking-tight mb-5"
-            style={{ 
+            style={{
               fontSize: "clamp(32px, 5vw, 48px)",
-              color: statusColor
+              color: statusColor,
             }}
           >
             {formatPKR(Math.abs(metrics.balanceOwed))}
           </h2>
 
           <div className="pt-5 mt-auto flex flex-col gap-2">
-            <div className="flex items-center gap-2.5" style={{ color: statusColor }}>
+            <div
+              className="flex items-center gap-2.5"
+              style={{ color: statusColor }}
+            >
               {isDebt ? (
                 <AlertTriangle size={18} fill={statusBg} />
               ) : (
@@ -142,14 +152,18 @@ export default async function ShopDetailsPage({
                 className="font-bold"
                 style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
               >
-                {isDebt ? "Pending Debt" : metrics.balanceOwed < 0 ? "Advance Balance" : "Fully Paid"}
+                {isDebt
+                  ? "Pending Debt"
+                  : metrics.balanceOwed < 0
+                    ? "Advance Balance"
+                    : "Fully Paid"}
               </p>
             </div>
             <p
               className="text-[#64748B] font-medium pl-8"
               style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
             >
-              {lastPaymentDaysAgo !== null 
+              {lastPaymentDaysAgo !== null
                 ? `Last payment received ${lastPaymentDaysAgo === 0 ? "today" : `${lastPaymentDaysAgo} days ago`}`
                 : "No payments yet"}
             </p>
@@ -158,8 +172,11 @@ export default async function ShopDetailsPage({
       </div>
 
       {/* Ledger Section */}
-      <LedgerSection ledgers={shop.ledgers} metrics={metrics} shopName={shop.name} />
-      
+      <LedgerSection
+        ledgers={shop.ledgers}
+        metrics={metrics}
+        shopName={shop.name}
+      />
     </div>
   );
 }
