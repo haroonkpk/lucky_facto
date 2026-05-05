@@ -84,6 +84,7 @@ export default async function SalesmanDashboardPage({
               shops={pendingPayments.shops}
               totalPages={pendingPayments.totalPages as number}
               currentPage={pendingPayments.currentPage as number}
+              totalEntries={pendingPayments.shopCount}
             />
           ) : (
             <div className="bg-white rounded-[clamp(10px,1.5vw,16px)] p-[clamp(1.25rem,2vw,2rem)] flex items-center justify-center">

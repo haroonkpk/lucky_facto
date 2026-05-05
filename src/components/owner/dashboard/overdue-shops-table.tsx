@@ -17,12 +17,14 @@ interface OverdueShopsTableProps {
   shops: OverdueShop[];
   currentPage?: number;
   totalPages?: number;
+  totalEntries?: number;
 }
 
 export function OverdueShopsTable({
   shops,
   currentPage = 1,
   totalPages = 1,
+  totalEntries,
 }: OverdueShopsTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -82,6 +84,7 @@ export function OverdueShopsTable({
         HeaderBgColor="bg-[#FEF3C7]"
         BorderColor="border-amber-100"
         pageSize={4}
+        totalEntries={totalEntries}
       />
     </div>
   );

@@ -14,12 +14,14 @@ interface DetailedPendingPaymentsProps {
   }[];
   currentPage: number;
   totalPages: number;
+  totalEntries?: number;
 }
 
 export const DetailedPendingPayments = ({
   shops,
   currentPage,
   totalPages,
+  totalEntries,
 }: DetailedPendingPaymentsProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -79,6 +81,7 @@ export const DetailedPendingPayments = ({
         HeaderBgColor="bg-[#FEF3C7]"
         BorderColor="border-amber-100"
         pageSize={3}
+        totalEntries={totalEntries}
       />
     </div>
   );

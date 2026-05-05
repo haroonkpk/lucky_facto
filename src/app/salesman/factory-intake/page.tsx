@@ -84,6 +84,7 @@ export default async function FactoryIntakePage({ searchParams }: PageProps) {
                 activities={activityData.activities}
                 currentPage={activityData.currentPage}
                 totalPages={activityData.totalPages}
+                totalEntries={activityData.total}
                 title="Intake Logs"
                 showDelete={true}
                 headers={[

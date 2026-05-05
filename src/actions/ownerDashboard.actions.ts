@@ -471,6 +471,7 @@ export async function getOwnerDashboardData(
     overduePagination: {
       currentPage: overduePage,
       totalPages: totalOverduePages,
+      totalEntries: totalOverdueShops,
     },
     activities,
   };

@@ -28,6 +28,7 @@ interface DataTableProps<T extends { id: string }> {
   HeaderBgColor?: string;
   BorderColor?: string;
   pageSize?: number;
+  totalEntries?: number;
 }
 
 export const DataTable = <T extends { id: string }>({
@@ -42,6 +43,7 @@ export const DataTable = <T extends { id: string }>({
   HeaderBgColor = "bg-[#FFE8D7]",
   BorderColor = "border-gray-200",
   pageSize = 10,
+  totalEntries,
 }: DataTableProps<T>) => {
   return (
     <Card variant={variant} className={cn("p-4", BorderColor)}>
@@ -138,47 +140,66 @@ export const DataTable = <T extends { id: string }>({
         </table>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
+      {/* Pagination & Total Stats */}
+      {TableData.length > 0 && (
         <div
           className={`flex flex-col items-center justify-between gap-2 border-t ${BorderColor} bg-white p-3 sm:flex-row`}
         >
-          <div className="text-[clamp(12px,1.1vw,13px)] text-gray-600">
-            Page {currentPage} of {totalPages}
-          </div>
-          <div className="flex gap-1">
-            <button
-              onClick={() => onPageChange(1)}
-              disabled={currentPage === 1}
-              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
-            >
-              «
-            </button>
-            <button
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
-            >
-              ‹
-            </button>
-            <span className="mx-1 rounded-md bg-[#FF6A00] px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-white">
-              {currentPage}
+          <div className="text-[clamp(12px,1.1vw,13px)] text-gray-600 flex items-center gap-2">
+            <span>
+              Page {currentPage} of {totalPages}
             </span>
-            <button
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage >= totalPages}
-              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
-            >
-              ›
-            </button>
-            <button
-              onClick={() => onPageChange(totalPages)}
-              disabled={currentPage >= totalPages}
-              className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
-            >
-              »
-            </button>
+            {totalEntries !== undefined ? (
+              <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-100 ">
+                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Total</span>
+                <span className="font-bold text-black leading-none">
+                  #{totalEntries}
+                </span>
+              </div>
+            ) : totalPages <= 1 && TableData.length > 0 ? (
+              <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-sm border border-gray-100 ">
+                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Total</span>
+                <span className="font-bold text-black leading-none">
+                  #{TableData.length}
+                </span>
+              </div>
+            ) : null}
           </div>
+          {totalPages > 1 && (
+            <div className="flex gap-1">
+              <button
+                onClick={() => onPageChange(1)}
+                disabled={currentPage === 1}
+                className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              >
+                «
+              </button>
+              <button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              >
+                ‹
+              </button>
+              <span className="mx-1 rounded-md bg-[#FF6A00] px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-white">
+                {currentPage}
+              </span>
+              <button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              >
+                ›
+              </button>
+              <button
+                onClick={() => onPageChange(totalPages)}
+                disabled={currentPage >= totalPages}
+                className="mx-1 rounded-md bg-gray-100 px-[clamp(10px,1vw,12px)] py-[clamp(5px,0.5vw,6px)] text-[clamp(12px,1.1vw,13px)] font-medium text-gray-800 hover:bg-gray-200 disabled:opacity-50"
+              >
+                »
+              </button>
+            </div>
+          )}
         </div>
       )}
     </Card>

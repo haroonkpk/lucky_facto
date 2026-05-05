@@ -18,6 +18,7 @@ interface ActivityDataTableProps {
   showPagination?: boolean;
   showDelete?: boolean;
   pageSize?: number;
+  totalEntries?: number;
 }
 
 export function ActivityDataTable({
@@ -29,6 +30,7 @@ export function ActivityDataTable({
   showPagination = true,
   showDelete = false,
   pageSize = 10,
+  totalEntries,
 }: ActivityDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -131,6 +133,7 @@ export function ActivityDataTable({
         HeaderBgColor="bg-[#E5F0F6]"
         BorderColor="border-blue-100"
         pageSize={pageSize}
+        totalEntries={totalEntries}
         TableButtons={[
           {
             icon: <Eye size={18} />,

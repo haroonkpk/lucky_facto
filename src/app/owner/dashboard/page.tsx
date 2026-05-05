@@ -147,6 +147,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             shops={data.overdueShopsList}
             currentPage={data.overduePagination.currentPage}
             totalPages={data.overduePagination.totalPages}
+            totalEntries={data.overduePagination.totalEntries}
           />
         </section>
       </div>
