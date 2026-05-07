@@ -115,7 +115,7 @@ export function RegisterSalesmanForm({
             <Input
               id="password"
               name="password"
-              label="Temporary Password"
+              label="Password"
               type="password"
               required
               placeholder="Min. 6 characters"
