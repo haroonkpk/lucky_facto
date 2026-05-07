@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -110,5 +111,7 @@ export async function registerSalesmanAction(
     return { success: false, error: message };
   }
 
+  revalidatePath("/owner/salesman-management");
+  revalidatePath("/owner/dashboard");
   return { success: true, error: null };
 }
