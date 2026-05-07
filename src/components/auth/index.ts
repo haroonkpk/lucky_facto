@@ -2,3 +2,4 @@ export * from './forgot-password-form';
 export * from './logout-button';
 export * from './sign-up-form';
 export * from './update-password-form';
+export * from './delete-salesman-button';

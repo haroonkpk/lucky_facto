@@ -115,3 +115,39 @@ export async function registerSalesmanAction(
   revalidatePath("/owner/dashboard");
   return { success: true, error: null };
 }
+
+export async function deleteSalesmanAction(userId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user: callerUser },
+    error: sessionError,
+  } = await supabase.auth.getUser();
+
+  if (sessionError || !callerUser) {
+    return { success: false, error: "Unauthorized: no active session." };
+  }
+
+  if (callerUser.user_metadata?.role !== "OWNER") {
+    return { success: false, error: "Unauthorized: only Owners can delete salesmen." };
+  }
+
+  const adminClient = createAdminClient();
+
+  try {
+    await prisma.user.delete({
+      where: { id: userId },
+    });
+
+    const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
+    if (deleteError) {
+      throw new Error(deleteError.message);
+    }
+
+    revalidatePath("/owner/salesman-management");
+    revalidatePath("/owner/dashboard");
+    return { success: true, error: null };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to delete salesman. They may have related records.";
+    return { success: false, error: message };
+  }
+}

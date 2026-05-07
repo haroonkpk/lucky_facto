@@ -1,5 +1,5 @@
 import { getSalesmen } from "@/actions/owner.actions";
-import { RegisterSalesmanForm } from "@/components/auth";
+import { RegisterSalesmanForm, DeleteSalesmanButton } from "@/components/auth";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -114,10 +114,10 @@ export default async function SalesmenPage() {
                   </div>
                 </div>
 
-                {/* Stats */}
+                {/* Stats & Actions */}
                 <div
-                  className="flex flex-col sm:flex-row items-end shrink-0"
-                  style={{ gap: "clamp(10px, 2vw, 20px)" }}
+                  className="flex flex-col sm:flex-row items-center shrink-0"
+                  style={{ gap: "clamp(12px, 2.5vw, 24px)" }}
                 >
                   <div className="text-right">
                     <p
@@ -133,6 +133,13 @@ export default async function SalesmenPage() {
                       {NumberFormat(salesman.totalSales)}
                     </p>
                   </div>
+
+                  <div className="border-l border-gray-200 h-10 mx-1 hidden sm:block" />
+
+                  <DeleteSalesmanButton
+                    userId={salesman.id}
+                    userName={salesman.name}
+                  />
                 </div>
               </div>
             ))

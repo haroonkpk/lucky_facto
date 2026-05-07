@@ -85,7 +85,7 @@ export async function getSalesmen(): Promise<SalesmanWithStats[]> {
   const [salesmen, totalSalesAgg, last7DaysDistributions] = await Promise.all([
     prisma.user.findMany({
       where: { role: Role.SALESMAN },
-      orderBy: { createdAt: "asc" },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.distribution.groupBy({
       by: ["recordedById"],
