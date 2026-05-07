@@ -135,6 +135,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             activities={data.activities}
             title="Latest 10 Activity"
             showPagination={false}
+            totalEntries={data.activities.length}
             headers={[
               { key: "date", label: "Date(DD/MM/YYYY)" },
               { key: "subtitle", label: "Target/Shop" },

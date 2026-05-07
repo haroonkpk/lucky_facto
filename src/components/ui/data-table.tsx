@@ -146,19 +146,25 @@ export const DataTable = <T extends { id: string }>({
           className={`flex flex-col items-center justify-between gap-2 border-t ${BorderColor} bg-white p-3 sm:flex-row`}
         >
           <div className="text-[clamp(12px,1.1vw,13px)] text-gray-600 flex items-center gap-2">
-            <span>
-              Page {currentPage} of {totalPages}
-            </span>
+            {totalPages > 0 && (
+              <span>
+                Page {currentPage} of {totalPages}
+              </span>
+            )}
             {totalEntries !== undefined ? (
               <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-xs border border-gray-100 ">
-                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Total</span>
+                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">
+                  Total
+                </span>
                 <span className="font-bold text-black leading-none">
                   #{totalEntries}
                 </span>
               </div>
-            ) : totalPages <= 1 && TableData.length > 0 ? (
+            ) : TableData.length > 0 ? (
               <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-sm border border-gray-100 ">
-                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">Total</span>
+                <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">
+                  Total
+                </span>
                 <span className="font-bold text-black leading-none">
                   #{TableData.length}
                 </span>

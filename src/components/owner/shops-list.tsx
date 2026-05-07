@@ -166,16 +166,14 @@ export function ShopsList({ shops, regions }: ShopsListProps) {
           >
             Registered Shops
           </h2>
-          <span
-            className="bg-[#D1E3EF] text-[#0A2540] font-bold uppercase tracking-wider"
-            style={{
-              fontSize: "clamp(8px, 1vw, 11px)",
-              padding: "clamp(3px, 0.6vw, 6px) clamp(6px, 1vw, 10px)",
-              borderRadius: "clamp(4px, 1vw, 6px)",
-            }}
-          >
-            {filtered.length} Total Units
-          </span>
+          <div className="flex items-center gap-1.5 bg-gray-50 px-2.5 py-1 rounded-sm border border-gray-100 ">
+            <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">
+              Total
+            </span>
+            <span className="font-bold text-black leading-none">
+              #{filtered.length}
+            </span>
+          </div>
         </div>
 
         {/* Column Headers */}

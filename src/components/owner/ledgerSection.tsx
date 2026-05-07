@@ -196,6 +196,7 @@ export const LedgerSection = ({
         headers={tableHeaders}
         currentPage={currentPage}
         totalPages={totalPages}
+        totalEntries={allActivities.length}
         showPagination={true}
         pageSize={pageSize}
       />

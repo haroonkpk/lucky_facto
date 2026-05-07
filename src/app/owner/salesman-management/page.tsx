@@ -17,13 +17,23 @@ export default async function SalesmenPage() {
   return (
     <div className="min-h-screen bg-(--color-page-bg) p-3 mb-20 lg:p-10">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Team Management
-        </h1>
-        <p className="text-gray-500">
-          Monitoring {salesmen.length} registered salesmen across key regions.
-        </p>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Team Management
+          </h1>
+          <p className="text-gray-500">
+            Monitoring registered salesmen across key regions.
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-sm border border-gray-200 ">
+          <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">
+            Total
+          </span>
+          <span className="font-bold text-black leading-none">
+            #{salesmen.length}
+          </span>
+        </div>
       </div>
 
       {/* Main Layout */}
