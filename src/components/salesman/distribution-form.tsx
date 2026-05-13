@@ -88,12 +88,8 @@ export const DistributionForm = ({
       >
         <div className={cn( isOpen ? "block" : "hidden")}>
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-            Issue Distribution
+            Add Distribution
           </h2>
-          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-            Authorize inventory release and update the retail shop&rsquo;s liability
-            ledger.
-          </p>
         </div>
 
         {/* Toggle button */}
@@ -234,7 +230,7 @@ export const DistributionForm = ({
             className="w-full mt-4 h-12"
             disabled={isPending || isOverStock || (selectedBrandId !== "" && availableStock <= 0)}
           >
-            {isPending ? "Synchronizing Entries..." : isOverStock ? "Insufficient Stock" : "Authorize Distribution"}
+            {isPending ? "Loading..." : isOverStock ? "Insufficient Stock" : "Submit"}
           </Button>
         </div>
       </form>

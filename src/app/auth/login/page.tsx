@@ -25,9 +25,7 @@ export default function Page() {
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
             Login
           </h2>
-          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-            Enter your email below to login to your account
-          </p>
+
         </div>
 
         <form action={formAction}>
@@ -67,7 +65,7 @@ export default function Page() {
             )}
 
             <Button type="submit" className="w-full mt-2" disabled={isPending}>
-              {isPending ? "Logging in..." : "Login"}
+              {isPending ? "Loading..." : "Submit"}
             </Button>
           </div>
         </form>

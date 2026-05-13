@@ -92,14 +92,14 @@ export const DataTable = <T extends { id: string }>({
                 >
                   {/* Universal Serial Number Cell */}
                   <td
-                    className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-[clamp(13px,1.2vw,14px)] font-medium text-gray-500`}
+                    className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-[clamp(13px,1.2vw,14px)] font-medium text-gray-500 whitespace-nowrap`}
                   >
                     {(currentPage - 1) * pageSize + index + 1}
                   </td>
                   {TableHeaders.map((header) => (
                     <td
                       key={`${row.id}-${header.key}`}
-                      className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-[clamp(13px,1.2vw,14px)]`}
+                      className={`border ${BorderColor} px-[clamp(12px,1.5vw,16px)] py-[clamp(10px,1vw,12px)] text-[clamp(13px,1.2vw,14px)] whitespace-nowrap`}
                     >
                       {row[header.key as keyof T] as React.ReactNode}
                     </td>

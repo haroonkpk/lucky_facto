@@ -58,11 +58,8 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
       >
         <div className={cn( isOpen ? "block" : "hidden")}>
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-            Stock Submission
+            Add Stock
           </h2>
-          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-            Enter factory shipment details to synchronize physical inventory.
-          </p>
         </div>
 
         {/* Toggle button */}
@@ -146,7 +143,7 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
 
             {/* Submit */}
             <Button type="submit" className="w-full mt-2" disabled={isPending}>
-              {isPending ? "Recording Submission..." : "Complete Submission"}
+              {isPending ? "Loading..." : "Submit"}
             </Button>
           </div>
         </form>

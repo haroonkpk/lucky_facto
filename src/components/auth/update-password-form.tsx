@@ -36,9 +36,6 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
         {/* Header Section */}
         <div className="flex flex-col space-y-1.5">
           <h3 className="font-semibold tracking-tight text-2xl">Update Password</h3>
-          <p className="text-sm text-muted-foreground">
-            Please enter your new password below.
-          </p>
         </div>
 
         {/* Form Section */}
@@ -59,7 +56,7 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
               {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
               
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Saving...' : 'Save new password'}
+                {isLoading ? 'Loading...' : 'Submit'}
               </Button>
             </div>
           </form>

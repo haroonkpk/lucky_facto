@@ -93,10 +93,10 @@ export default async function DistributionPage({ searchParams }: PageProps) {
                 totalEntries={activityData.total}
                 showDelete={true}
                 headers={[
-                  { key: "date", label: "Date(DD/MM/YYYY)" },
-                  { key: "subtitle", label: "Target/Shop" },
-                  { key: "title", label: "Type/Activity" },
-                  { key: "details", label: "Details/Qty" },
+                  { key: "date", label: "Date" },
+                  { key: "subtitle", label: "Shop" },
+                  { key: "title", label: "Distribution" },
+                  { key: "details", label: "bags" },
                   { key: "amount", label: "Amount" },
                 ]}
               />

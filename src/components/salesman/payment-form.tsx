@@ -105,11 +105,8 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
       >
         <div className={cn(isOpen ? "block" : "hidden")}>
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-            Record Payment
+            Add Payment
           </h2>
-          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-            Log financial transactions and update client ledgers instantly.
-          </p>
         </div>
 
         {/* Toggle button */}
@@ -270,7 +267,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
               className="w-full mt-4 h-12"
               disabled={isPending}
             >
-              {isPending ? "Recording Transaction..." : "Submit Payment Entry"}
+              {isPending ? "Loading..." : "Submit"}
             </Button>
           </div>
         </form>

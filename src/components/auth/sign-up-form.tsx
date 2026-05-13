@@ -52,11 +52,8 @@ export function RegisterSalesmanForm({
         {/* Title */}
         <div className={cn("xl:block", isOpen ? "block" : "hidden")}>
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-            Register Salesman
+            Add Salesman
           </h2>
-          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-            Add a new salesman account to the team.
-          </p>
         </div>
 
         {/* Toggle button */}
@@ -129,7 +126,7 @@ export function RegisterSalesmanForm({
             )}
 
             <Button type="submit" className="w-full mt-2" disabled={isPending}>
-              {isPending ? "Registering..." : "Register Salesman"}
+              {isPending ? "Loading..." : "Submit"}
             </Button>
           </div>
         </form>
