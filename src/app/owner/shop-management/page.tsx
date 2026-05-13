@@ -15,16 +15,9 @@ export default async function ShopsPage() {
     <div className="min-h-screen bg-(--color-page-bg) mb-20 p-3 lg:p-10">
       {/* Header */}
       <div className="mb-8">
-        <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">
-          Distribution Network
-        </p>
         <h1 className="text-3xl font-bold text-[#0A2540] mb-2">
-          Shop Management
+          Shops
         </h1>
-        <p className="text-gray-500 text-[clamp(14px,1vw,16px)]">
-          Orchestrate your distribution reach across regional hubs with
-          precision ledger tracking.
-        </p>
       </div>
 
       {/* Main Layout */}

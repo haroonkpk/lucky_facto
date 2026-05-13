@@ -46,17 +46,11 @@ export default async function DashboardPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex items-start justify-between p-2 sm:p-0 gap-4 mb-[clamp(1.5rem,3vw,2.5rem)]">
         <div className="min-w-0">
-          <p
-            className="text-[#64748B] font-bold uppercase tracking-widest mb-1"
-            style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
-          >
-            Tracking & Analytics
-          </p>
           <h1
             className="text-[#0A2540] font-bold truncate leading-tight"
             style={{ fontSize: "clamp(1.3rem, 4.5vw, 2.5rem)" }}
           >
-            Owner Dashboard
+            Dashboard
           </h1>
         </div>
         <div className="shrink-0 pt-2">
@@ -85,11 +79,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 className="text-[#053B70] font-bold"
                 style={{ fontSize: "clamp(16px, 2.2vw, 20px)" }}
               >
-                Performance Metrics
+                Performance
               </h2>
-              <p className="text-[#64748B] text-sm font-medium mt-0.5">
-                Filtered analysis of distributions and collections
-              </p>
             </div>
             <DateRangeFilter />
           </div>
@@ -110,14 +101,8 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                   className="font-bold text-[#0A2540]"
                   style={{ fontSize: "clamp(1.125rem, 1.5vw, 1.25rem)" }}
                 >
-                  Sales vs Payments Trend
+                  Sales Trend
                 </h3>
-                <p
-                  className="text-[#94A3B8] mt-1"
-                  style={{ fontSize: "clamp(0.8rem, 1.2vw, 0.9rem)" }}
-                >
-                  Comparative analysis for selected period
-                </p>
               </div>
               <div className="flex-1 min-h-75 mt-6">
                 <DashboardChart data={data.chartData} />

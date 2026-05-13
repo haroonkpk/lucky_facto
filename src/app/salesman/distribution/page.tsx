@@ -54,16 +54,9 @@ export default async function DistributionPage({ searchParams }: PageProps) {
     <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24 relative">
       {/* Page Header */}
       <div className="mb-8 p-2">
-        <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">
-          Revenue & Logistics
-        </p>
         <h1 className="text-3xl font-bold text-[#0A2540] mb-2">
-          New Distribution
+          Distribution
         </h1>
-        <p className="text-gray-500 text-[clamp(14px,1vw,16px)]">
-          Authorize stock delivery to shops and record immediate ledger entries
-          for accurate billing.
-        </p>
       </div>
 
       {/* Main Layout */}
@@ -74,11 +67,8 @@ export default async function DistributionPage({ searchParams }: PageProps) {
             <div className="flex flex-col justify-between items-start gap-4 px-1">
               <div>
                 <h2 className="text-[#053B70] font-bold text-xl">
-                  Distributions
+                  History
                 </h2>
-                <p className="text-[#64748B] text-sm font-medium mt-0.5">
-                  History of items recorded by you
-                </p>
               </div>
               <div className="w-full flex justify-end ">
                 <DateRangeFilter />
