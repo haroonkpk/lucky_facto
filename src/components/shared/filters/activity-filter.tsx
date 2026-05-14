@@ -18,6 +18,8 @@ interface ActivityFilterProps {
   showShopFilter?: boolean;
   /** Show payment type filter (Factory Payment / Shop Collection) */
   showPaymentTypeFilter?: boolean;
+  /** Show transaction type filter (Distributions / Payments) */
+  showTransactionTypeFilter?: boolean;
   /** Brands list passed from server component */
   brands?: FilterOption[];
   /** Shops list passed from server component */
@@ -28,6 +30,7 @@ export function ActivityFilter({
   showBrandFilter = false,
   showShopFilter = false,
   showPaymentTypeFilter = false,
+  showTransactionTypeFilter = false,
   brands = [],
   shops = [],
 }: ActivityFilterProps) {
@@ -53,6 +56,9 @@ export function ActivityFilter({
   const [paymentType, setPaymentType] = useState(
     searchParams.get("paymentType") || "",
   );
+  const [transactionType, setTransactionType] = useState(
+    searchParams.get("transactionType") || "",
+  );
   const [brandId, setBrandId] = useState(searchParams.get("brandId") || "");
   const [shopId, setShopId] = useState(searchParams.get("shopId") || "");
 
@@ -63,6 +69,9 @@ export function ActivityFilter({
 
     if (showPaymentTypeFilter && paymentType) params.set("paymentType", paymentType);
     else params.delete("paymentType");
+
+    if (showTransactionTypeFilter && transactionType) params.set("transactionType", transactionType);
+    else params.delete("transactionType");
 
     if (showBrandFilter && brandId) params.set("brandId", brandId);
     else params.delete("brandId");
@@ -81,6 +90,7 @@ export function ActivityFilter({
     setStartDate(formatDate(defaultStart));
     setEndDate(formatDate(defaultEnd));
     setPaymentType("");
+    setTransactionType("");
     setBrandId("");
     setShopId("");
     startTransition(() => {
@@ -92,6 +102,7 @@ export function ActivityFilter({
     searchParams.has("startDate") ||
     searchParams.has("endDate") ||
     searchParams.has("paymentType") ||
+    searchParams.has("transactionType") ||
     searchParams.has("brandId") ||
     searchParams.has("shopId");
 
@@ -135,7 +146,7 @@ export function ActivityFilter({
           value={startDate}
           max={formatDate(now)}
           onChange={(e) => setStartDate(e.target.value)}
-          className="bg-white "
+          className="bg-white"
         />
 
         <Input
@@ -163,6 +174,21 @@ export function ActivityFilter({
               { value: "", label: "All Payments" },
               { value: "FACTORY_PAYMENT", label: "Factory Payment" },
               { value: "SHOP_COLLECTION", label: "Shop Collection" },
+            ]}
+            className="bg-white"
+          />
+        )}
+
+        {showTransactionTypeFilter && (
+          <Select
+            id="transactionType"
+            label="Type"
+            value={transactionType}
+            onChange={(e) => setTransactionType(e.target.value)}
+            options={[
+              { value: "", label: "All History" },
+              { value: "DEBIT", label: "Distributions" },
+              { value: "CREDIT", label: "Payments" },
             ]}
             className="bg-white"
           />

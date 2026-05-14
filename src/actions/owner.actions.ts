@@ -195,7 +195,7 @@ export async function getShopLedgerData(
   startDate?: Date,
   endDate?: Date,
   brandId?: string,
-  paymentType?: string,
+  transactionType?: string,
 ) {
   const globalWhere = { shopId };
   const ledgerWhere: any = { shopId };
@@ -217,8 +217,8 @@ export async function getShopLedgerData(
     ];
   }
 
-  if (paymentType) {
-    ledgerWhere.payment = { ...ledgerWhere.payment, type: paymentType };
+  if (transactionType) {
+    ledgerWhere.transactionType = transactionType;
   }
 
   const [shop, aggregates, lastPaymentEntry] = await Promise.all([

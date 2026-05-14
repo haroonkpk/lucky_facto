@@ -31,7 +31,7 @@ export async function generateMetadata({
     startDate,
     endDate,
     resolvedSearchParams.brandId as string,
-    resolvedSearchParams.paymentType as string,
+    resolvedSearchParams.transactionType as string,
   );
 
   return {
@@ -64,7 +64,7 @@ export default async function ShopDetailsPage({
       startDate,
       endDate,
       resolvedSearchParams.brandId as string,
-      resolvedSearchParams.paymentType as string,
+      resolvedSearchParams.transactionType as string,
     ),
     getBrands(),
   ]);
@@ -250,7 +250,7 @@ export default async function ShopDetailsPage({
           <div className="w-full">
             <ActivityFilter
               showBrandFilter
-              showPaymentTypeFilter
+              showTransactionTypeFilter
               brands={brands}
             />
           </div>
