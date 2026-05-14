@@ -104,6 +104,16 @@ export function ActivityDataTable({
         d.label.toLowerCase().includes("method"),
     );
 
+    const regionDetail = activity.details.find(
+      (d) => d.label.toLowerCase() === "region",
+    );
+    const brandDetail = activity.details.find(
+      (d) => d.label.toLowerCase() === "brand",
+    );
+    const vehicleDetail = activity.details.find(
+      (d) => d.label.toLowerCase().includes("vehicle"),
+    );
+
     return {
       id: activity.id,
       date: new Date(activity.date).toLocaleDateString("en-GB", {
@@ -114,6 +124,9 @@ export function ActivityDataTable({
       title: activity.title,
       subtitle: targetDetail?.value?.toString() || activity.subtitle || "—",
       details: quantityDetail?.value?.toString() || "—",
+      brand: brandDetail?.value?.toString() || "—",
+      region: regionDetail?.value?.toString() || "—",
+      vehicle: vehicleDetail?.value?.toString() || "—",
       amount:
         activity.amount && activity.amount > 0
           ? formatPKR(activity.amount)

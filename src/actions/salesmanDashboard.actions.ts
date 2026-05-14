@@ -147,7 +147,7 @@ export async function getSalesmanLatestActivity(
       orderBy: { createdAt: "desc" },
       take: 10,
       include: {
-        shop: { select: { name: true } },
+        shop: { select: { name: true, region: { select: { name: true } } } },
         distribution: {
           include: {
             brand: { select: { name: true } },
@@ -156,6 +156,8 @@ export async function getSalesmanLatestActivity(
         },
         payment: {
           include: {
+            brand: { select: { name: true } },
+            shop: { include: { region: { select: { name: true } } } },
             recordedBy: { select: { name: true, role: true } },
           },
         },
@@ -205,6 +207,7 @@ export async function getSalesmanLatestActivity(
             { label: "Quantity", value: `${d.quantity} bags` },
             { label: "Unit Price", value: Number(d.unitPrice) },
             { label: "Shop", value: entry.shop.name },
+            { label: "Region", value: entry.shop?.region?.name || "N/A" },
             { label: "Recorded By", value: recordedBy?.name ?? "System" },
             { label: "Notes", value: d.notes || "None" },
           ],
@@ -242,6 +245,8 @@ export async function getSalesmanLatestActivity(
           },
           { label: "Amount", value: Number(entry.amount) },
           { label: "Shop", value: entry.shop.name },
+          { label: "Region", value: entry.shop?.region?.name || "N/A" },
+          { label: "Brand", value: p?.brand?.name || "N/A" },
           { label: "Recorded By", value: recordedBy?.name ?? "System" },
           { label: "Remarks", value: p?.cashNote || "None" },
         ],
@@ -254,7 +259,7 @@ export async function getSalesmanLatestActivity(
       type: "intake" as const,
       title: "Factory Intake",
       subtitle: `${i.brand.name} stock increase`,
-      amount: 0,
+      amount: i.unitPrice ? Number(i.unitPrice) * i.quantity : 0,
       date: i.createdAt.toISOString(),
       recordedBy: i.recordedBy?.name ?? "System",
       role: i.recordedBy?.role ?? "SALESMAN",
@@ -272,6 +277,8 @@ export async function getSalesmanLatestActivity(
         },
         { label: "Brand", value: i.brand.name },
         { label: "Quantity", value: `${i.quantity} bags` },
+        { label: "Unit Price", value: i.unitPrice ? Number(i.unitPrice) : 0 },
+        { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
         { label: "Recorded By", value: i.recordedBy?.name ?? "System" },
         { label: "Notes", value: i.notes ?? "None" },
       ],
@@ -342,7 +349,7 @@ export async function getFilteredActivities({
             take: type ? pageSize : 10,
             include: {
               brand: { select: { name: true } },
-              shop: { select: { name: true } },
+              shop: { include: { region: { select: { name: true } } } },
               recordedBy: { select: { name: true, role: true } },
             },
           })
@@ -354,7 +361,8 @@ export async function getFilteredActivities({
             skip: type ? skip : 0,
             take: type ? pageSize : 10,
             include: {
-              shop: { select: { name: true } },
+              brand: { select: { name: true } },
+              shop: { include: { region: { select: { name: true } } } },
               recordedBy: { select: { name: true, role: true } },
             },
           })
@@ -406,6 +414,7 @@ export async function getFilteredActivities({
         { label: "Quantity", value: `${d.quantity} bags` },
         { label: "Unit Price", value: Number(d.unitPrice) },
         { label: "Shop", value: d.shop.name },
+        { label: "Region", value: d.shop?.region?.name || "N/A" },
         { label: "Recorded By", value: d.recordedBy?.name || "System" },
         { label: "Notes", value: d.notes || "None" },
       ],
@@ -438,6 +447,8 @@ export async function getFilteredActivities({
         { label: "Method", value: p.paymentMethod.replace("_", " ") },
         { label: "Amount", value: Number(p.amount) },
         { label: "Shop", value: p.shop?.name || "Factory" },
+        { label: "Region", value: p.shop?.region?.name || "N/A" },
+        { label: "Brand", value: p.brand?.name || "N/A" },
         { label: "Recorded By", value: p.recordedBy?.name || "System" },
         { label: "Remarks", value: p.cashNote || "None" },
       ],
@@ -448,7 +459,7 @@ export async function getFilteredActivities({
       type: "intake" as const,
       title: "Factory Intake",
       subtitle: `${i.brand.name} stock increase`,
-      amount: 0,
+      amount: i.unitPrice ? Number(i.unitPrice) * i.quantity : 0,
       date: i.createdAt.toISOString(),
       recordedBy: i.recordedBy?.name || "System",
       role: i.recordedBy?.role || "SALESMAN",
@@ -466,6 +477,8 @@ export async function getFilteredActivities({
         },
         { label: "Brand", value: i.brand.name },
         { label: "Quantity", value: `${i.quantity} bags` },
+        { label: "Unit Price", value: i.unitPrice ? Number(i.unitPrice) : 0 },
+        { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
         { label: "Recorded By", value: i.recordedBy?.name || "System" },
         { label: "Notes", value: i.notes || "None" },
       ],

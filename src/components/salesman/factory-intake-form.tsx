@@ -99,38 +99,61 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
             <Select
               id="brandId"
               name="brandId"
-              label="Product Brand"
+              label="Brand"
               options={brandOptions}
               required
               className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
 
-            <Input
-              id="quantity"
-              name="quantity"
-              label="Total Quantity"
-              type="number"
-              placeholder="0"
-              required
-              min="1"
-              className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                id="quantity"
+                name="quantity"
+                label="Total Quantity"
+                type="number"
+                placeholder="0"
+                required
+                min="1"
+                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+              />
 
-            <Input
-              id="intakeDate"
-              name="intakeDate"
-              label="Date of Intake"
-              type="date"
-              defaultValue={new Date().toISOString().split("T")[0]}
-              required
-              className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
-            />
+              <Input
+                id="unitPrice"
+                name="unitPrice"
+                label="Unit Price"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                id="vehicleNumber"
+                name="vehicleNumber"
+                label="Vehicle Number"
+                type="text"
+                placeholder="ABC-123"
+                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+              />
+
+              <Input
+                id="intakeDate"
+                name="intakeDate"
+                label="Date"
+                type="date"
+                defaultValue={new Date().toISOString().split("T")[0]}
+                required
+                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+              />
+            </div>
 
             <Textarea
               id="notes"
               name="notes"
-              label="Inventory Notes"
-              placeholder="Batch numbers, quality notes, etc..."
+              label="Notes"
+              placeholder="Notes"
               className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
 

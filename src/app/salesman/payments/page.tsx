@@ -1,4 +1,4 @@
-import { getShops, getBrands } from "@/actions/salesman.actions";
+import { getShops, getBrands, getRegions } from "@/actions/salesman.actions";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -32,9 +32,10 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
 
   if (!user) return null;
 
-  const [shops, brands, activityData] = await Promise.all([
+  const [shops, brands, regions, activityData] = await Promise.all([
     getShops(),
     getBrands(),
+    getRegions(),
     getFilteredActivities({
       userId: user.id,
       type: "payment",
@@ -89,6 +90,8 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
                 showDelete={true}
                 headers={[
                   { key: "date", label: "Date" },
+                  { key: "region", label: "Region" },
+                  { key: "brand", label: "Brand" },
                   { key: "subtitle", label: "Method" },
                   { key: "title", label: "Type" },
                   { key: "amount", label: "Amount" },
@@ -100,7 +103,7 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
 
         {/* ── LEFT: Payment Form ── */}
         <div className="w-full xl:w-fit">
-          <PaymentForm shops={shops} brands={brands} />
+          <PaymentForm shops={shops} brands={brands} regions={regions} />
         </div>
       </div>
     </div>

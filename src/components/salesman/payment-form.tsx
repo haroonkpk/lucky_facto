@@ -8,8 +8,9 @@ import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PaymentFormProps {
-  shops: { id: string; name: string }[];
+  shops: any[];
   brands: { id: string; name: string }[];
+  regions: { id: string; name: string }[];
 }
 
 const initialState: ActionState = {
@@ -17,7 +18,7 @@ const initialState: ActionState = {
   error: null,
 };
 
-export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
+export const PaymentForm = ({ shops, brands, regions }: PaymentFormProps) => {
   const [state, formAction, isPending] = useActionState(
     createPaymentAction,
     initialState,
@@ -27,8 +28,13 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<string>(PaymentType.SHOP_COLLECTION);
+  const [selectedType, setSelectedType] = useState<string>(
+    PaymentType.SHOP_COLLECTION,
+  );
 
+  const [selectedRegion, setSelectedRegion] = useState<string>(
+    regions[0]?.id || "",
+  );
   const [selectedShop, setSelectedShop] = useState<string>("");
   const [selectedBrand, setSelectedBrand] = useState<string>("");
 
@@ -40,9 +46,10 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
         setSelectedType(PaymentType.SHOP_COLLECTION);
         setSelectedShop("");
         setSelectedBrand("");
+        setSelectedRegion(regions[0]?.id || "");
       });
     }
-  }, [state.success]);
+  }, [state.success, regions]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -69,13 +76,17 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
     }
   };
 
+  const filteredShops = shops.filter((s) => s.regionId === selectedRegion);
+
+  const regionOptions = regions.map((r) => ({ value: r.id, label: r.name }));
+
   const shopOptions = [
-    { value: "", label: "Select Shop (Optional)" },
-    ...shops.map((s) => ({ value: s.id, label: s.name })),
+    { value: "", label: "Select Shop" },
+    ...filteredShops.map((s) => ({ value: s.id, label: s.name })),
   ];
 
   const brandOptions = [
-    { value: "", label: "Select Brand (Optional)" },
+    { value: "", label: "Select Brand" },
     ...brands.map((b) => ({ value: b.id, label: b.name })),
   ];
 
@@ -151,7 +162,7 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
         {/* Form */}
         <form ref={formRef} action={formAction}>
           <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
               <Select
                 id="type"
                 name="type"
@@ -163,51 +174,57 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
               <Select
-                id="shopId"
-                name="shopId"
-                label="Assigned Shop"
-                options={shopOptions}
-                value={selectedShop}
-                onChange={(e) => setSelectedShop(e.target.value)}
-                disabled={selectedType === PaymentType.FACTORY_PAYMENT}
-                className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Select
                 id="brandId"
                 name="brandId"
-                label="Brand (Optional)"
+                label="Brand"
                 options={brandOptions}
                 value={selectedBrand}
                 onChange={(e) => setSelectedBrand(e.target.value)}
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
+            </div>
+
+            {selectedType === PaymentType.SHOP_COLLECTION && (
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  id="regionId"
+                  name="regionId"
+                  label="Region"
+                  options={regionOptions}
+                  value={selectedRegion}
+                  onChange={(e) => {
+                    setSelectedRegion(e.target.value);
+                    setSelectedShop(""); // Reset shop when region changes
+                  }}
+                  required
+                  className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+                />
+                <Select
+                  id="shopId"
+                  name="shopId"
+                  label="Shop"
+                  options={shopOptions}
+                  value={selectedShop}
+                  onChange={(e) => setSelectedShop(e.target.value)}
+                  required={selectedType === PaymentType.SHOP_COLLECTION}
+                  className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+                />
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
               <Select
                 id="paymentMethod"
                 name="paymentMethod"
-                label="Transaction Method"
+                label="Method"
                 options={methodOptions}
-                required
-                className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input
-                id="amount"
-                name="amount"
-                label="Amount (PKR)"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
               <Input
                 id="paymentDate"
                 name="paymentDate"
-                label="Transaction Date"
+                label="Date"
                 type="date"
                 defaultValue={new Date().toISOString().split("T")[0]}
                 required
@@ -215,13 +232,23 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                id="amount"
+                name="amount"
+                label="Amount"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                required
+                className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+              />
               <div className="flex flex-col gap-2">
                 {imagePreview && (
                   // ── Preview State
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-[#374151]">
-                      Receipt Image (Optional)
+                      Receipt Image
                     </label>
                     <div className="relative w-full h-36 rounded-xl overflow-hidden border border-slate-200">
                       <img
@@ -246,7 +273,7 @@ export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
                     ref={fileInputRef}
                     id="receipt"
                     name="receipt"
-                    label="Receipt Image (Optional)"
+                    label="Receipt Image"
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}

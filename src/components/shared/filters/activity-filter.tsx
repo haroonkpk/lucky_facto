@@ -203,7 +203,6 @@ export function ActivityFilter({
             options={[
               { value: "", label: "All Brands" },
               ...brands.map((b) => ({ value: b.id, label: b.name })),
-              { value: "OTHER", label: "Other" },
             ]}
             className="bg-white"
           />

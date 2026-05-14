@@ -127,11 +127,11 @@ export const DistributionForm = ({
       {/* Form */}
       <form ref={formRef} action={formAction}>
         <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <Select
               id="shopId"
               name="shopId"
-              label="Target Shop"
+              label="Shop"
               options={shopOptions}
               required
               className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
@@ -139,7 +139,7 @@ export const DistributionForm = ({
             <Select
               id="brandId"
               name="brandId"
-              label="Product Brand"
+              label="Brand"
               options={brandOptions}
               required
               onChange={(e) => setSelectedBrandId(e.target.value)}
@@ -147,7 +147,7 @@ export const DistributionForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <Input
                 id="quantity"
@@ -169,8 +169,8 @@ export const DistributionForm = ({
                   isOverStock ? "text-red-500" : "text-slate-400"
                 )}>
                   {isOverStock 
-                    ? `Maximum available stock is ${availableStock} bags` 
-                    : `Available Stock: ${availableStock} bags`}
+                    ? `Max: ${availableStock}` 
+                    : `Stock: ${availableStock}`}
                 </p>
               )}
             </div>
@@ -186,6 +186,9 @@ export const DistributionForm = ({
               onChange={(e) => setUnitPrice(Number(e.target.value))}
               className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-[clamp(0.3rem,1vw,0.5rem)]">
               <label className="text-[clamp(0.7rem,1vw,0.8rem)] font-bold text-[#475569] uppercase tracking-wide">
                 Total Amount
@@ -195,13 +198,10 @@ export const DistributionForm = ({
                 {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
               id="distributionDate"
               name="distributionDate"
-              label="Issuance Date"
+              label="Date"
               type="date"
               defaultValue={new Date().toISOString().split("T")[0]}
               required
@@ -212,7 +212,7 @@ export const DistributionForm = ({
           <Textarea
             id="notes"
             name="notes"
-            label="Transaction Remarks"
+            label="Notes"
             placeholder="Driver details, vehicle number, or special terms..."
             className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
           />

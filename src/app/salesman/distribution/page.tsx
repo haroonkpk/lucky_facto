@@ -91,6 +91,7 @@ export default async function DistributionPage({ searchParams }: PageProps) {
                 showDelete={true}
                 headers={[
                   { key: "date", label: "Date" },
+                  { key: "region", label: "Region" },
                   { key: "subtitle", label: "Shop" },
                   { key: "title", label: "Distribution" },
                   { key: "details", label: "bags" },

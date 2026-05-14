@@ -22,9 +22,17 @@ export async function getBrands() {
   });
 }
 
+export async function getRegions() {
+  return prisma.region.findMany({
+    where: { isActive: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 export async function getShops() {
   const shops = await prisma.shop.findMany({
     where: { isActive: true },
+    include: { region: true },
     orderBy: { name: "asc" },
   });
 
@@ -60,6 +68,9 @@ export async function createInventoryIntakeAction(
 ): Promise<ActionState> {
   const brandId = formData.get("brandId") as string;
   const quantity = parseInt(formData.get("quantity") as string);
+  const unitPriceInput = formData.get("unitPrice") as string;
+  const unitPrice = unitPriceInput && !isNaN(parseFloat(unitPriceInput)) ? parseFloat(unitPriceInput) : null;
+  const vehicleNumber = formData.get("vehicleNumber") as string;
   const intakeDate = formData.get("intakeDate") as string;
   const notes = formData.get("notes") as string;
 
@@ -85,6 +96,8 @@ export async function createInventoryIntakeAction(
           data: {
             brandId,
             quantity,
+            unitPrice,
+            vehicleNumber,
             intakeDate: intakeDate ? new Date(intakeDate) : new Date(),
             notes,
             recordedById: user.id,
@@ -113,7 +126,7 @@ export async function createInventoryIntakeAction(
             quantity,
             type: InventoryTransactionType.STOCK_IN,
             referenceId: intake.id,
-            description: "Factory Intake",
+            description: `Factory Intake - Vehicle: ${vehicleNumber || "N/A"} - Price: ${unitPrice || "N/A"}`,
             date: intakeDate ? new Date(intakeDate) : new Date(),
           },
         });
