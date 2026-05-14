@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { DistributionForm } from "@/components/salesman";
-import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { ActivityDataTable, ActivityFilter } from "@/components/shared";
 import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,6 +45,8 @@ export default async function DistributionPage({ searchParams }: PageProps) {
       type: "distribution",
       startDate,
       endDate,
+      brandId: params.brandId as string,
+      shopId: params.shopId as string,
       page,
       pageSize: 10,
     }),
@@ -71,7 +73,12 @@ export default async function DistributionPage({ searchParams }: PageProps) {
                 </h2>
               </div>
               <div className="w-full flex justify-end ">
-                <DateRangeFilter />
+                <ActivityFilter
+                  showBrandFilter
+                  showShopFilter
+                  brands={brands}
+                  shops={shops}
+                />
               </div>
             </div>
 

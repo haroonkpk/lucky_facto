@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { FactoryIntakeForm } from "@/components/salesman";
-import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { ActivityDataTable, ActivityFilter } from "@/components/shared";
 import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 
@@ -39,6 +39,7 @@ export default async function FactoryIntakePage({ searchParams }: PageProps) {
       type: "intake",
       startDate,
       endDate,
+      brandId: params.brandId as string,
       page,
       pageSize: 10,
     }),
@@ -65,7 +66,10 @@ export default async function FactoryIntakePage({ searchParams }: PageProps) {
                 </h2>
               </div>
               <div className="w-full flex justify-end ">
-                <DateRangeFilter />
+                <ActivityFilter
+                  showBrandFilter
+                  brands={brands}
+                />
               </div>
             </div>
 

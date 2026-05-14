@@ -2,16 +2,37 @@ import { notFound } from "next/navigation";
 import { formatPKR } from "@/lib/dashboard-utils";
 import { Edit2, MapPin, Phone, Building2, AlertTriangle } from "lucide-react";
 import { getShopLedgerData } from "@/actions/owner.actions";
+import { getBrands } from "@/actions/salesman.actions";
 import { LedgerSection } from "@/components/owner";
 import { Metadata } from "next";
+import { ActivityFilter } from "@/components/shared";
+import { Card } from "@/components/ui";
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }): Promise<Metadata> {
-  const resolvedParams = await params;
-  const data = await getShopLedgerData(resolvedParams.id);
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+  const startDate = resolvedSearchParams.startDate
+    ? new Date(resolvedSearchParams.startDate as string)
+    : undefined;
+  const endDate = resolvedSearchParams.endDate
+    ? new Date(resolvedSearchParams.endDate as string)
+    : undefined;
+
+  const data = await getShopLedgerData(
+    resolvedParams.id,
+    startDate,
+    endDate,
+    resolvedSearchParams.brandId as string,
+    resolvedSearchParams.paymentType as string,
+  );
 
   return {
     title: data ? `Ledger: ${data.shop.name}` : "Shop Not Found",
@@ -20,11 +41,33 @@ export async function generateMetadata({
 
 export default async function ShopDetailsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  const resolvedParams = await params;
-  const data = await getShopLedgerData(resolvedParams.id);
+  const [resolvedParams, resolvedSearchParams] = await Promise.all([
+    params,
+    searchParams,
+  ]);
+
+  const startDate = resolvedSearchParams.startDate
+    ? new Date(resolvedSearchParams.startDate as string)
+    : undefined;
+  const endDate = resolvedSearchParams.endDate
+    ? new Date(resolvedSearchParams.endDate as string)
+    : undefined;
+
+  const [data, brands] = await Promise.all([
+    getShopLedgerData(
+      resolvedParams.id,
+      startDate,
+      endDate,
+      resolvedSearchParams.brandId as string,
+      resolvedSearchParams.paymentType as string,
+    ),
+    getBrands(),
+  ]);
 
   if (!data) return notFound();
 
@@ -171,12 +214,54 @@ export default async function ShopDetailsPage({
         </div>
       </div>
 
-      {/* Ledger Section */}
-      <LedgerSection
-        ledgers={shop.ledgers}
-        metrics={metrics}
-        shopName={shop.name}
-      />
+      {/* Metrics Summary Card */}
+      <Card variant="secondary" className="mb-8 py-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
+          <div className="flex flex-col items-center justify-center p-2">
+            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs">
+              Total Payments
+            </p>
+            <p className="text-[#28A745] font-extrabold text-2xl sm:text-3xl tracking-tight">
+              {formatPKR(metrics.totalPayments)}
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center p-2 pt-6 sm:pt-2">
+            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs">
+              Total Billing
+            </p>
+            <p className="text-(--color-primary) font-extrabold text-2xl sm:text-3xl tracking-tight">
+              {formatPKR(metrics.totalBilling)}
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center p-2 pt-6 sm:pt-2">
+            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs">
+              Balance Owed
+            </p>
+            <p className="text-(--color-pending) font-extrabold text-2xl sm:text-3xl tracking-tight">
+              {formatPKR(Math.abs(metrics.balanceOwed))}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* History Card Section */}
+      <Card variant="secondary" className="flex flex-col gap-8">
+     
+          <div className="w-full">
+            <ActivityFilter
+              showBrandFilter
+              showPaymentTypeFilter
+              brands={brands}
+            />
+          </div>
+       
+
+        <LedgerSection
+          ledgers={shop.ledgers}
+          metrics={metrics}
+          shopName={shop.name}
+        />
+      </Card>
     </div>
   );
 }

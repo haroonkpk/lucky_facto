@@ -62,6 +62,7 @@ model Brand {
   distributions     Distribution[]
   inventoryBalances InventoryBalance[]
   inventoryLedgers  InventoryLedger[]
+  payments          Payment[]
 
   @@map("brands")
 }
@@ -159,6 +160,9 @@ model Payment {
 
   shopId String?
   shop   Shop?   @relation(fields: [shopId], references: [id])
+
+  brandId String?
+  brand   Brand?   @relation(fields: [brandId], references: [id])
 
   recordedById String
   recordedBy   User   @relation(fields: [recordedById], references: [id])

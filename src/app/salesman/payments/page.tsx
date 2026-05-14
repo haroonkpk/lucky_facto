@@ -1,4 +1,4 @@
-import { getShops } from "@/actions/salesman.actions";
+import { getShops, getBrands } from "@/actions/salesman.actions";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { PaymentForm } from "@/components/salesman";
-import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { ActivityDataTable, ActivityFilter } from "@/components/shared";
 import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 
@@ -32,13 +32,17 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
 
   if (!user) return null;
 
-  const [shops, activityData] = await Promise.all([
+  const [shops, brands, activityData] = await Promise.all([
     getShops(),
+    getBrands(),
     getFilteredActivities({
       userId: user.id,
       type: "payment",
       startDate,
       endDate,
+      brandId: params.brandId as string,
+      paymentType: params.paymentType as string,
+      shopId: params.shopId as string,
       page,
       pageSize: 10,
     }),
@@ -65,7 +69,13 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
                 </h2>
               </div>
               <div className="w-full flex justify-end ">
-                <DateRangeFilter />
+                <ActivityFilter
+                  showBrandFilter
+                  showShopFilter
+                  showPaymentTypeFilter
+                  brands={brands}
+                  shops={shops}
+                />
               </div>
             </div>
 
@@ -90,7 +100,7 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
 
         {/* ── LEFT: Payment Form ── */}
         <div className="w-full xl:w-fit">
-          <PaymentForm shops={shops} />
+          <PaymentForm shops={shops} brands={brands} />
         </div>
       </div>
     </div>

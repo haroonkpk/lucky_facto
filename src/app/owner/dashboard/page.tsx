@@ -13,7 +13,7 @@ import {
   RegionPerformanceChart,
   OverdueShopsTable,
 } from "@/components/owner/dashboard";
-import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { ActivityDataTable, ActivityFilter } from "@/components/shared";
 import { Card } from "@/components/ui";
 import { DashboardChart } from "@/components/owner";
 
@@ -38,7 +38,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
     startDate,
     endDate,
     overduePage,
-    4, // pageSize for overdue shops
+    4,
   );
 
   return (
@@ -82,7 +82,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
                 Performance
               </h2>
             </div>
-            <DateRangeFilter />
+            <ActivityFilter />
           </div>
 
           {/* Filtered KPIs - Redesigned as Pulse Cards */}

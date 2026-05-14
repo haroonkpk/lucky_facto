@@ -292,6 +292,9 @@ export async function getFilteredActivities({
   endDate,
   page = 1,
   pageSize = 10,
+  brandId,
+  paymentType,
+  shopId,
 }: {
   userId: string;
   type?: "distribution" | "payment" | "intake";
@@ -299,31 +302,41 @@ export async function getFilteredActivities({
   endDate?: Date;
   page?: number;
   pageSize?: number;
+  brandId?: string;
+  paymentType?: string;
+  shopId?: string;
 }) {
   const skip = (page - 1) * pageSize;
-  const where: {
-    recordedById: string;
-    createdAt?: {
-      gte?: Date;
-      lte?: Date;
-    };
-  } = { recordedById: userId };
+  const baseWhere: any = { recordedById: userId };
 
   if (startDate || endDate) {
-    where.createdAt = {};
-    if (startDate) where.createdAt.gte = startDate;
+    baseWhere.createdAt = {};
+    if (startDate) baseWhere.createdAt.gte = startDate;
     if (endDate) {
       const end = new Date(endDate);
       end.setUTCHours(23, 59, 59, 999);
-      where.createdAt.lte = end;
+      baseWhere.createdAt.lte = end;
     }
   }
+
+  // Specific where clauses
+  const distWhere = { ...baseWhere };
+  if (brandId) distWhere.brandId = brandId;
+  if (shopId) distWhere.shopId = shopId;
+
+  const intakeWhere = { ...baseWhere };
+  if (brandId) intakeWhere.brandId = brandId;
+
+  const paymentWhere = { ...baseWhere };
+  if (brandId) paymentWhere.brandId = brandId;
+  if (paymentType) paymentWhere.type = paymentType;
+  if (shopId) paymentWhere.shopId = shopId;
 
   const [distributions, payments, intakes, totalDist, totalPay, totalIntake] =
     await Promise.all([
       type === "distribution" || !type
         ? prisma.distribution.findMany({
-            where,
+            where: distWhere,
             orderBy: { createdAt: "desc" },
             skip: type ? skip : 0,
             take: type ? pageSize : 10,
@@ -336,7 +349,7 @@ export async function getFilteredActivities({
         : Promise.resolve([]),
       type === "payment" || !type
         ? prisma.payment.findMany({
-            where,
+            where: paymentWhere,
             orderBy: { createdAt: "desc" },
             skip: type ? skip : 0,
             take: type ? pageSize : 10,
@@ -348,7 +361,7 @@ export async function getFilteredActivities({
         : Promise.resolve([]),
       type === "intake" || !type
         ? prisma.inventoryIntake.findMany({
-            where,
+            where: intakeWhere,
             orderBy: { createdAt: "desc" },
             skip: type ? skip : 0,
             take: type ? pageSize : 10,
@@ -359,11 +372,11 @@ export async function getFilteredActivities({
           })
         : Promise.resolve([]),
       type === "distribution"
-        ? prisma.distribution.count({ where })
+        ? prisma.distribution.count({ where: distWhere })
         : Promise.resolve(0),
-      type === "payment" ? prisma.payment.count({ where }) : Promise.resolve(0),
+      type === "payment" ? prisma.payment.count({ where: paymentWhere }) : Promise.resolve(0),
       type === "intake"
-        ? prisma.inventoryIntake.count({ where })
+        ? prisma.inventoryIntake.count({ where: intakeWhere })
         : Promise.resolve(0),
     ]);
 

@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 interface PaymentFormProps {
   shops: { id: string; name: string }[];
+  brands: { id: string; name: string }[];
 }
 
 const initialState: ActionState = {
@@ -16,7 +17,7 @@ const initialState: ActionState = {
   error: null,
 };
 
-export const PaymentForm = ({ shops }: PaymentFormProps) => {
+export const PaymentForm = ({ shops, brands }: PaymentFormProps) => {
   const [state, formAction, isPending] = useActionState(
     createPaymentAction,
     initialState,
@@ -29,6 +30,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
   const [selectedType, setSelectedType] = useState<string>(PaymentType.SHOP_COLLECTION);
 
   const [selectedShop, setSelectedShop] = useState<string>("");
+  const [selectedBrand, setSelectedBrand] = useState<string>("");
 
   useEffect(() => {
     if (state.success) {
@@ -37,6 +39,7 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
         setImagePreview(null);
         setSelectedType(PaymentType.SHOP_COLLECTION);
         setSelectedShop("");
+        setSelectedBrand("");
       });
     }
   }, [state.success]);
@@ -69,6 +72,11 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
   const shopOptions = [
     { value: "", label: "Select Shop (Optional)" },
     ...shops.map((s) => ({ value: s.id, label: s.name })),
+  ];
+
+  const brandOptions = [
+    { value: "", label: "Select Brand (Optional)" },
+    ...brands.map((b) => ({ value: b.id, label: b.name })),
   ];
 
   const typeOptions = [
@@ -168,6 +176,15 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Select
+                id="brandId"
+                name="brandId"
+                label="Brand (Optional)"
+                options={brandOptions}
+                value={selectedBrand}
+                onChange={(e) => setSelectedBrand(e.target.value)}
+                className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
+              />
+              <Select
                 id="paymentMethod"
                 name="paymentMethod"
                 label="Transaction Method"
@@ -175,6 +192,8 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
                 id="amount"
                 name="amount"
@@ -185,9 +204,6 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Input
                 id="paymentDate"
                 name="paymentDate"
@@ -197,6 +213,9 @@ export const PaymentForm = ({ shops }: PaymentFormProps) => {
                 required
                 className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
                 {imagePreview && (
                   // ── Preview State

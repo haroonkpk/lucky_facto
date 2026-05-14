@@ -190,25 +190,64 @@ export async function registerShopAction(
 
 
 // get-shop-ledgre data
-export async function getShopLedgerData(shopId: string) {
-  const [shop, aggregates] = await Promise.all([
+export async function getShopLedgerData(
+  shopId: string,
+  startDate?: Date,
+  endDate?: Date,
+  brandId?: string,
+  paymentType?: string,
+) {
+  const globalWhere = { shopId };
+  const ledgerWhere: any = { shopId };
+
+  if (startDate || endDate) {
+    ledgerWhere.createdAt = {};
+    if (startDate) ledgerWhere.createdAt.gte = startDate;
+    if (endDate) {
+      const end = new Date(endDate);
+      end.setUTCHours(23, 59, 59, 999);
+      ledgerWhere.createdAt.lte = end;
+    }
+  }
+
+  if (brandId) {
+    ledgerWhere.OR = [
+      { distribution: { brandId } },
+      { payment: { brandId } },
+    ];
+  }
+
+  if (paymentType) {
+    ledgerWhere.payment = { ...ledgerWhere.payment, type: paymentType };
+  }
+
+  const [shop, aggregates, lastPaymentEntry] = await Promise.all([
     prisma.shop.findUnique({
       where: { id: shopId },
       include: {
         region: true,
         ledgers: {
+          where: ledgerWhere,
           orderBy: { createdAt: "desc" },
-          include: { 
-            payment: { include: { recordedBy: true } }, 
-            distribution: { include: { recordedBy: true, brand: true } } 
+          include: {
+            payment: { include: { recordedBy: true } },
+            distribution: { include: { recordedBy: true, brand: true } },
           },
         },
       },
     }),
     prisma.ledger.groupBy({
-      where: { shopId },
+      where: globalWhere,
       by: ["transactionType"],
       _sum: { amount: true },
+    }),
+    prisma.ledger.findFirst({
+      where: {
+        shopId,
+        transactionType: "CREDIT",
+      },
+      orderBy: { createdAt: "desc" },
+      select: { createdAt: true },
     }),
   ]);
 
@@ -220,7 +259,6 @@ export async function getShopLedgerData(shopId: string) {
   const totalBilling = Number(
     aggregates.find((a) => a.transactionType === "DEBIT")?._sum.amount || 0,
   );
-  const lastPayment = shop.ledgers.find((l) => l.transactionType === "CREDIT");
 
   return {
     shop,
@@ -229,7 +267,7 @@ export async function getShopLedgerData(shopId: string) {
       totalPayments,
       totalBilling,
       balanceOwed: Number(shop.currentBalance),
-      lastPaymentDate: lastPayment ? lastPayment.createdAt : null,
+      lastPaymentDate: lastPaymentEntry ? lastPaymentEntry.createdAt : null,
     },
   };
 }

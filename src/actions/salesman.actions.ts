@@ -266,6 +266,7 @@ export async function createPaymentAction(
   const amount = parseFloat(formData.get("amount") as string);
   const paymentDate = formData.get("paymentDate") as string;
   const shopId = formData.get("shopId") as string;
+  const brandId = formData.get("brandId") as string;
   const cashNote = formData.get("cashNote") as string;
   const receiptFile = formData.get("receipt") as File | null;
 
@@ -303,6 +304,7 @@ export async function createPaymentAction(
             amount,
             paymentDate: paymentDate ? new Date(paymentDate) : new Date(),
             shopId: shopId || null,
+            brandId: brandId || null,
             cashNote,
             receiptUrl,
             recordedById: user.id,
