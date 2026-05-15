@@ -40,6 +40,7 @@ interface LedgerSectionProps {
     totalPayments: number;
     totalBilling: number;
     balanceOwed: number;
+    periodBalanceOwed: number;
     currentBalance: number;
     lastPaymentDate: Date | string | null;
   };
@@ -139,6 +140,15 @@ export const LedgerSection = ({
         currentPage={currentPage}
         totalPages={totalPages}
         totalEntries={allActivities.length}
+        allActivities={allActivities}
+        showPrintButton={true}
+        pdfSubtitle={`Shop: ${shopName}`}
+        pdfSummary={{
+          "Total Payments": formatPKR(metrics.totalPayments),
+          "Total Billing": formatPKR(metrics.totalBilling),
+          "Balance Owed": formatPKR(Math.abs(metrics.periodBalanceOwed)),
+          "Status": metrics.periodBalanceOwed < 0 ? "Advance" : "Pending Debt"
+        }}
         showPagination={true}
         pageSize={pageSize}
       />

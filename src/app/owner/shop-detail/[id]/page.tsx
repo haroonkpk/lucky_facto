@@ -75,9 +75,7 @@ export default async function ShopDetailsPage({
   const serializedData = JSON.parse(JSON.stringify(data));
   const { shop, metrics } = serializedData;
 
-  const isDebt = metrics.totalPayments < metrics.totalBilling;
-  const statusColor = isDebt ? "var(--color-pending)" : "#28A745";
-  const statusBg = isDebt ? "var(--color-pending-bg)" : "#D4EDDA";
+
 
   const lastPaymentDaysAgo = metrics.lastPaymentDate
     ? Math.floor(
@@ -98,7 +96,7 @@ export default async function ShopDetailsPage({
       >
         {/* Left: Profile Card */}
         <div
-          className="grow bg-(--color-primary) flex justify-between items-start"
+          className="w-full md:max-w-md xl:max-w-lg flex-shrink-0 bg-(--color-primary) flex justify-between items-start"
           style={{
             padding: "clamp(16px, 3vw, 32px)",
             borderRadius: "clamp(12px, 2vw, 16px)",
@@ -148,101 +146,46 @@ export default async function ShopDetailsPage({
           </div>
         </div>
 
-        {/* Right: Balance Card  */}
+        {/* Right: Payment Balances Card */}
         <div
-          className="w-full md:w-[360px] flex-shrink-0 transition-colors duration-300 flex flex-col"
+          className="w-full grow bg-(--color-secondary-bg) flex flex-col justify-center"
           style={{
-            padding: "clamp(16px, 3vw, 32px)",
+            padding: "clamp(16px, 3vw, 24px)",
             borderRadius: "clamp(12px, 2vw, 16px)",
-            backgroundColor: statusBg,
           }}
         >
-          <div className="flex items-center justify-between mb-2">
-            <p
-              className="font-bold text-[#64748B] uppercase tracking-widest"
-              style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
-            >
-              Current Balance
-            </p>
-            <Building2
-              size={24}
-              style={{ color: statusColor }}
-              className="opacity-40"
-            />
-          </div>
-
-          <h2
-            className="font-extrabold tracking-tight mb-5"
-            style={{
-              fontSize: "clamp(32px, 5vw, 48px)",
-              color: statusColor,
-            }}
-          >
-            {formatPKR(Math.abs(metrics.balanceOwed))}
-          </h2>
-
-          <div className="pt-5 mt-auto flex flex-col gap-2">
-            <div
-              className="flex items-center gap-2.5"
-              style={{ color: statusColor }}
-            >
-              {isDebt ? (
-                <AlertTriangle size={18} fill={statusBg} />
-              ) : (
-                <Building2 size={18} />
-              )}
-              <p
-                className="font-bold"
-                style={{ fontSize: "clamp(12px, 1.5vw, 14px)" }}
-              >
-                {isDebt
-                  ? "Pending Debt"
-                  : metrics.balanceOwed < 0
-                    ? "Advance Balance"
-                    : "Fully Paid"}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left pt-4 sm:pt-0 sm:pl-0 sm:pr-4 flex-1">
+              <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
+                Pending Payment
               </p>
+              <h2 className="font-extrabold text-(--color-pending) tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 32px)" }}>
+                {metrics.currentBalance > 0 ? formatPKR(metrics.currentBalance) : formatPKR(0)}
+              </h2>
             </div>
-            <p
-              className="text-[#64748B] font-medium pl-8"
-              style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}
-            >
-              {lastPaymentDaysAgo !== null
-                ? `Last payment received ${lastPaymentDaysAgo === 0 ? "today" : `${lastPaymentDaysAgo} days ago`}`
-                : "No payments yet"}
-            </p>
+            
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left pt-4 sm:pt-0 sm:pl-4 sm:pr-4 flex-1">
+              <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
+                Advance Payment
+              </p>
+              <h2 className="font-extrabold text-[#28A745] tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 32px)" }}>
+                {metrics.currentBalance < 0 ? formatPKR(Math.abs(metrics.currentBalance)) : formatPKR(0)}
+              </h2>
+            </div>
+
+            <div className="flex flex-col items-center sm:items-start text-center sm:text-left pt-4 sm:pt-0 sm:pl-4 flex-1">
+              <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
+                Last Payment
+              </p>
+              <h2 className="font-extrabold text-slate-700 tracking-tight" style={{ fontSize: "clamp(18px, 2.5vw, 24px)" }}>
+                {lastPaymentDaysAgo !== null
+                  ? lastPaymentDaysAgo === 0 ? "Today" : `${lastPaymentDaysAgo} days ago`
+                  : "None"}
+              </h2>
+            </div>
           </div>
         </div>
       </div>
-
-      {/* Metrics Summary Card */}
-      <Card variant="secondary" className="mb-8 py-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 divide-y sm:divide-y-0 sm:divide-x divide-slate-100">
-          <div className="flex flex-col items-center justify-center p-2">
-            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs">
-              Total Payments
-            </p>
-            <p className="text-[#28A745] font-extrabold text-2xl sm:text-3xl tracking-tight">
-              {formatPKR(metrics.totalPayments)}
-            </p>
-          </div>
-          <div className="flex flex-col items-center justify-center p-2 pt-6 sm:pt-2">
-            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs">
-              Total Billing
-            </p>
-            <p className="text-(--color-primary) font-extrabold text-2xl sm:text-3xl tracking-tight">
-              {formatPKR(metrics.totalBilling)}
-            </p>
-          </div>
-          <div className="flex flex-col items-center justify-center p-2 pt-6 sm:pt-2">
-            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs">
-              Balance Owed
-            </p>
-            <p className="text-(--color-pending) font-extrabold text-2xl sm:text-3xl tracking-tight">
-              {formatPKR(Math.abs(metrics.balanceOwed))}
-            </p>
-          </div>
-        </div>
-      </Card>
 
       {/* History Card Section */}
       <Card variant="secondary" className="flex flex-col gap-8">
@@ -261,6 +204,36 @@ export default async function ShopDetailsPage({
           metrics={metrics}
           shopName={shop.name}
         />
+      </Card>
+
+      {/* Metrics Summary Card */}
+      <Card variant="secondary" className="my-8 py-6 sm:py-8 overflow-x-auto">
+        <div className="flex flex-row divide-x divide-slate-100 min-w-max sm:min-w-0 px-2 sm:px-0">
+          <div className="flex flex-col items-center justify-center px-6 sm:px-2 flex-1">
+            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs whitespace-nowrap">
+              Total Payments
+            </p>
+            <p className="text-[#28A745] font-extrabold text-2xl sm:text-3xl tracking-tight">
+              {formatPKR(metrics.totalPayments)}
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center px-6 sm:px-2 flex-1">
+            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs whitespace-nowrap">
+              Total Billing
+            </p>
+            <p className="text-(--color-primary) font-extrabold text-2xl sm:text-3xl tracking-tight">
+              {formatPKR(metrics.totalBilling)}
+            </p>
+          </div>
+          <div className="flex flex-col items-center justify-center px-6 sm:px-2 flex-1">
+            <p className="text-[#64748B] font-bold uppercase tracking-widest mb-2 text-[10px] sm:text-xs whitespace-nowrap">
+              Balance Owed
+            </p>
+            <p className="text-(--color-pending) font-extrabold text-2xl sm:text-3xl tracking-tight">
+              {formatPKR(Math.abs(metrics.periodBalanceOwed))}
+            </p>
+          </div>
+        </div>
       </Card>
     </div>
   );

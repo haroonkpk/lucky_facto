@@ -237,7 +237,7 @@ export async function getShopLedgerData(
       },
     }),
     prisma.ledger.groupBy({
-      where: globalWhere,
+      where: ledgerWhere,
       by: ["transactionType"],
       _sum: { amount: true },
     }),
@@ -266,6 +266,7 @@ export async function getShopLedgerData(
       currentBalance: Number(shop.currentBalance),
       totalPayments,
       totalBilling,
+      periodBalanceOwed: totalBilling - totalPayments,
       balanceOwed: Number(shop.currentBalance),
       lastPaymentDate: lastPaymentEntry ? lastPaymentEntry.createdAt : null,
     },

@@ -29,6 +29,7 @@ interface DataTableProps<T extends { id: string }> {
   BorderColor?: string;
   pageSize?: number;
   totalEntries?: number;
+  headerActions?: React.ReactNode;
 }
 
 export const DataTable = <T extends { id: string }>({
@@ -44,14 +45,20 @@ export const DataTable = <T extends { id: string }>({
   BorderColor = "border-gray-200",
   pageSize = 10,
   totalEntries,
+  headerActions,
 }: DataTableProps<T>) => {
   return (
     <Card variant={variant} className={cn("p-4", BorderColor)}>
       {/* Heading */}
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="truncate text-[clamp(17px,2vw,20px)] font-bold text-gray-800">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 className="text-[clamp(17px,2vw,20px)] font-bold text-gray-800 break-words leading-tight">
           {heading}
         </h2>
+        {headerActions && (
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+            {headerActions}
+          </div>
+        )}
       </div>
 
       {/* Table */}
