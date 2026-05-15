@@ -89,7 +89,7 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
                 title="Payment Logs"
                 showDelete={true}
                 headers={[
-                  { key: "date", label: "Date" },
+                  { key: "date", label: "Date & Time" },
                   { key: "region", label: "Region" },
                   { key: "brand", label: "Brand" },
                   { key: "subtitle", label: "Method" },

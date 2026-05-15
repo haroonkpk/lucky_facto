@@ -116,10 +116,13 @@ export function ActivityDataTable({
 
     return {
       id: activity.id,
-      date: new Date(activity.date).toLocaleDateString("en-GB", {
+      date: new Date(activity.date).toLocaleString("en-GB", {
         day: "2-digit",
         month: "short",
         year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
       }),
       title: activity.title,
       subtitle: targetDetail?.value?.toString() || activity.subtitle || "—",
@@ -209,7 +212,14 @@ export function ActivityDataTable({
                 </p>
                 <p className="text-[clamp(0.7rem,1vw,0.8rem)] text-slate-500 mt-1">
                   {activityToDelete.subtitle} •{" "}
-                  {new Date(activityToDelete.date).toLocaleDateString()}
+                  {new Date(activityToDelete.date).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </p>
               </div>
             )}

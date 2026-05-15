@@ -55,7 +55,7 @@ export const LedgerSection = ({
   const pageSize = 5;
 
   const tableHeaders = [
-    { key: "date", label: "Date" },
+    { key: "date", label: "Date & Time" },
     { key: "title", label: "Type" },
     { key: "details", label: "Units" },
     { key: "amount", label: "Amount" },

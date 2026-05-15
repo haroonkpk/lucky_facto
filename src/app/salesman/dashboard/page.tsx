@@ -101,11 +101,10 @@ export default async function SalesmanDashboardPage({
           title="Last 10 Activities"
           showPagination={false}
           headers={[
-            { key: "date", label: "Date(DD/MM/YYYY)" },
+            { key: "date", label: "Date & Time" },
             { key: "region", label: "Region" },
-            { key: "subtitle", label: "Target/Shop" },
             { key: "title", label: "Type/Activity" },
-            { key: "details", label: "Details/Qty" },
+            { key: "details", label: "Qty" },
             { key: "amount", label: "Amount" },
           ]}
         />

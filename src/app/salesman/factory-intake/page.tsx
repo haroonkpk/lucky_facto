@@ -82,7 +82,7 @@ export default async function FactoryIntakePage({ searchParams }: PageProps) {
                 title="Intake Logs"
                 showDelete={true}
                 headers={[
-                  { key: "date", label: "Date" },
+                  { key: "date", label: "Date & Time" },
                   { key: "subtitle", label: "Brand" },
                   { key: "details", label: "Bags" },
                   { key: "vehicle", label: "Vehicle" },

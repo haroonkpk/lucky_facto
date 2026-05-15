@@ -122,7 +122,7 @@ export default async function DashboardPage({ searchParams }: PageProps) {
             showPagination={false}
             totalEntries={data.activities.length}
             headers={[
-              { key: "date", label: "Date(DD/MM/YYYY)" },
+              { key: "date", label: "Date & Time" },
               { key: "subtitle", label: "Target/Shop" },
               { key: "title", label: "Type/Activity" },
               { key: "details", label: "Details/Qty" },
