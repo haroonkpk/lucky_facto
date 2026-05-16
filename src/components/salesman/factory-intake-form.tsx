@@ -8,6 +8,7 @@ import {
 import { Button, Input, Select, Textarea } from "@/components/ui";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 interface FactoryIntakeFormProps {
   brands: { id: string; name: string }[];
@@ -29,9 +30,12 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
 
   useEffect(() => {
     if (state.success) {
+      toast.success("Stock intake recorded successfully!");
       formRef.current?.reset();
+    } else if (state.error) {
+      toast.error(state.error);
     }
-  }, [state.success]);
+  }, [state.success, state.error]);
 
   const brandOptions = [
     { value: "", label: "Select Brand" },
@@ -84,15 +88,6 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
 
       {/* Form body */}
       <div className={cn( isOpen ? "block" : "hidden")}>
-        {/* Success Banner */}
-        {state.success && (
-          <div className="mb-5 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
-            <span className="text-green-600 font-semibold text-sm">
-              ✓ Stock intake recorded successfully!
-            </span>
-          </div>
-        )}
-
         {/* Form */}
         <form ref={formRef} action={formAction}>
           <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
@@ -156,13 +151,6 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
               placeholder="Notes"
               className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
-
-            {/* Error Message */}
-            {state.error && (
-              <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-medium font-bold">
-                {state.error}
-              </p>
-            )}
 
             {/* Submit */}
             <Button type="submit" className="w-full mt-2" disabled={isPending}>

@@ -8,6 +8,7 @@ import {
   type RegisterSalesmanState,
 } from "@/actions/auth";
 import { Plus, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 const initialState: RegisterSalesmanState = { success: false, error: null };
 
@@ -25,9 +26,12 @@ export function RegisterSalesmanForm({
 
   useEffect(() => {
     if (state.success) {
+      toast.success("Salesman registered successfully!");
       formRef.current?.reset();
+    } else if (state.error) {
+      toast.error(state.error);
     }
-  }, [state.success]);
+  }, [state.success, state.error]);
 
   return (
     <div
@@ -79,14 +83,6 @@ export function RegisterSalesmanForm({
 
       {/* Form body */}
       <div className={cn("xl:block", isOpen ? "block" : "hidden")}>
-        {state.success && (
-          <div className="mb-5 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
-            <span className="text-green-600 font-semibold text-sm">
-              ✓ Salesman registered successfully!
-            </span>
-          </div>
-        )}
-
         <form ref={formRef} action={formAction}>
           <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
             <Input
@@ -118,12 +114,6 @@ export function RegisterSalesmanForm({
               placeholder="Min. 6 characters"
               className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
-
-            {state.error && (
-              <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-medium">
-                {state.error}
-              </p>
-            )}
 
             <Button type="submit" className="w-full mt-2" disabled={isPending}>
               {isPending ? "Loading..." : "Submit"}

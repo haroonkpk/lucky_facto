@@ -5,13 +5,13 @@ import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
 import { Input, Button } from "@/components/ui";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export function ForgotPasswordForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const [email, setEmail] = useState("");
-  const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,7 +19,6 @@ export function ForgotPasswordForm({
     e.preventDefault();
     const supabase = createClient();
     setIsLoading(true);
-    setError(null);
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -28,7 +27,7 @@ export function ForgotPasswordForm({
       if (error) throw error;
       setSuccess(true);
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +73,6 @@ export function ForgotPasswordForm({
                     onChange={(e) => setEmail(e.target.value)}
                   />
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Loading..." : "Submit"}
                 </Button>

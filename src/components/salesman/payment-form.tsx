@@ -6,6 +6,7 @@ import { Button, Input, Select, Textarea, Card } from "@/components/ui";
 import { PaymentType, PaymentMethod } from "@/lib/generated/prisma/enums";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 interface PaymentFormProps {
   shops: any[];
@@ -40,6 +41,7 @@ export const PaymentForm = ({ shops, brands, regions }: PaymentFormProps) => {
 
   useEffect(() => {
     if (state.success) {
+      toast.success("Payment recorded and balances synchronized.");
       formRef.current?.reset();
       Promise.resolve().then(() => {
         setImagePreview(null);
@@ -48,8 +50,10 @@ export const PaymentForm = ({ shops, brands, regions }: PaymentFormProps) => {
         setSelectedBrand("");
         setSelectedRegion(regions[0]?.id || "");
       });
+    } else if (state.error) {
+      toast.error(state.error);
     }
-  }, [state.success, regions]);
+  }, [state.success, state.error, regions]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
@@ -150,15 +154,6 @@ export const PaymentForm = ({ shops, brands, regions }: PaymentFormProps) => {
 
       {/* Form body */}
       <div className={cn(isOpen ? "block" : "hidden")}>
-        {/* Success Banner */}
-        {state.success && (
-          <div className="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
-            <span className="text-green-600 font-semibold text-sm">
-              ✓ Payment recorded and balances synchronized.
-            </span>
-          </div>
-        )}
-
         {/* Form */}
         <form ref={formRef} action={formAction}>
           <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
@@ -299,13 +294,6 @@ export const PaymentForm = ({ shops, brands, regions }: PaymentFormProps) => {
               placeholder="Reference numbers, cheque details, or other notes..."
               className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
             />
-
-            {/* Error Message */}
-            {state.error && (
-              <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-bold">
-                {state.error}
-              </p>
-            )}
 
             {/* Submit */}
             <Button

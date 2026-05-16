@@ -8,6 +8,7 @@ import {
 import { Button, Input, Select, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface DistributionFormProps {
   brands: { id: string; name: string }[];
@@ -50,13 +51,16 @@ export const DistributionForm = ({
 
   useEffect(() => {
     if (state.success) {
+      toast.success("Distribution authorized and ledger updated.");
       formRef.current?.reset();
       setQuantity(0);
       setUnitPrice(0);
       setTotal(0);
       setSelectedBrandId("");
+    } else if (state.error) {
+      toast.error(state.error);
     }
-  }, [state.success]);
+  }, [state.success, state.error]);
 
   const brandOptions = [
     { value: "", label: "Select Brand" },
@@ -114,15 +118,6 @@ export const DistributionForm = ({
 
       {/* Form body */}
       <div className={cn( isOpen ? "block" : "hidden")}>
-
-      {/* Success Banner */}
-      {state.success && (
-        <div className="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
-          <span className="text-green-600 font-semibold text-sm">
-            ✓ Distribution authorized and ledger updated.
-          </span>
-        </div>
-      )}
 
       {/* Form */}
       <form ref={formRef} action={formAction}>
@@ -216,13 +211,6 @@ export const DistributionForm = ({
             placeholder="Driver details, vehicle number, or special terms..."
             className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
           />
-
-          {/* Error Message */}
-          {state.error && (
-            <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-bold">
-              {state.error}
-            </p>
-          )}
 
           {/* Submit */}
           <Button
