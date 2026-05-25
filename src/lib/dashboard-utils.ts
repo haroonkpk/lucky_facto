@@ -1,5 +1,5 @@
 export function formatPKR(value: number): string {
-  return `PKR ${value.toLocaleString("en-PK", {
+  return `${value.toLocaleString("en-PK", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;

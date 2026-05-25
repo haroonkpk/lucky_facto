@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 import { getFilteredActivities } from "@/actions/salesmanDashboard.actions";
 import { DistributionForm } from "@/components/salesman";
-import { ActivityDataTable, DateRangeFilter } from "@/components/shared";
+import { ActivityDataTable, ActivityFilter } from "@/components/shared";
 import { Card } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,6 +45,8 @@ export default async function DistributionPage({ searchParams }: PageProps) {
       type: "distribution",
       startDate,
       endDate,
+      brandId: params.brandId as string,
+      shopId: params.shopId as string,
       page,
       pageSize: 10,
     }),
@@ -54,16 +56,9 @@ export default async function DistributionPage({ searchParams }: PageProps) {
     <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24 relative">
       {/* Page Header */}
       <div className="mb-8 p-2">
-        <p className="text-[#64748B] text-xs font-bold tracking-widest uppercase mb-1">
-          Revenue & Logistics
-        </p>
         <h1 className="text-3xl font-bold text-[#0A2540] mb-2">
-          New Distribution
+          Distribution
         </h1>
-        <p className="text-gray-500 text-[clamp(14px,1vw,16px)]">
-          Authorize stock delivery to shops and record immediate ledger entries
-          for accurate billing.
-        </p>
       </div>
 
       {/* Main Layout */}
@@ -74,14 +69,16 @@ export default async function DistributionPage({ searchParams }: PageProps) {
             <div className="flex flex-col justify-between items-start gap-4 px-1">
               <div>
                 <h2 className="text-[#053B70] font-bold text-xl">
-                  Distributions
+                  History
                 </h2>
-                <p className="text-[#64748B] text-sm font-medium mt-0.5">
-                  History of items recorded by you
-                </p>
               </div>
               <div className="w-full flex justify-end ">
-                <DateRangeFilter />
+                <ActivityFilter
+                  showBrandFilter
+                  showShopFilter
+                  brands={brands}
+                  shops={shops}
+                />
               </div>
             </div>
 
@@ -93,10 +90,11 @@ export default async function DistributionPage({ searchParams }: PageProps) {
                 totalEntries={activityData.total}
                 showDelete={true}
                 headers={[
-                  { key: "date", label: "Date(DD/MM/YYYY)" },
-                  { key: "subtitle", label: "Target/Shop" },
-                  { key: "title", label: "Type/Activity" },
-                  { key: "details", label: "Details/Qty" },
+                  { key: "date", label: "Date & Time" },
+                  { key: "region", label: "Region" },
+                  { key: "subtitle", label: "Shop" },
+                  { key: "title", label: "Distribution" },
+                  { key: "details", label: "bags" },
                   { key: "amount", label: "Amount" },
                 ]}
               />

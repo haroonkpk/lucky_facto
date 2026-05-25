@@ -8,6 +8,9 @@ export async function getOwnerDashboardData(
   endDate?: Date,
   overduePage: number = 1,
   overduePageSize: number = 4,
+  brandId?: string,
+  activityType?: string,
+  paymentType?: string,
 ) {
   const now = new Date();
 
@@ -147,24 +150,50 @@ export async function getOwnerDashboardData(
     }),
   ]);
 
-  // Recent Activity Feed
+  // Recent Activity Feed - with optional filters
+  const distWhere: any = {};
+  const payWhere: any = {};
+  const intakeWhere: any = {};
+
+  if (brandId) {
+    distWhere.brandId = brandId;
+    intakeWhere.brandId = brandId;
+    payWhere.brandId = brandId;
+  }
+  if (paymentType) {
+    payWhere.type = paymentType;
+  }
+
+  const showDist = !activityType || activityType === "distribution";
+  const showPay = !activityType || activityType === "payment";
+  const showIntake = !activityType || activityType === "intake";
+
   const [recentDistributions, recentPayments, recentIntakes] =
     await Promise.all([
-      prisma.distribution.findMany({
-        take: 10,
-        orderBy: { createdAt: "desc" },
-        include: { brand: true, shop: true, recordedBy: true },
-      }),
-      prisma.payment.findMany({
-        take: 10,
-        orderBy: { createdAt: "desc" },
-        include: { shop: true, recordedBy: true },
-      }),
-      prisma.inventoryIntake.findMany({
-        take: 10,
-        orderBy: { createdAt: "desc" },
-        include: { brand: true, recordedBy: true },
-      }),
+      showDist
+        ? prisma.distribution.findMany({
+            where: distWhere,
+            take: 10,
+            orderBy: { createdAt: "desc" },
+            include: { brand: true, shop: true, recordedBy: true },
+          })
+        : Promise.resolve([]),
+      showPay
+        ? prisma.payment.findMany({
+            where: payWhere,
+            take: 10,
+            orderBy: { createdAt: "desc" },
+            include: { shop: true, recordedBy: true },
+          })
+        : Promise.resolve([]),
+      showIntake
+        ? prisma.inventoryIntake.findMany({
+            where: intakeWhere,
+            take: 10,
+            orderBy: { createdAt: "desc" },
+            include: { brand: true, recordedBy: true },
+          })
+        : Promise.resolve([]),
     ]);
 
   // Calculations & Formatting
@@ -290,6 +319,7 @@ export async function getOwnerDashboardData(
       type: "intake" as const,
       title: "Factory Intake",
       subtitle: `${i.brand?.name || "Unknown"} stock increase`,
+      amount: i.unitPrice ? Number(i.unitPrice) * i.quantity : 0,
       date: i.createdAt,
       recordedBy: i.recordedBy?.name || "System",
       role: i.recordedBy?.role || "UNKNOWN",
@@ -307,6 +337,8 @@ export async function getOwnerDashboardData(
         },
         { label: "Brand", value: i.brand?.name || "N/A" },
         { label: "Quantity", value: `${i.quantity} bags` },
+        { label: "Unit Price", value: i.unitPrice ? formatPKR(Number(i.unitPrice)) : "0" },
+        { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
         { label: "Recorded By", value: i.recordedBy?.name || "System" },
         { label: "Notes", value: i.notes || "None" },
       ],

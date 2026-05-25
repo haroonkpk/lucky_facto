@@ -8,6 +8,7 @@ import {
 import { Button, Input, Select, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Plus, X } from "lucide-react";
+import toast from "react-hot-toast";
 
 interface DistributionFormProps {
   brands: { id: string; name: string }[];
@@ -50,13 +51,16 @@ export const DistributionForm = ({
 
   useEffect(() => {
     if (state.success) {
+      toast.success("Distribution authorized and ledger updated.");
       formRef.current?.reset();
       setQuantity(0);
       setUnitPrice(0);
       setTotal(0);
       setSelectedBrandId("");
+    } else if (state.error) {
+      toast.error(state.error);
     }
-  }, [state.success]);
+  }, [state.success, state.error]);
 
   const brandOptions = [
     { value: "", label: "Select Brand" },
@@ -88,12 +92,8 @@ export const DistributionForm = ({
       >
         <div className={cn( isOpen ? "block" : "hidden")}>
           <h2 className="text-[clamp(1.25rem,2vw,1.5rem)] font-bold text-[#111827] mb-1">
-            Issue Distribution
+            Add Distribution
           </h2>
-          <p className="text-[#64748B] text-[clamp(0.875rem,1vw,1rem)]">
-            Authorize inventory release and update the retail shop&rsquo;s liability
-            ledger.
-          </p>
         </div>
 
         {/* Toggle button */}
@@ -119,23 +119,14 @@ export const DistributionForm = ({
       {/* Form body */}
       <div className={cn( isOpen ? "block" : "hidden")}>
 
-      {/* Success Banner */}
-      {state.success && (
-        <div className="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 flex items-center gap-2">
-          <span className="text-green-600 font-semibold text-sm">
-            ✓ Distribution authorized and ledger updated.
-          </span>
-        </div>
-      )}
-
       {/* Form */}
       <form ref={formRef} action={formAction}>
         <div className="flex flex-col gap-[clamp(1rem,2vw,1.5rem)]">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <Select
               id="shopId"
               name="shopId"
-              label="Target Shop"
+              label="Shop"
               options={shopOptions}
               required
               className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
@@ -143,7 +134,7 @@ export const DistributionForm = ({
             <Select
               id="brandId"
               name="brandId"
-              label="Product Brand"
+              label="Brand"
               options={brandOptions}
               required
               onChange={(e) => setSelectedBrandId(e.target.value)}
@@ -151,7 +142,7 @@ export const DistributionForm = ({
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
               <Input
                 id="quantity"
@@ -173,8 +164,8 @@ export const DistributionForm = ({
                   isOverStock ? "text-red-500" : "text-slate-400"
                 )}>
                   {isOverStock 
-                    ? `Maximum available stock is ${availableStock} bags` 
-                    : `Available Stock: ${availableStock} bags`}
+                    ? `Max: ${availableStock}` 
+                    : `Stock: ${availableStock}`}
                 </p>
               )}
             </div>
@@ -190,6 +181,9 @@ export const DistributionForm = ({
               onChange={(e) => setUnitPrice(Number(e.target.value))}
               className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-[clamp(0.3rem,1vw,0.5rem)]">
               <label className="text-[clamp(0.7rem,1vw,0.8rem)] font-bold text-[#475569] uppercase tracking-wide">
                 Total Amount
@@ -199,13 +193,10 @@ export const DistributionForm = ({
                 {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
               </div>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
               id="distributionDate"
               name="distributionDate"
-              label="Issuance Date"
+              label="Date"
               type="date"
               defaultValue={new Date().toISOString().split("T")[0]}
               required
@@ -216,17 +207,10 @@ export const DistributionForm = ({
           <Textarea
             id="notes"
             name="notes"
-            label="Transaction Remarks"
+            label="Notes"
             placeholder="Driver details, vehicle number, or special terms..."
             className="bg-[var(--color-secondary-bg)] border-transparent focus:border-[var(--color-primary)]"
           />
-
-          {/* Error Message */}
-          {state.error && (
-            <p className="text-[clamp(0.8rem,1vw,0.875rem)] text-red-500 font-bold">
-              {state.error}
-            </p>
-          )}
 
           {/* Submit */}
           <Button
@@ -234,7 +218,7 @@ export const DistributionForm = ({
             className="w-full mt-4 h-12"
             disabled={isPending || isOverStock || (selectedBrandId !== "" && availableStock <= 0)}
           >
-            {isPending ? "Synchronizing Entries..." : isOverStock ? "Insufficient Stock" : "Authorize Distribution"}
+            {isPending ? "Loading..." : isOverStock ? "Insufficient Stock" : "Submit"}
           </Button>
         </div>
       </form>

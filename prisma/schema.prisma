@@ -62,6 +62,7 @@ model Brand {
   distributions     Distribution[]
   inventoryBalances InventoryBalance[]
   inventoryLedgers  InventoryLedger[]
+  payments          Payment[]
 
   @@map("brands")
 }
@@ -104,12 +105,14 @@ model Shop {
 }
 
 model InventoryIntake {
-  id         String   @id @default(uuid())
-  brandId    String
-  brand      Brand    @relation(fields: [brandId], references: [id])
-  quantity   Int
-  intakeDate DateTime @default(now())
-  notes      String?
+  id            String   @id @default(uuid())
+  brandId       String
+  brand         Brand    @relation(fields: [brandId], references: [id])
+  quantity      Int
+  unitPrice     Decimal? @db.Decimal(12, 2)
+  vehicleNumber String?
+  intakeDate    DateTime @default(now())
+  notes         String?
 
   recordedById String
   recordedBy   User   @relation(fields: [recordedById], references: [id])
@@ -159,6 +162,9 @@ model Payment {
 
   shopId String?
   shop   Shop?   @relation(fields: [shopId], references: [id])
+
+  brandId String?
+  brand   Brand?   @relation(fields: [brandId], references: [id])
 
   recordedById String
   recordedBy   User   @relation(fields: [recordedById], references: [id])

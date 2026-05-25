@@ -20,11 +20,8 @@ export default async function SalesmenPage() {
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Team Management
+            Salesmen
           </h1>
-          <p className="text-gray-500">
-            Monitoring registered salesmen across key regions.
-          </p>
         </div>
         <div className="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-sm border border-gray-200 ">
           <span className="text-gray-400 font-medium text-[10px] uppercase tracking-wider">

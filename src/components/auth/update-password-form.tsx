@@ -5,10 +5,10 @@ import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
 import { Input, Button } from '@/components/ui'
+import toast from 'react-hot-toast'
 
 export function UpdatePasswordForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -16,14 +16,15 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
     e.preventDefault()
     const supabase = createClient()
     setIsLoading(true)
-    setError(null)
+    setIsLoading(true)
 
     try {
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
+      toast.success("Password updated successfully!")
       router.push('/')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      toast.error(error instanceof Error ? error.message : 'An error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -36,9 +37,6 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
         {/* Header Section */}
         <div className="flex flex-col space-y-1.5">
           <h3 className="font-semibold tracking-tight text-2xl">Update Password</h3>
-          <p className="text-sm text-muted-foreground">
-            Please enter your new password below.
-          </p>
         </div>
 
         {/* Form Section */}
@@ -55,11 +53,9 @@ export function UpdatePasswordForm({ className, ...props }: React.ComponentProps
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-
-              {error && <p className="text-sm text-red-500 font-medium">{error}</p>}
               
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Saving...' : 'Save new password'}
+                {isLoading ? 'Loading...' : 'Submit'}
               </Button>
             </div>
           </form>

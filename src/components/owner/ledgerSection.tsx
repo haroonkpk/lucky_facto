@@ -40,6 +40,7 @@ interface LedgerSectionProps {
     totalPayments: number;
     totalBilling: number;
     balanceOwed: number;
+    periodBalanceOwed: number;
     currentBalance: number;
     lastPaymentDate: Date | string | null;
   };
@@ -55,10 +56,9 @@ export const LedgerSection = ({
   const pageSize = 5;
 
   const tableHeaders = [
-    { key: "date", label: "Date(DD/MM/YYYY)" },
-    { key: "subtitle", label: "Target/Shop" },
-    { key: "title", label: "Type/Activity" },
-    { key: "details", label: "Details/Qty" },
+    { key: "date", label: "Date & Time" },
+    { key: "title", label: "Type" },
+    { key: "details", label: "Units" },
     { key: "amount", label: "Amount" },
   ];
 
@@ -132,63 +132,6 @@ export const LedgerSection = ({
 
   return (
     <div className="space-y-6">
-      {/* Ledger Footer (Totals) */}
-      <div
-        className="bg-[#E7F1F8] flex items-center md:justify-end border-t border-(--color-secondary-bg) overflow-x-auto scrollbar-hide md:overflow-visible"
-        style={{
-          gap: "clamp(16px, 3vw, 48px)",
-          padding: "clamp(16px, 3vw, 32px)",
-          borderRadius: "clamp(12px, 2vw, 16px)",
-        }}
-      >
-        <div
-          className="flex items-center min-w-max md:min-w-0"
-          style={{ gap: "clamp(16px, 3vw, 48px)" }}
-        >
-          <div>
-            <p
-              className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-              style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
-            >
-              Total Payments
-            </p>
-            <p
-              className="font-extrabold text-[#28A745] tracking-tight"
-              style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
-            >
-              {formatPKR(metrics.totalPayments)}
-            </p>
-          </div>
-          <div>
-            <p
-              className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-              style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
-            >
-              Total Billing
-            </p>
-            <p
-              className="font-extrabold text-(--color-primary) tracking-tight"
-              style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
-            >
-              {formatPKR(metrics.totalBilling)}
-            </p>
-          </div>
-          <div>
-            <p
-              className="font-bold text-[#64748B] uppercase tracking-widest mb-1"
-              style={{ fontSize: "clamp(8px, 1.2vw, 12px)" }}
-            >
-              Balance Owed
-            </p>
-            <p
-              className="font-extrabold text-(--color-pending) tracking-tight"
-              style={{ fontSize: "clamp(15px, 3vw, 30px)" }}
-            >
-              {formatPKR(Math.abs(metrics.balanceOwed))}
-            </p>
-          </div>
-        </div>
-      </div>
 
       <ActivityDataTable
         title="Statement of Account (Ledger)"
@@ -197,6 +140,15 @@ export const LedgerSection = ({
         currentPage={currentPage}
         totalPages={totalPages}
         totalEntries={allActivities.length}
+        allActivities={allActivities}
+        showPrintButton={true}
+        pdfSubtitle={`Shop: ${shopName}`}
+        pdfSummary={{
+          "Total Payments": formatPKR(metrics.totalPayments),
+          "Total Billing": formatPKR(metrics.totalBilling),
+          "Balance Owed": formatPKR(Math.abs(metrics.periodBalanceOwed)),
+          "Status": metrics.periodBalanceOwed < 0 ? "Advance" : "Pending Debt"
+        }}
         showPagination={true}
         pageSize={pageSize}
       />

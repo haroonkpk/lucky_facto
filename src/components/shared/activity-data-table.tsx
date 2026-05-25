@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Activity } from "@/types/activity";
 import { formatPKR } from "@/lib/dashboard-utils";
 import { Eye, Trash2, AlertTriangle } from "lucide-react";
+import { PrintPdfButton } from "./print-pdf-button";
 
 interface ActivityDataTableProps {
   activities: Activity[];
@@ -19,6 +20,10 @@ interface ActivityDataTableProps {
   showDelete?: boolean;
   pageSize?: number;
   totalEntries?: number;
+  allActivities?: Activity[];
+  showPrintButton?: boolean;
+  pdfSubtitle?: string;
+  pdfSummary?: Record<string, string | number>;
 }
 
 export function ActivityDataTable({
@@ -31,6 +36,10 @@ export function ActivityDataTable({
   showDelete = false,
   pageSize = 10,
   totalEntries,
+  allActivities,
+  showPrintButton = false,
+  pdfSubtitle,
+  pdfSummary,
 }: ActivityDataTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,7 +100,7 @@ export function ActivityDataTable({
     }
   };
 
-  const tableData = activities.map((activity) => {
+  const mapActivityToRow = (activity: Activity) => {
     const quantityDetail = activity.details.find(
       (d) =>
         d.label.toLowerCase().includes("quantity") ||
@@ -104,22 +113,41 @@ export function ActivityDataTable({
         d.label.toLowerCase().includes("method"),
     );
 
+    const regionDetail = activity.details.find(
+      (d) => d.label.toLowerCase() === "region",
+    );
+    const brandDetail = activity.details.find(
+      (d) => d.label.toLowerCase() === "brand",
+    );
+    const vehicleDetail = activity.details.find(
+      (d) => d.label.toLowerCase().includes("vehicle"),
+    );
+
     return {
       id: activity.id,
-      date: new Date(activity.date).toLocaleDateString("en-GB", {
+      date: new Date(activity.date).toLocaleString("en-GB", {
         day: "2-digit",
         month: "short",
         year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
       }),
       title: activity.title,
       subtitle: targetDetail?.value?.toString() || activity.subtitle || "—",
       details: quantityDetail?.value?.toString() || "—",
+      brand: brandDetail?.value?.toString() || "—",
+      region: regionDetail?.value?.toString() || "—",
+      vehicle: vehicleDetail?.value?.toString() || "—",
       amount:
         activity.amount && activity.amount > 0
           ? formatPKR(activity.amount)
           : "—",
     };
-  });
+  };
+
+  const tableData = activities.map(mapActivityToRow);
+  const printData = (allActivities || activities).map(mapActivityToRow);
 
   return (
     <>
@@ -134,6 +162,18 @@ export function ActivityDataTable({
         BorderColor="border-blue-100"
         pageSize={pageSize}
         totalEntries={totalEntries}
+        headerActions={
+          showPrintButton ? (
+            <PrintPdfButton
+              headers={headers}
+              data={printData}
+              title={title}
+              subtitle={pdfSubtitle}
+              summary={pdfSummary}
+              fileName={`Export_${pdfSubtitle ? pdfSubtitle.replace('Shop: ', '').replace(/\\s+/g, '_') + '_' : ''}${title.replace(/\\s+/g, '_')}`}
+            />
+          ) : undefined
+        }
         TableButtons={[
           {
             icon: <Eye size={18} />,
@@ -196,7 +236,14 @@ export function ActivityDataTable({
                 </p>
                 <p className="text-[clamp(0.7rem,1vw,0.8rem)] text-slate-500 mt-1">
                   {activityToDelete.subtitle} •{" "}
-                  {new Date(activityToDelete.date).toLocaleDateString()}
+                  {new Date(activityToDelete.date).toLocaleString("en-GB", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
                 </p>
               </div>
             )}
