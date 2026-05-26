@@ -52,14 +52,14 @@ export default async function PaymentsPage({ searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-(--color-page-bg) sm:p-[clamp(1rem,3vw,2.5rem)] pb-24 relative">
       {/* Page Header */}
-      <div className="mb-8">
+      <div className="sm:mb-8 p-2">
         <h1 className="text-3xl font-bold text-[#0A2540] mb-2">
           Payments
         </h1>
       </div>
 
       {/* Main Layout */}
-      <div className="flex flex-col-reverse xl:flex-row gap-8 items-start">
+      <div className="flex flex-col-reverse xl:flex-row sm:gap-8 items-start">
         {/* ── RIGHT: History Section ── */}
         <div className="flex-1 w-full lg:min-w-2xl">
           <Card variant="secondary" className="flex flex-col gap-6">

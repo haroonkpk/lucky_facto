@@ -77,17 +77,20 @@ export default async function ShopDetailsPage({
 
 
 
-  const lastPaymentDaysAgo = metrics.lastPaymentDate
-    ? Math.floor(
-        (new Date().getTime() - new Date(metrics.lastPaymentDate).getTime()) /
-          (1000 * 60 * 60 * 24),
-      )
-    : null;
+  const lastPaymentDaysAgo = (() => {
+    if (!metrics.lastPaymentDate) return null;
+    const paymentDate = new Date(metrics.lastPaymentDate);
+    const today = new Date();
+    paymentDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    const diffTime = today.getTime() - paymentDate.getTime();
+    return Math.round(diffTime / (1000 * 60 * 60 * 24));
+  })();
 
   return (
     <div
       className="min-h-screen bg-(--color-page-bg) font-sans"
-      style={{ padding: "clamp(16px, 3vw, 40px)" }}
+      style={{ padding: "clamp(1px, 3vw, 40px)" }}
     >
       {/* ── Top Header Section ── */}
       <div
@@ -154,41 +157,54 @@ export default async function ShopDetailsPage({
             borderRadius: "clamp(12px, 2vw, 16px)",
           }}
         >
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 divide-y sm:divide-y-0 sm:divide-x divide-slate-200">
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left pt-4 sm:pt-0 sm:pl-0 sm:pr-4 flex-1">
-              <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
-                Pending Payment
-              </p>
-              <h2 className="font-extrabold text-(--color-pending) tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 32px)" }}>
-                {metrics.currentBalance > 0 ? formatPKR(metrics.currentBalance) : formatPKR(0)}
-              </h2>
-            </div>
-            
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left pt-4 sm:pt-0 sm:pl-4 sm:pr-4 flex-1">
-              <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
-                Advance Payment
-              </p>
-              <h2 className="font-extrabold text-[#28A745] tracking-tight" style={{ fontSize: "clamp(24px, 3vw, 32px)" }}>
-                {metrics.currentBalance < 0 ? formatPKR(Math.abs(metrics.currentBalance)) : formatPKR(0)}
-              </h2>
+          <div className="flex flex-col gap-3">
+            {/* Row 1: Pending & Advance Payment */}
+            <div className="w-full overflow-x-auto">
+              <div className="grid grid-cols-2 gap-4 divide-x divide-slate-200 min-w-max sm:min-w-0 w-full">
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left pr-4">
+                  <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1 whitespace-nowrap" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
+                    Pending Payment
+                  </p>
+                  <h2 className="font-extrabold text-(--color-pending) tracking-tight whitespace-nowrap" style={{ fontSize: "clamp(20px, 2.8vw, 32px)" }}>
+                    {metrics.currentBalance > 0 ? formatPKR(metrics.currentBalance) : formatPKR(0)}
+                  </h2>
+                </div>
+                
+                <div className="flex flex-col items-center sm:items-start text-center sm:text-left pl-4">
+                  <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1 whitespace-nowrap" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
+                    Advance Payment
+                  </p>
+                  <h2 className="font-extrabold text-[#28A745] tracking-tight whitespace-nowrap" style={{ fontSize: "clamp(20px, 2.8vw, 32px)" }}>
+                    {metrics.currentBalance < 0 ? formatPKR(Math.abs(metrics.currentBalance)) : formatPKR(0)}
+                  </h2>
+                </div>
+              </div>
             </div>
 
-            <div className="flex flex-col items-center sm:items-start text-center sm:text-left pt-4 sm:pt-0 sm:pl-4 flex-1">
-              <p className="font-bold text-[#64748B] uppercase tracking-widest mb-1" style={{ fontSize: "clamp(10px, 1.2vw, 12px)" }}>
-                Last Payment
-              </p>
-              <h2 className="font-extrabold text-slate-700 tracking-tight" style={{ fontSize: "clamp(18px, 2.5vw, 24px)" }}>
+            {/* Divider between rows */}
+            <hr className="border-t border-slate-200" />
+
+            {/* Row 2: Last Payment */}
+            <div className="flex flex-row items-center justify-center sm:justify-start gap-2 text-[11px] sm:text-xs">
+              <span className="font-bold text-[#64748B] uppercase tracking-widest">
+                Last Payment:
+              </span>
+              <span className="font-bold text-slate-700 px-2.5 py-0.5 ">
                 {lastPaymentDaysAgo !== null
-                  ? lastPaymentDaysAgo === 0 ? "Today" : `${lastPaymentDaysAgo} days ago`
+                  ? lastPaymentDaysAgo === 0
+                    ? "Today"
+                    : lastPaymentDaysAgo === 1
+                    ? "Yesterday"
+                    : `${lastPaymentDaysAgo} days ago`
                   : "None"}
-              </h2>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
       {/* History Card Section */}
-      <Card variant="secondary" className="flex flex-col gap-8">
+      <Card variant="secondary" className="flex flex-col gap-8 px-3">
      
           <div className="w-full">
             <ActivityFilter

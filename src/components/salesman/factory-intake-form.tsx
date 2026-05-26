@@ -45,7 +45,7 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
   return (
     <div
       className={cn(
-        "rounded-xl transition-all duration-200 ease-in-out mb-20 mx-auto",
+        "rounded-xl transition-all duration-200 ease-in-out mb-2 mx-auto",
         "bg-white shadow-xs w-full 2xl:p-[clamp(1.5rem,3vw,2.5rem)]",
         isOpen
           ? "bg-white shadow-xs w-full p-[clamp(1.5rem,3vw,2.5rem)]"

@@ -109,7 +109,7 @@ export const PaymentForm = ({ shops, brands, regions }: PaymentFormProps) => {
     <Card
       variant="white"
       className={cn(
-        "transition-all duration-200 ease-in-out mb-20 mx-auto",
+        "transition-all duration-200 ease-in-out mb-2 mx-auto",
         "shadow-xs w-full 2xl:p-[clamp(1.5rem,3vw,2.5rem)]",
         isOpen
           ? "shadow-xs w-full p-[clamp(1.5rem,3vw,2.5rem)]"
