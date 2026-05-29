@@ -16,10 +16,15 @@ import { ActivityType } from "@/types/activity";
 // ─── Fetcherss
 
 export async function getBrands() {
-  return prisma.brand.findMany({
+  const brands = await prisma.brand.findMany({
     where: { isActive: true },
     orderBy: { name: "asc" },
   });
+  return brands.map((b) => ({
+    ...b,
+    pricePerTon: b.pricePerTon ? Number(b.pricePerTon) : null,
+    pricePerBag: b.pricePerBag ? Number(b.pricePerBag) : null,
+  }));
 }
 
 export async function getRegions() {
@@ -44,13 +49,22 @@ export async function getShops() {
 }
 
 export async function getInventoryBalances() {
-  return prisma.inventoryBalance.findMany({
+  const brands = await prisma.brand.findMany({
+    where: { isActive: true },
     include: {
-      brand: {
-        select: { name: true },
+      inventoryBalances: {
+        select: {
+          currentStock: true,
+        },
       },
     },
   });
+
+  return brands.map((b) => ({
+    brandId: b.id,
+    currentStock: b.inventoryBalances[0]?.currentStock ?? 0,
+    brand: { name: b.name },
+  }));
 }
 
 // ─── State Types
@@ -70,9 +84,15 @@ export async function createInventoryIntakeAction(
   const quantity = parseInt(formData.get("quantity") as string);
   const unitPriceInput = formData.get("unitPrice") as string;
   const unitPrice = unitPriceInput && !isNaN(parseFloat(unitPriceInput)) ? parseFloat(unitPriceInput) : null;
+  const totalPriceInput = formData.get("totalPrice") as string;
+  let totalPrice = totalPriceInput && !isNaN(parseFloat(totalPriceInput)) ? parseFloat(totalPriceInput) : null;
+  if (totalPrice === null && unitPrice !== null) {
+    totalPrice = quantity * unitPrice;
+  }
   const vehicleNumber = formData.get("vehicleNumber") as string;
   const intakeDate = formData.get("intakeDate") as string;
   const notes = formData.get("notes") as string;
+  const quantityType = formData.get("quantityType") as string || "BAGS";
 
   if (!brandId || isNaN(quantity) || quantity <= 0) {
     return { success: false, error: "Invalid brand or quantity." };
@@ -97,9 +117,11 @@ export async function createInventoryIntakeAction(
             brandId,
             quantity,
             unitPrice,
+            totalPrice,
             vehicleNumber,
             intakeDate: intakeDate ? new Date(intakeDate) : new Date(),
             notes,
+            quantityType,
             recordedById: user.id,
           },
         });
@@ -126,7 +148,9 @@ export async function createInventoryIntakeAction(
             quantity,
             type: InventoryTransactionType.STOCK_IN,
             referenceId: intake.id,
-            description: `Factory Intake - Vehicle: ${vehicleNumber || "N/A"} - Price: ${unitPrice || "N/A"}`,
+            description: `Factory Intake - Vehicle: ${vehicleNumber || "N/A"} - Price: ${unitPrice || "N/A"} (${quantityType === "TONS" ? "Tons" : "Bags"})`,
+            quantityType,
+            totalPrice,
             date: intakeDate ? new Date(intakeDate) : new Date(),
           },
         });

@@ -254,35 +254,39 @@ export async function getSalesmanLatestActivity(
     }),
 
     // 2. Inventory Intakes 
-    ...intakes.map((i) => ({
-      id: i.id,
-      type: "intake" as const,
-      title: "Factory Intake",
-      subtitle: `${i.brand.name} stock increase`,
-      amount: i.unitPrice ? Number(i.unitPrice) * i.quantity : 0,
-      date: i.createdAt.toISOString(),
-      recordedBy: i.recordedBy?.name ?? "System",
-      role: i.recordedBy?.role ?? "SALESMAN",
-      details: [
-        {
-          label: "Date & Time",
-          value: new Date(i.createdAt).toLocaleString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-        { label: "Brand", value: i.brand.name },
-        { label: "Quantity", value: `${i.quantity} bags` },
-        { label: "Unit Price", value: i.unitPrice ? Number(i.unitPrice) : 0 },
-        { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
-        { label: "Recorded By", value: i.recordedBy?.name ?? "System" },
-        { label: "Notes", value: i.notes ?? "None" },
-      ],
-    })),
+    ...intakes.map((i) => {
+      const totPrice = i.totalPrice ? Number(i.totalPrice) : (i.unitPrice ? Number(i.unitPrice) * i.quantity : 0);
+      return {
+        id: i.id,
+        type: "intake" as const,
+        title: "Factory Intake",
+        subtitle: `${i.brand.name} stock increase`,
+        amount: totPrice,
+        date: i.createdAt.toISOString(),
+        recordedBy: i.recordedBy?.name ?? "System",
+        role: i.recordedBy?.role ?? "SALESMAN",
+        details: [
+          {
+            label: "Date & Time",
+            value: new Date(i.createdAt).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            }),
+          },
+          { label: "Brand", value: i.brand.name },
+          { label: "Quantity", value: `${i.quantity} ${i.quantityType === "TONS" ? "tons" : "bags"}` },
+          { label: "Unit Price", value: i.unitPrice ? Number(i.unitPrice) : 0 },
+          { label: "Total Price", value: totPrice },
+          { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
+          { label: "Recorded By", value: i.recordedBy?.name ?? "System" },
+          { label: "Notes", value: i.notes ?? "None" },
+        ],
+      };
+    }),
   ];
 
   activities.sort(
@@ -454,35 +458,39 @@ export async function getFilteredActivities({
       ],
     })),
     // 3. Inventory Intakes
-    ...intakes.map((i) => ({
-      id: i.id,
-      type: "intake" as const,
-      title: "Factory Intake",
-      subtitle: `${i.brand.name} stock increase`,
-      amount: i.unitPrice ? Number(i.unitPrice) * i.quantity : 0,
-      date: i.createdAt.toISOString(),
-      recordedBy: i.recordedBy?.name || "System",
-      role: i.recordedBy?.role || "SALESMAN",
-      details: [
-        {
-          label: "Date & Time",
-          value: new Date(i.createdAt).toLocaleString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
-        },
-        { label: "Brand", value: i.brand.name },
-        { label: "Quantity", value: `${i.quantity} bags` },
-        { label: "Unit Price", value: i.unitPrice ? Number(i.unitPrice) : 0 },
-        { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
-        { label: "Recorded By", value: i.recordedBy?.name || "System" },
-        { label: "Notes", value: i.notes || "None" },
-      ],
-    })),
+    ...intakes.map((i) => {
+      const totPrice = i.totalPrice ? Number(i.totalPrice) : (i.unitPrice ? Number(i.unitPrice) * i.quantity : 0);
+      return {
+        id: i.id,
+        type: "intake" as const,
+        title: "Factory Intake",
+        subtitle: `${i.brand.name} stock increase`,
+        amount: totPrice,
+        date: i.createdAt.toISOString(),
+        recordedBy: i.recordedBy?.name || "System",
+        role: i.recordedBy?.role || "SALESMAN",
+        details: [
+          {
+            label: "Date & Time",
+            value: new Date(i.createdAt).toLocaleString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            }),
+          },
+          { label: "Brand", value: i.brand.name },
+          { label: "Quantity", value: `${i.quantity} ${i.quantityType === "TONS" ? "tons" : "bags"}` },
+          { label: "Unit Price", value: i.unitPrice ? Number(i.unitPrice) : 0 },
+          { label: "Total Price", value: totPrice },
+          { label: "Vehicle Number", value: i.vehicleNumber || "N/A" },
+          { label: "Recorded By", value: i.recordedBy?.name || "System" },
+          { label: "Notes", value: i.notes || "None" },
+        ],
+      };
+    }),
   ];
 
   activities.sort(

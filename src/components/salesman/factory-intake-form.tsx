@@ -11,7 +11,13 @@ import { cn } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 interface FactoryIntakeFormProps {
-  brands: { id: string; name: string }[];
+  brands: {
+    id: string;
+    name: string;
+    pricePerTon: number | null;
+    pricePerBag: number | null;
+    defaultUnit: string | null;
+  }[];
 }
 
 const initialState: ActionState = {
@@ -27,15 +33,58 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
 
   const formRef = useRef<HTMLFormElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedBrandId, setSelectedBrandId] = useState("");
+  const [quantityType, setQuantityType] = useState<"BAGS" | "TONS">("BAGS");
+  const [unitPrice, setUnitPrice] = useState("");
+  const [quantity, setQuantity] = useState("");
+  const [totalPrice, setTotalPrice] = useState("");
 
   useEffect(() => {
     if (state.success) {
       toast.success("Stock intake recorded successfully!");
       formRef.current?.reset();
+      setSelectedBrandId("");
+      setQuantityType("BAGS");
+      setUnitPrice("");
+      setQuantity("");
+      setTotalPrice("");
     } else if (state.error) {
       toast.error(state.error);
     }
   }, [state.success, state.error]);
+
+  const handleBrandChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedBrandId(e.target.value);
+  };
+
+  const handleQuantityTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setQuantityType(e.target.value as "BAGS" | "TONS");
+  };
+
+  useEffect(() => {
+    if (!selectedBrandId) {
+      setUnitPrice("");
+      return;
+    }
+    const brand = brands.find((b) => b.id === selectedBrandId);
+    if (brand) {
+      const price = quantityType === "TONS" ? brand.pricePerTon : brand.pricePerBag;
+      setUnitPrice(price !== null && price !== undefined ? price.toString() : "");
+    } else {
+      setUnitPrice("");
+    }
+  }, [selectedBrandId, quantityType, brands]);
+
+  useEffect(() => {  
+    const qtyVal = parseFloat(quantity);
+    const priceVal = parseFloat(unitPrice);
+    if (!isNaN(qtyVal) && !isNaN(priceVal)) {
+      const calculatedTotal = qtyVal * priceVal;
+      setTotalPrice(Number(calculatedTotal.toFixed(2)).toString());
+    } else {
+      setTotalPrice("");
+    }
+  }, [quantity, unitPrice]);
 
   const brandOptions = [
     { value: "", label: "Select Brand" },
@@ -96,22 +145,39 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
               name="brandId"
               label="Brand"
               options={brandOptions}
+              value={selectedBrandId}
+              onChange={handleBrandChange}
               required
-              className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
 
             <div className="grid grid-cols-2 gap-4">
+              <Select
+                id="quantityType"
+                name="quantityType"
+                label="Unit Type"
+                options={[
+                  { value: "BAGS", label: "Bags" },
+                  { value: "TONS", label: "Tons" },
+                ]}
+                value={quantityType}
+                onChange={handleQuantityTypeChange}
+                required
+              />
+
               <Input
                 id="quantity"
                 name="quantity"
                 label="Total Quantity"
                 type="number"
                 placeholder="0"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
                 required
                 min="1"
-                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
               />
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <Input
                 id="unitPrice"
                 name="unitPrice"
@@ -119,20 +185,20 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+                value={unitPrice}
+                onChange={(e) => setUnitPrice(e.target.value)}
               />
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <Input
                 id="vehicleNumber"
                 name="vehicleNumber"
                 label="Vehicle Number"
                 type="text"
                 placeholder="ABC-123"
-                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
               />
+            </div>
 
+            <div className="grid grid-cols-2 gap-4">
               <Input
                 id="intakeDate"
                 name="intakeDate"
@@ -140,7 +206,18 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
                 type="date"
                 defaultValue={new Date().toISOString().split("T")[0]}
                 required
-                className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
+              />
+
+              <Input
+                id="totalPrice"
+                name="totalPrice"
+                label="Total Price"
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={totalPrice}
+                onChange={(e) => setTotalPrice(e.target.value)}
+                required
               />
             </div>
 
@@ -149,7 +226,6 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
               name="notes"
               label="Notes"
               placeholder="Notes"
-              className="bg-[var(--color-secondary-bg)] text-[#1E293B] border-transparent focus:border-[var(--color-primary)] focus:bg-white"
             />
 
             {/* Submit */}

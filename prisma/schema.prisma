@@ -58,6 +58,11 @@ model Brand {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  // Predefined prices and unit details
+  pricePerTon   Decimal? @db.Decimal(12, 2)
+  pricePerBag   Decimal? @db.Decimal(12, 2)
+  defaultUnit   String?  @default("BAGS") // "TONS" or "BAGS"
+
   inventoryIntakes  InventoryIntake[]
   distributions     Distribution[]
   inventoryBalances InventoryBalance[]
@@ -110,9 +115,13 @@ model InventoryIntake {
   brand         Brand    @relation(fields: [brandId], references: [id])
   quantity      Int
   unitPrice     Decimal? @db.Decimal(12, 2)
+  totalPrice    Decimal? @db.Decimal(12, 2)
   vehicleNumber String?
   intakeDate    DateTime @default(now())
   notes         String?
+
+  // Recorded unit type
+  quantityType  String   @default("BAGS") // "TONS" or "BAGS"
 
   recordedById String
   recordedBy   User   @relation(fields: [recordedById], references: [id])
@@ -208,6 +217,10 @@ model InventoryLedger {
   
   referenceId     String?                  // ID of the Intake or Distribution record
   description     String?
+  totalPrice      Decimal?                 @db.Decimal(12, 2)
+
+  // Recorded unit type
+  quantityType    String?                  @default("BAGS") // "TONS" or "BAGS"
 
   createdAt       DateTime                 @default(now())
 

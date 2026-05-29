@@ -44,7 +44,7 @@ export async function getOwnerDashboardData(
     filteredDistributions,
     filteredPayments,
     filteredDeliveriesCount,
-    inventoryBalances,
+    rawInventoryBalances,
     regionPerformanceRaw,
     regionPendingRaw,
     overdueShopsRaw,
@@ -72,9 +72,14 @@ export async function getOwnerDashboardData(
     }),
 
     // Brand Wise Stock
-    prisma.inventoryBalance.findMany({
-      select: { currentStock: true, brand: { select: { name: true } } },
-      orderBy: { currentStock: "desc" },
+    prisma.brand.findMany({
+      where: { isActive: true },
+      select: {
+        name: true,
+        inventoryBalances: {
+          select: { currentStock: true },
+        },
+      },
     }),
     // Region Performance
     prisma.distribution.findMany({
@@ -137,6 +142,13 @@ export async function getOwnerDashboardData(
       ORDER BY date ASC
     `,
   ]);
+
+  const inventoryBalances = rawInventoryBalances
+    .map((b) => ({
+      currentStock: b.inventoryBalances[0]?.currentStock ?? 0,
+      brand: { name: b.name },
+    }))
+    .sort((a, b) => b.currentStock - a.currentStock);
 
   // Collection efficiency still based on last 30 days for health check
   const [thirtyDaysDistributions, thirtyDaysPayments] = await Promise.all([

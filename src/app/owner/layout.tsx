@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   Users,
   Store,
+  Tag,
 } from "lucide-react";
 import { Sidebar } from "@/components/layouts";
 interface OwnerDashboardLayoutProps {
@@ -25,6 +26,11 @@ const ownerNavItems = [
     label: "Shops",
     href: "/owner/shop-management",
     icon: <Store size={18} />,
+  },
+  {
+    label: "Brands",
+    href: "/owner/brand-management",
+    icon: <Tag size={18} />,
   },
 ];
 

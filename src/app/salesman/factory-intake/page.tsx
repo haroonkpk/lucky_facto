@@ -84,7 +84,7 @@ export default async function FactoryIntakePage({ searchParams }: PageProps) {
                 headers={[
                   { key: "date", label: "Date & Time" },
                   { key: "subtitle", label: "Brand" },
-                  { key: "details", label: "Bags" },
+                  { key: "details", label: "Qty" },
                   { key: "vehicle", label: "Vehicle" },
                   { key: "amount", label: "Total Cost" },
                 ]}
