@@ -281,6 +281,8 @@ export async function createDistributionAction(
     );
 
     revalidatePath("/salesman/distribution");
+    revalidatePath("/owner/salesman-management");
+    revalidatePath("/owner/dashboard");
     return { success: true, error: null };
   } catch (err) {
     console.error("Distribution Error:", err);

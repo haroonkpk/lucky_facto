@@ -115,7 +115,7 @@ export default async function SalesmenPage() {
                         className="text-gray-400 italic"
                         style={{ fontSize: "clamp(9px, 1.1vw, 11px)" }}
                       >
-                        No regions assigned
+                        No activity this week
                       </span>
                     )}
                   </div>
