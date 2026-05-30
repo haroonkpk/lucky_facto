@@ -134,9 +134,28 @@ export async function deleteSalesmanAction(userId: string) {
   const adminClient = createAdminClient();
 
   try {
-    await prisma.user.delete({
-      where: { id: userId },
-    });
+    // Check if the user has recorded any transactions
+    const [intakesCount, distributionsCount, paymentsCount] = await Promise.all([
+      prisma.inventoryIntake.count({ where: { recordedById: userId } }),
+      prisma.distribution.count({ where: { recordedById: userId } }),
+      prisma.payment.count({ where: { recordedById: userId } }),
+    ]);
+
+    const hasRecords = intakesCount > 0 || distributionsCount > 0 || paymentsCount > 0;
+
+    if (hasRecords) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          isActive: false,
+          email: `deleted_${userId}@luckyfacto.com`,
+        },
+      });
+    } else {
+      await prisma.user.delete({
+        where: { id: userId },
+      });
+    }
 
     const { error: deleteError } = await adminClient.auth.admin.deleteUser(userId);
     if (deleteError) {
@@ -147,7 +166,7 @@ export async function deleteSalesmanAction(userId: string) {
     revalidatePath("/owner/dashboard");
     return { success: true, error: null };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to delete salesman. They may have related records.";
+    const message = error instanceof Error ? error.message : "Failed to delete salesman.";
     return { success: false, error: message };
   }
 }
