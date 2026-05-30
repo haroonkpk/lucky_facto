@@ -188,26 +188,6 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
                 value={unitPrice}
                 onChange={(e) => setUnitPrice(e.target.value)}
               />
-
-              <Input
-                id="vehicleNumber"
-                name="vehicleNumber"
-                label="Vehicle Number"
-                type="text"
-                placeholder="ABC-123"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Input
-                id="intakeDate"
-                name="intakeDate"
-                label="Date"
-                type="date"
-                defaultValue={new Date().toISOString().split("T")[0]}
-                required
-              />
-
               <Input
                 id="totalPrice"
                 name="totalPrice"
@@ -219,6 +199,26 @@ export const FactoryIntakeForm = ({ brands }: FactoryIntakeFormProps) => {
                 onChange={(e) => setTotalPrice(e.target.value)}
                 required
               />
+
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <Input
+                id="vehicleNumber"
+                name="vehicleNumber"
+                label="Vehicle Number"
+                type="text"
+                placeholder="ABC-123"
+              />
+              <Input
+                id="intakeDate"
+                name="intakeDate"
+                label="Date"
+                type="date"
+                defaultValue={new Date().toISOString().split("T")[0]}
+                required
+              />
+             
             </div>
 
             <Textarea
